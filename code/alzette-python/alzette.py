@@ -49,11 +49,14 @@ class Parseur:
 
     def parse_arguments(self):
         self.parser.add_argument('-h', '--help', action='help', help="Affiche ce message d'aide")
-        self.parser.add_argument('-a', '--alzette', action='store_true', help="Lance Alzette")
+        self.parser.add_argument('-a', '--alzette', nargs=3, default = [0x67425301, 0xEDFCBA45, 0x98CBADFE], type = int, help="Lance Alzette")
 
         self.args = self.parser.parse_args()
 
 if __name__=="__main__":
     parseur = Parseur()
-    if parseur.args.alzette:
-        Alzette(0xb7e15162, 0x9e3779b9, 0x6e3449b3)
+    if parseur.args.alzette == [0x67425301, 0xEDFCBA45, 0x98CBADFE]:
+        sys.stdout.write("NOTE: No value was given via the -a option. Alzette wil be run with default values:\n\t0x67425301, 0xEDFCBA45, 0x98CBADFE")
+        Alzette(parseur.args.alzette[0], parseur.args.alzette[1], parseur.args.alzette[2])
+    else:
+        Alzette(parseur.args.alzette[0], parseur.args.alzette[1], parseur.args.alzette[2])
