@@ -25,7 +25,7 @@ class Alzette:
 
     def load_library(self):
         try:
-            ctypes.cdll.LoadLibrary("./alzette.so")
+            ctypes.cdll.LoadLibrary("./alzette-python/alzette.so")
             sys.stdout.write("Alzette code successfully imported\n")
         except:
             sys.stdout.write("Couldn't import alzette.so library\nExiting\n")
