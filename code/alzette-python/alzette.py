@@ -1,5 +1,6 @@
 import sys
 import ctypes
+import argparse
 
 class Alzette:
 
@@ -41,5 +42,18 @@ class Alzette:
     def rotate_bits(self, bits, offset):
         return (bits >> offset)|(bits << (32 - offset)) & 0xFFFFFFFF
 
+class Parseur:
+    def __init__(self):
+        self.parser = argparse.ArgumentParser(usage='python3 alzette.py [OPTIONS]', add_help=False, description='Importe alzette.so dans le fichier Python')
+        self.parse_arguments()
+
+    def parse_arguments(self):
+        self.parser.add_argument('-h', '--help', action='help', help="Affiche ce message d'aide")
+        self.parser.add_argument('-a', '--alzette', action='store_true', help="Lance Alzette")
+
+        self.args = self.parser.parse_args()
+
 if __name__=="__main__":
-    Alzette(0xb7e15162, 0x9e3779b9, 0x6e3449b3)
+    parseur = Parseur()
+    if parseur.args.alzette:
+        Alzette(0xb7e15162, 0x9e3779b9, 0x6e3449b3)
