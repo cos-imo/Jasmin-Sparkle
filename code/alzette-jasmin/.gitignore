@@ -2,3 +2,4 @@ test
 testv
 testv1
 test*.out
+*.s
