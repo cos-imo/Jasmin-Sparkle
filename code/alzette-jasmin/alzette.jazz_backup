@@ -3,13 +3,13 @@ A simple Alzette implementation in Jasmin
 */
 
 export
-fn alzette(reg u64 x, reg u64 y) -> reg u64, reg u64 {
+fn alzette(reg u32 x, reg u32 y) -> reg u32, reg u32 {
 
 /*
     x,y?
 */ 
 
-reg u64[8] c;
+reg u32[8] c;
 
 c[0]=0xb7e15162;
 c[1]=0xbf715880;
@@ -43,7 +43,7 @@ c[7]=0xc2b3293d;
  y>>r=15;
 
  x>>r=17;
- y^=x;
+ y^=x;    
  x>>r=15;
 
  x^=c[0];
@@ -57,6 +57,7 @@ c[7]=0xc2b3293d;
 
  x>>r=31;
  y^=x;
+ y=y;
  x>>r=1;
 
  x^=c[0];
@@ -66,15 +67,16 @@ c[7]=0xc2b3293d;
 */
 
  y>>r=24;
- x=#LEA(x+y);
+ x=x+y;
+ x=x;
  y>>r=8;
 
  x>>r=16;
  y^=x;
- y=y;
  x>>r=16;
 
  x^=c[0];
- 
+
  return x,y;
+ 
 }

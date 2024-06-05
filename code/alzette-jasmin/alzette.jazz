@@ -6,82 +6,82 @@ export
 fn alzette(reg u32 x, reg u32 y) -> reg u32, reg u32 {
 
 /*
-    x,y?
+  x,y?
 */ 
 
-reg u32[8] c;
-reg u32 temp;
+  reg u32[8] c;
+  reg u32 temp;
 
-c[0] = 0xb7e1; 
+  c[0] = 0xb7e1; 
 
 /*
-c[0]=0xb7e15162;
-c[1]=0xbf715880;
-c[2]=0x38b4da56;
-c[3]=0x324e7738;
-c[4]=0xbb1185eb;
-c[5]=0x4f7c7b57;
-c[6]=0xcfbfa1c8;
-c[7]=0xc2b3293d;
+  c[0]=0xb7e15162;
+  c[1]=0xbf715880;
+  c[2]=0x38b4da56;
+  c[3]=0x324e7738;
+  c[4]=0xbb1185eb;
+  c[5]=0x4f7c7b57;
+  c[6]=0xcfbfa1c8;
+  c[7]=0xc2b3293d;
 */ 
 
 /*
-  FIRST BLOCK
+    FIRST BLOCK
 */
 
-temp = y;
-temp>>r=31;
+  temp = y;
+  temp>>r=31;
   x+=temp;
 
-temp = x;
-temp>>r=24;
- y^=temp;
+  temp = x;
+  temp>>r=24;
+  y^=temp;
 
- x^=c[0];
+  x^=c[0];
 
 /*
-  SECOND BLOCK
+    SECOND BLOCK
 */
 
-temp = y;
-temp>>r=17;
- x+=temp;
+  temp = y;
+  temp>>r=17;
+  x+=temp;
 
-temp = x;
-temp>>r=17;
- y^=temp;
+  temp = x;
+  temp>>r=17;
+  y^=temp;
 
- x^=c[0];
+  x^=c[0];
 
 /*
   THIRD BLOCK
 */
 
-temp = y;
-temp>>r=0;
- x^=temp;
+  temp = y;
+  temp>>r=0;
+  x^=temp;
 
-temp = x;
-temp>>r=31;
- y^=temp;
+  temp = x;
+  temp>>r=31;
+  y^=temp;
 
- x^=c[0];
+  x^=c[0];
 
-/*
+  /*
   FOURTH BLOCK
-*/
+  */
 
-temp = y;
-temp>>r=24;
-x += temp;
-x=x;
+  temp = y;
+  temp>>r=24;
+  x += temp;
+  x=x;
 
-temp=x;
-temp>>r=16;
- y^=temp;
- y=y;
+  temp=x;
+  temp>>r=16;
+  y^=temp;
+  y=y;
 
- x^=c[0];
- 
- return x,y;
+  x^=c[0];
+
+  return x,y;
 }

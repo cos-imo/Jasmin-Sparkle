@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <inttypes.h>
 #include <stdio.h>
 
 typedef struct {uint32_t val1; uint32_t val2;} tuple;
@@ -12,8 +13,8 @@ int main()
 
   tuple result = alzette(x,y);
 
-  printf("x: %08x ",result.val1);
-  printf("y: %08x ",result.val2);
+  printf("x: %" PRIu32 "  ", result.val1);
+  printf("y: %" PRIu32 "  ", result.val2);
   
   return 0;
 }
