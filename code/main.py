@@ -13,6 +13,7 @@ class Parseur:
         self.parser.add_argument('c', type=int, help='Value for c')
         self.parser.add_argument('-p', '--python_alzette', action='store_true', help="Launches Alzette (Python implementation)")
         self.parser.add_argument('-j', '--jasmin_alzette', action='store_true', help="Launches Alzette (Jasmin implementation)")
+        self.parser.add_argument('-t', '--test', action='store_true', help="Launches tests")
         self.parser.add_argument('-d', '--display', action='store_true', help="Display mode: displays results")
 
         self.args = self.parser.parse_args()

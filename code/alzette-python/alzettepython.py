@@ -1,6 +1,7 @@
 import sys
 import ctypes
 import numpy as np
+from tabulate import tabulate
 
 class Alzette:
 
@@ -23,6 +24,8 @@ class Alzette:
                 sys.stdout.write("NOTE: No value was given using the -j option. Alzette wil be run with default values:\n\t0x67425301, 0xEDFCBA45, 0x98CBADFE")
             self.load_library()
             self.jasmin_alzette(self.c, self.x, self.y)
+        if self.parseur.args.test:
+            self.test(self.x, self.y)
 
     def load_library(self):
         try:
@@ -52,7 +55,7 @@ class Alzette:
 
         return x,y
 
-    def jasmin_alzette(self, c, x, y):
+    def jasmin_alzette(self, x, y):
         # arguments: c_int32
         int32 = ctypes.c_int32
         args = [int32, int32, int32]
@@ -60,16 +63,22 @@ class Alzette:
 
         padded_x = np.uint32(x)
         padded_y = np.uint32(y)
-        padded_c = np.uint32(c)
+        padded_c = np.uint32(self.c)
 
         return_64 = self.jasmin_alzette_dll.alzette(padded_c, padded_x, padded_y)
 
         return_x = return_64 & 0xFFFF
         return_y = (return_64 >> 16) &  0xFFFF
 
-        print(f"y: {return_y}, x: {return_x}")
+        return return_x, return_y
         
-        pass
+    def test(self, x, y):
+        self.load_library()
+
+        python_x, python_y = self.python_alzette(x, y)
+        jasmin_x, jasmin_y = self.jasmin_alzette(x,y)
+
+        print(tabulate([["x", python_x, jasmin_x, ["non ok", "ok"][python_x == jasmin_x]], ["y",python_y, jasmin_y, ["non ok", "ok"][python_x == jasmin_x]]], ["variable","python", "jasmin", "test"], tablefmt="grid"))
 
     def rotate_bits(self, bits, offset):
         return (bits >> offset)|(bits << (32 - offset)) & 0xFFFFFFFF
