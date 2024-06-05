@@ -3,27 +3,9 @@ A simple Alzette implementation in Jasmin
 */
 
 export
-fn alzette(reg u32 x, reg u32 y) -> reg u32, reg u32 {
+fn alzette(reg u32 c, reg u32 x, reg u32 y) -> reg u32, reg u32 {
 
-/*
-  x,y?
-*/ 
-
-  reg u32[8] c;
   reg u32 temp;
-
-  c[0] = 0xb7e1; 
-
-/*
-  c[0]=0xb7e15162;
-  c[1]=0xbf715880;
-  c[2]=0x38b4da56;
-  c[3]=0x324e7738;
-  c[4]=0xbb1185eb;
-  c[5]=0x4f7c7b57;
-  c[6]=0xcfbfa1c8;
-  c[7]=0xc2b3293d;
-*/ 
 
 /*
     FIRST BLOCK
@@ -37,7 +19,7 @@ fn alzette(reg u32 x, reg u32 y) -> reg u32, reg u32 {
   temp>>r=24;
   y^=temp;
 
-  x^=c[0];
+  x^=c;
 
 /*
     SECOND BLOCK
@@ -51,7 +33,7 @@ fn alzette(reg u32 x, reg u32 y) -> reg u32, reg u32 {
   temp>>r=17;
   y^=temp;
 
-  x^=c[0];
+  x^=c;
 
 /*
   THIRD BLOCK
@@ -65,7 +47,7 @@ fn alzette(reg u32 x, reg u32 y) -> reg u32, reg u32 {
   temp>>r=31;
   y^=temp;
 
-  x^=c[0];
+  x^=c;
 
   /*
   FOURTH BLOCK
@@ -81,7 +63,7 @@ fn alzette(reg u32 x, reg u32 y) -> reg u32, reg u32 {
   y^=temp;
   y=y;
 
-  x^=c[0];
+  x^=c;
 
   return x,y;
 }
