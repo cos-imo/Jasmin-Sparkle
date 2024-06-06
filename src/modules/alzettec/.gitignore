@@ -3,3 +3,4 @@ testv
 testv1
 test*.out
 *.s
+.DS_Store

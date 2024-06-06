@@ -1,4 +1,4 @@
 *.s 
-.venv/
 asm/
 *.so
+__pycache__/
