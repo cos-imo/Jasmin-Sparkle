@@ -5,65 +5,76 @@ A simple Alzette implementation in Jasmin
 export
 fn alzette(reg u32 c, reg u32 x, reg u32 y) -> reg u32, reg u32 {
 
+  inline int i;
+
   reg u32 temp;
-
 /*
-    FIRST BLOCK
+
+  Using only one array
+  stack u32[8] offset;
+
+  /* Setting up y offsets */
+  offset[0] = 21; 
+  offset[1] = 17;
+  offset[2] = 0;
+  offset[3] = 24;
+
+  /* Setting up y offsets */
+  offset[4] = 24;
+  offset[5] = 17;
+  offset[6] = 31;
+  offset[7] = 16;
+
+  for i=0 to 4 {
+
+    temp = y;
+    temp>>r=offset[2*i];
+    x+=temp;
+
+    temp = x;
+    temp>>r=offset[2*i+1];
+    y^=temp;
+
+    x^=c;
+
+  }
+
 */
 
-  temp = y;
-  temp>>r=31;
-  x+=temp;
-
-  temp = x;
-  temp>>r=24;
-  y^=temp;
-
-  x^=c;
-
 /*
-    SECOND BLOCK
+  using two distincts arrays
 */
 
-  temp = y;
-  temp>>r=17;
-  x+=temp;
+  stack u32[8] x_offset;
+  stack u32[8] y_offset;
 
-  temp = x;
-  temp>>r=17;
-  y^=temp;
+  /* Setting up y offsets */
+  x_offset[0] = 21; 
+  x_offset[1] = 17;
+  x_offset[2] = 0;
+  x_offset[3] = 24;
 
-  x^=c;
+  /* Setting up y offsets */
+  y_offset[3] = 24;
+  y_offset[5] = 17;
+  y_offset[6] = 31;
+  y_offset[7] = 16;
 
-/*
-  THIRD BLOCK
-*/
+  for i=0 to 4 {
 
-  temp = y;
-  temp>>r=0;
-  x+=temp;
+    temp = y;
+    temp>>r=y_offset[2*i];
+    x+=temp;
 
-  temp = x;
-  temp>>r=31;
-  y^=temp;
+    temp = x;
+    temp>>r=x_offset[2*i+1];
+    y^=temp;
 
-  x^=c;
+    x^=c;
 
-  /*
-  FOURTH BLOCK
-  */
-
-  temp = y;
-  temp>>r=24;
-  x += temp;
+  }
   x=x;
-
-  temp=x;
-  temp>>r=16;
-  y^=temp;
   y=y;
-
-  x^=c;
 
   return x,y;
 }
