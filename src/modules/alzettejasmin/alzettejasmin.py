@@ -38,8 +38,11 @@ class AlzetteJasmin_t:
 
     def alzette(self):
         int32 = ctypes.c_int32
+        int64 = ctypes.c_int64
+
         args = [int32, int32, int32]
         self.jasmin_alzette_dll.alzette.argtypes = args
+        self.jasmin_alzette_dll.alzette.restype = int64
 
         padded_x = np.uint32(self.x)
         padded_y = np.uint32(self.y)
