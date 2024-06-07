@@ -8,7 +8,7 @@ fn get_offset(inline u32 index) -> reg int, reg int {
   inline int offset_y;
 
   if (index==0) {
-    offset_x = 21;
+    offset_x = 31;
     offset_y = 24;
   }
 
@@ -39,11 +39,6 @@ fn alzette(reg u32 c, reg u32 x, reg u32 y) -> reg u64 {
   reg u64 export_var;
   reg u64 padded_y;
 
-/*
-  using two distincts arrays
-*/
-
-
   for i=0 to 4 {
     
     inline int offset_x;
@@ -52,14 +47,15 @@ fn alzette(reg u32 c, reg u32 x, reg u32 y) -> reg u64 {
     offset_x, offset_y = get_offset(i);
 
     temp = y;
-    temp>>r=offset_x;
-    x+=temp;
+    temp>>r = offset_x;
+    x += temp;
 
     temp=temp;
+    temp ^= temp;
 
     temp = x;
-    temp>>r= offset_y;
-    y^=temp;
+    temp>>r = offset_y;
+    y ^= temp;
 
     x^=c;
 
