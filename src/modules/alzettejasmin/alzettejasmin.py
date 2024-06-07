@@ -48,6 +48,6 @@ class AlzetteJasmin_t:
         return_64 = self.jasmin_alzette_dll.alzette(padded_c, padded_x, padded_y)
 
         return_x = return_64 & 0xFFFFFFFF
-        return_y = (return_64 >> 32)
+        return_y = (return_64 >> 32) & 0xFFFFFFFF
 
         return return_x, return_y
