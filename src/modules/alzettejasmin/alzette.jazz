@@ -2,10 +2,6 @@
 A simple Alzette implementation in Jasmin
 */
 
-  u32[4] x_offset = {21, 17, 0, 24};
-
-  u32[4] y_offset = {24, 17, 31, 16};
-
 inline
 fn get_offset(inline u32 index) -> reg int, reg int {
   inline int offset_x;
