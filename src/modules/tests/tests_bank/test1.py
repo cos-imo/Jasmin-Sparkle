@@ -15,11 +15,11 @@ class test:
         self.rendered_results = self.render_results()
 
     def run_test(self):
-        self.set_header(["variable", "python", "jasmin", "test"])
+        self.set_header(["variable", "python", "jasmin", "status"])
         self.run_python_implementation()
         self.run_jasmin_implementation()
-        self.add_results(["x", self.result_x_python, self.result_x_jasmin, ["\033[0;31mFAILURE\033[0;37m ","\033[0;32mSUCCESS\033[0;30m"][self.result_x_python==self.result_x_jasmin]])
-        self.add_results(["y", self.result_y_python, self.result_y_jasmin, ["\033[0;31mFAILURE\033[0;37m ","\033[0;32mSUCCESS\033[0;30m"][self.result_y_python==self.result_y_jasmin]])
+        self.add_results(["x", self.result_x_python, self.result_x_jasmin, ["\033[0;31mFAILURE\033[0;37m ","\033[0;32mSUCCESS\033[0;37m"][self.result_x_python==self.result_x_jasmin]])
+        self.add_results(["y", self.result_y_python, self.result_y_jasmin, ["\033[0;31mFAILURE\033[0;37m ","\033[0;32mSUCCESS\033[0;37m"][self.result_y_python==self.result_y_jasmin]])
         pass #run test function
 
     def run_python_implementation(self, values = None):
