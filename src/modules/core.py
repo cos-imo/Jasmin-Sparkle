@@ -27,7 +27,7 @@ class CoreLauncher:
             self.result_x_jasmin, self.result_y_jasmin = alzetteJasmin.alzette()
 
         if self.parseur.args.test:
-            modules.tests.testmanager.testmanager_t(self.parseur.args.test, self.parseur.args.python_alzette, self.parseur.args.jasmin_alzette)
+            modules.tests.testmanager.testmanager_t(self.parseur.args.test, self.parseur.args.python_alzette, self.parseur.args.jasmin_alzette, self.values)
 
         if self.parseur.args.display:
             self.display()
