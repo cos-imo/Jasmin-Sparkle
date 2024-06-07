@@ -22,8 +22,7 @@ alzette.so: $(OBJ)
 
 clean:
 	$(RM) -r asm/
-	$(RM) libjaesenc.a libjaesenc.so
-	$(RM) ocaml/*.cmi ocaml/*.cmx ocaml/*.o
+	$(RM) alzette.s
 
 distclean: clean
 	$(RM) test_ocaml test_rust run.*
