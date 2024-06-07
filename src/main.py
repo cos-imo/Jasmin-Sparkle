@@ -22,9 +22,9 @@ class Parseur:
 
     def parse_arguments(self):
         self.parser.add_argument('-h', '--help', action='help', help="shows this help message")
+        self.parser.add_argument('c', default = "0x98CBADFE", type=int, help='Value for c')
         self.parser.add_argument('x', default = "0x67425301", type=int, help='Value for x')
         self.parser.add_argument('y', default = "0xEDFCBA45", type=int, help='Value for y')
-        self.parser.add_argument('c', default = "0x98CBADFE", type=int, help='Value for c')
         self.parser.add_argument('-p', '--python_alzette', action='store_true', help="Launches Alzette (Python implementation)")
         self.parser.add_argument('-j', '--jasmin_alzette', action='store_true', help="Launches Alzette (Jasmin implementation)")
         self.parser.add_argument('-t', '--test', type = self.check_test, help="Launches tests")
