@@ -19,12 +19,14 @@ class CoreLauncher:
     def core(self):
         self.check_values()
         if self.parseur.args.python_alzette:
-            alzettePython = AlzettePython.AlzettePython_t(self.values)
-            self.result_x_python, self.result_y_python = alzettePython.alzette()
+            alzettePython = AlzettePython.AlzettePython_t()
+            self.result_x_python, self.result_y_python = alzettePython.alzette(self.values[0], self.values[1], self.values[2])
+            print(f"{self.result_x_python, self.result_y_python}")
 
         if self.parseur.args.jasmin_alzette:
-            alzetteJasmin = AlzetteJasmin.AlzetteJasmin_t(self.values)
-            self.result_x_jasmin, self.result_y_jasmin = alzetteJasmin.alzette()
+            alzetteJasmin = AlzetteJasmin.AlzetteJasmin_t()
+            self.result_x_jasmin, self.result_y_jasmin = alzetteJasmin.alzette(self.values[0], self.values[1], self.values[2])
+            print(f"{self.result_x_jasmin}, {self.result_y_jasmin}")
 
         if self.parseur.args.test:
             modules.tests.testmanager.testmanager_t(self.parseur.args.test, self.parseur.args.python_alzette, self.parseur.args.jasmin_alzette, self.values)

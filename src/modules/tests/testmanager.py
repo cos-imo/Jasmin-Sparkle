@@ -10,10 +10,15 @@ class testmanager_t:
 
         self.values = values
 
+        self.successes = 0
+        self.failures = 0
+
         self.results = []
         self.headers = ["c_value", "x_value", "y_value", "status"]
 
         self.run_test()
+        self.render_results()
+
 
     def set_python_implementation(self, python_implementation):
         self.python_implementation = python_implementation
@@ -24,7 +29,7 @@ class testmanager_t:
     def run_test(self, test="all"):
         if test == "all":
             for i in range(len(self.test_library)):
-                test_data = self.test_library[i].test()
+                test_data = self.test_library[i].test(self)
                 #self.results.append(test_data)
             return
         else:
@@ -32,5 +37,12 @@ class testmanager_t:
             print("test don")
             print(test_result)
 
-    def render_results(self, results):
-        print(tabulate(self.results, self.headers, tablefmt = grid))
+    def render_results(self):
+        print(f"Ran {self.successes + self.failures} tests.")
+        print(f"\tSuccesse rate : {(self.successes/(self.successes + self.failures))*100} % ({self.successes}/{self.successes + self.failures})\n\tFailure rate : {(self.failures/(self.successes + self.failures))*100}% ({self.failures}/{self.failures + self.successes})\n")
+
+    def add_success(self):
+        self.successes += 1 
+
+    def add_failure(self):
+        self.failures += 1
