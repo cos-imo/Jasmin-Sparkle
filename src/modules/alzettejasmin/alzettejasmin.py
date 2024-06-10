@@ -7,12 +7,7 @@ import numpy as np
 
 class AlzetteJasmin_t:
 
-    def __init__(self, values):
-        self.values = values
-
-        self.c = values[0]
-        self.x = values[1]
-        self.y = values[2]
+    def __init__(self):
 
         self.load_library()
 
@@ -36,7 +31,11 @@ class AlzetteJasmin_t:
             sys.stdout.write("Couldn't import alzette.so library\nExiting\n")
             exit()
 
-    def alzette(self):
+    def alzette(self, c, x, y):
+        self.c = c
+        self.x = x 
+        self.y = y
+
         int32 = ctypes.c_int32
         int64 = ctypes.c_int64
 

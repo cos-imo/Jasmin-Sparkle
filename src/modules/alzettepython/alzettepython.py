@@ -5,14 +5,13 @@ from tabulate import tabulate
 
 class AlzettePython_t:
 
-    def __init__(self, values):
-        self.values = values
-        
-        self.c = values[0]
-        self.x = values[1]
-        self.y = values[2]
+    def __init__(self):
+        pass
 
-    def alzette(self):
+    def alzette(self, c, x, y):
+        self.c = c
+        self.x = x
+        self.y = y
         offset_1 = [31, 17, 0, 24]
         offset_2 = [24, 17, 31, 16]
 
