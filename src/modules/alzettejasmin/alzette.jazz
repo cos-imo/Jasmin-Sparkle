@@ -3,7 +3,7 @@ A simple Alzette implementation in Jasmin
 */
 
 inline
-fn get_offset(inline u32 index) -> reg int, reg int {
+fn get_offset(inline u32 index) -> inline int, inline int {
   inline int offset_x;
   inline int offset_y;
 
@@ -28,6 +28,14 @@ fn get_offset(inline u32 index) -> reg int, reg int {
   }
 
   return offset_x, offset_y;
+}
+
+inline
+fn rcon(inline int round) -> inline u8, inline u8 {
+  inline u8 x y;
+  x = (4u8)[ 24, 17, 31, 16 ] >> 8 * (3 - round);
+  y = (4u8)[ 31, 17, 00, 24 ] >> 8 * (3 - round);
+  return x, y;
 }
 
 export
