@@ -10,6 +10,9 @@ class testmanager_t:
 
         self.values = values
 
+        self.results = []
+        self.headers = ["c_value", "x_value", "y_value", "status"]
+
         self.run_test()
 
     def set_python_implementation(self, python_implementation):
@@ -21,10 +24,13 @@ class testmanager_t:
     def run_test(self, test="all"):
         if test == "all":
             for i in range(len(self.test_library)):
-                test_result = self.test_library[i].test(self.values)
-                print(test_result)
+                test_data = self.test_library[i].test()
+                #self.results.append(test_data)
             return
         else:
             test_result = self.test_library[test].test(self.values)
             print("test don")
             print(test_result)
+
+    def render_results(self, results):
+        print(tabulate(self.results, self.headers, tablefmt = grid))

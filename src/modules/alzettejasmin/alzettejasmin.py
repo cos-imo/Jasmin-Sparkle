@@ -31,7 +31,7 @@ class AlzetteJasmin_t:
     def try_load(self):
         try:
             self.jasmin_alzette_dll = ctypes.cdll.LoadLibrary("./modules/alzettejasmin/alzette.so")
-            sys.stdout.write("Alzette code successfully imported\n")
+            #sys.stdout.write("Alzette code successfully imported\n")
         except:
             sys.stdout.write("Couldn't import alzette.so library\nExiting\n")
             exit()
