@@ -33,9 +33,7 @@ class testmanager_t:
                 test_data = self.test_library[i].test(self)
             return
         else:
-            test_result = self.test_library[test].test(self.values)
-            print("test don")
-            print(test_result)
+            test_result = self.test_library[test].test(self)
 
     def render_results(self):
         print(f"Ran {self.successes + self.failures} tests.")

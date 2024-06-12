@@ -5,6 +5,8 @@ import numpy as np
 import modules.alzettepython.alzettepython as AlzettePython 
 import modules.alzettejasmin.alzettejasmin as AlzetteJasmin 
 
+import modules.craxjasmin.craxjasmin as CraxJasmin 
+
 import modules.tests.testmanager
 
 from tabulate import tabulate
@@ -13,7 +15,7 @@ class CoreLauncher:
 
     def __init__(self, parseur, values):
         self.parseur = parseur
-        self.values = values
+        self.values = [np.uint32(element) for element in values]
         self.core()
 
     def core(self):
@@ -27,6 +29,11 @@ class CoreLauncher:
             alzetteJasmin = AlzetteJasmin.AlzetteJasmin_t()
             self.result_x_jasmin, self.result_y_jasmin = alzetteJasmin.alzette(self.values[0], self.values[1], self.values[2])
             print(f"{self.result_x_jasmin}, {self.result_y_jasmin}")
+
+        if self.parseur.args.crax_jasmin:
+            craxJasmin = CraxJasmin.CraxJasmin_t()
+            self.result_x_crax, self.result_y_crax = craxJasmin.crax(self.values[0], self.values[1], self.values[2])
+            print(f"{self.result_x_crax}  {self.result_y_crax}")
 
         if self.parseur.args.test:
             modules.tests.testmanager.testmanager_t(self.parseur.args.test, self.parseur.args.python_alzette, self.parseur.args.jasmin_alzette, self.values)
