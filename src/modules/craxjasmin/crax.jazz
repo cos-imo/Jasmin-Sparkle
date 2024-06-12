@@ -1,0 +1,137 @@
+/*
+A simple CRAX implementation in Jasmin
+*/
+
+
+inline
+fn get_offset(inline u32 index) -> inline int, inline int {
+  inline int offset_x;
+  inline int offset_y;
+
+  if (index==0) {
+    offset_x = 31;
+    offset_y = 24;
+  }
+
+  if (index==1) {
+    offset_x = 17;
+    offset_y = 17;
+  }
+
+  if (index==2) {
+    offset_x = 0;
+    offset_y = 31;
+  }
+
+  if (index==3) {
+    offset_x = 24;
+    offset_y = 16;
+  }
+
+  return offset_x, offset_y;
+}
+
+inline
+fn get_round_constant(inline u32 index) -> inline u32 {
+  inline u32 constant;
+
+  if (index==0) {
+    constant = 0xB7E15162;
+  }
+
+  if (index==1) {
+    constant = 0xBF715880;
+  }
+
+  if (index==2) {
+    constant = 0x38B4DA56;
+  }
+
+  if (index==3) {
+    constant = 0x324E7738;
+  }
+
+  if (index==4) {
+    constant = 0xBB1185EB;
+  }
+
+  return constant;
+}
+
+inline
+fn alzette(reg u32 c, reg u32 x, reg u32 y) -> reg u64 {
+
+  inline int i;
+
+  reg u32 temp;
+  reg u64 export_var;
+  reg u64 padded_y;
+
+  for i=0 to 4 {
+    
+    inline int offset_x;
+    inline int offset_y;
+
+    offset_x, offset_y = get_offset(i);
+
+    temp = y;
+    temp>>r = offset_x;
+    x += temp;
+
+    temp=temp;
+    temp ^= temp;
+
+    temp = x;
+    temp>>r = offset_y;
+    y ^= temp;
+
+    x^=c;
+
+  }
+
+  x=x;
+  y=y;
+
+  export_var = (64u) x;
+  export_var>>r=32;
+  padded_y = (64u) y;
+  export_var += padded_y;
+
+  return export_var;
+}
+
+export 
+fn crax (reg u32 xword, reg u32 yword, reg u32 key_0, reg u32 key_1, reg u32 key_2, reg u32 key_3) -> reg u64 {
+
+  inline int step;
+  inline u32 round_constant;
+
+  reg u64 export_var;
+  reg u64 padded_y;
+
+  for step = 0 to 10 {
+    xword ^= step;
+    if((step%2) == 0){
+      xword ^= key_0;
+      yword ^= key_1;
+    } else {
+      xword ^= key_2;
+      yword ^= key_3;
+    }
+    round_constant = get_round_constant(step%5);
+    alzette(round_constant, xword, yword);
+  }
+
+  xword ^= key_0;
+  yword ^= key_1;
+
+  xword = xword;
+  yword = yword;
+
+  export_var = (64u) xword;
+  export_var>>r=32;
+  padded_y = (64u) yword;
+  export_var += padded_y;
+
+  return export_var;
+}
