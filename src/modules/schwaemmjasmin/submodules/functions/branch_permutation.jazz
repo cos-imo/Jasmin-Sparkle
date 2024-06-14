@@ -1,0 +1,13 @@
+inline
+fn branch_permutation (reg u32[6] x) -> reg u32[6] {
+  reg u32[6] res;
+
+  res[0] = x[4];
+  res[1] = x[5];
+  res[2] = x[3];
+  res[3] = x[0];
+  res[4] = x[1];
+  res[5] = x[2];
+
+  return res;
+}

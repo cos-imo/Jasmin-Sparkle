@@ -1,0 +1,12 @@
+require "FeistelSwap.jazz"
+
+inline
+fn feedback_function_1(S, D) -> {
+
+  S = FeistelSwap(S);
+  
+  D^=S;
+
+  return S,D
+
+}

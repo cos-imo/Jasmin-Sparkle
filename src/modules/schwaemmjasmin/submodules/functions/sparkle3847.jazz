@@ -2,12 +2,12 @@
   Sparkle implementation in Jasmin
 */
 
-require "sparkle384_constants.jazz"
-require "alzette.jazz"
-require "L6.jazz"
+from utils require "sparkle384_constants.jazz"
+from functions require "alzette.jazz"
+from functions require "L6.jazz"
 
 inline
-fn sparkle38411(reg u32[6] x, reg u32[6] y)  -> inline u32[8], inline u32[4] {
+fn sparkle3847(reg u32[6] x, reg u32[6] y)  -> inline u32[8], inline u32[4] {
 
   stack u64[8] c_constants;
   c_constants[0] = 0xB7E15162;
@@ -25,20 +25,16 @@ fn sparkle38411(reg u32[6] x, reg u32[6] y)  -> inline u32[8], inline u32[4] {
   inline int i;
   inline int s;
 
-  reg u32 temp;
-  reg u64 export_var;
-  reg u64 padded_y;
+  reg u32[8] SL;
+  reg u32[4] SR;
 
-  inline u32[8] SL;
-  inline u32[4] SR;
-
-  for s=0 to 11 {
+  for s=0 to 7 {
     
     inline u32 c_constant;
     inline int s_modulo_8;
     inline int s_mod_2_32;
 
-    s_modulo_8 = i%8;
+    s_modulo_8 = s%8;
     c_constant = get_sparkle_constant(s_modulo_8);
     s_mod_2_32 = s % (2^32);
 

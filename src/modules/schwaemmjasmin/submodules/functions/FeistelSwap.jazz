@@ -1,0 +1,10 @@
+require "strlen.jazz"
+
+inline
+fn FeistelSwap(S) -> {
+  inline int len;
+
+  len = strlen(S);
+  /* if len%2 != 0 -> error message */
+  half_len = len/2;
+}
