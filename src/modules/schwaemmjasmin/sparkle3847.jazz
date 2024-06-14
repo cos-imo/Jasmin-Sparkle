@@ -1,0 +1,67 @@
+/*
+  Sparkle implementation in Jasmin
+*/
+
+require "sparkle384_constants.jazz"
+require "alzette.jazz"
+require "L6.jazz"
+
+inline
+fn sparkle3847(reg u32[6] x, reg u32[6] y)  -> inline u32[8], inline u32[4] {
+
+  stack u64[8] c_constants;
+  c_constants[0] = 0xB7E15162;
+  c_constants[1] = 0xBF715880;
+  c_constants[2] = 0x38B4DA56;
+  c_constants[3] = 0x324E7738;
+  c_constants[4] = 0xBB1185EB;
+  c_constants[5] = 0x4F7C7B57;
+  c_constants[6] = 0xCFBFA1C8;
+  c_constants[7] = 0xC2B3293D;
+
+  reg ptr u64[8] c_constants_ptr; 
+  c_constants_ptr = c_constants;
+
+  inline int i;
+  inline int s;
+
+  reg u32[8] SL;
+  reg u32[4] SR;
+
+  for s=0 to 7 {
+    
+    inline u32 c_constant;
+    inline int s_modulo_8;
+    inline int s_mod_2_32;
+
+    s_modulo_8 = s%8;
+    c_constant = get_sparkle_constant(s_modulo_8);
+    s_mod_2_32 = s % (2^32);
+
+    y[0] ^= c_constant;
+    y[1] ^= s_mod_2_32;
+
+    for i=0 to 5 {
+      x[i], y[i] = alzette(c_constants[i], x[i], y[i]);
+    }
+    
+    x, y = L6(x,y);
+
+  }
+
+  SL[0] = x[0];
+  SL[1] = x[1];
+  SL[2] = x[2];
+  SL[3] = x[3];
+  SL[4] = x[4];
+  SL[5] = x[5];
+  SL[6] = y[0];
+  SL[7] = y[1];
+  SR[0] = y[2];
+  SR[1] = y[3];
+  SR[2] = y[4];
+  SR[3] = y[5];
+
+  return SL, SR;
+}
+
