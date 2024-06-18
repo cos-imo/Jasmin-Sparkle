@@ -1,0 +1,23 @@
+inline 
+fn sparkle_post_padding(inline u32[6] x, inline u32[6] y ) -> inline u256, inline u128 {
+  inline u256 first_block; 
+  inline u128 second_block;
+  
+  inline int array_index;
+
+  for array_index=0 to 4 { 
+    first_block += (256u)x[array_index];
+    first_block >>= 16;
+    first_block += (256u)y[array_index];
+    first_block >>= 16;
+  }
+
+  for array_index=4 to 6 { 
+    second_block += (256u)x[array_index];
+    second_block >>= 16;
+    second_block += (256u)y[array_index];
+    second_block >>= 16;
+  }
+
+  return first_block, second_block;
+}

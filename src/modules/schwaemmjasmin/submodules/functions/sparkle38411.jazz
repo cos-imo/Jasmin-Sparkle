@@ -3,21 +3,28 @@
 */
 
 from utils require "sparkle384_constants.jazz"
+from utils require "sparkle_pre_padding.jazz"
+from utils require "sparkle_post_padding.jazz"
 from functions require "alzette.jazz"
 from functions require "L6.jazz"
 
 inline
-fn sparkle38411(reg u32[6] x, reg u32[6] y)  -> reg u32[8], reg u32[4] {
+fn sparkle38411(reg u256 first_block, reg u128 second_block)  -> reg u256, reg u128 {
 
   inline int i;
   inline int s;
+
+  inline u32[6] x; 
+  inline u32[6] y; 
+
+  x,y = sparkle_pre_padding(first_block, second_block);
 
   reg u32 temp;
   reg u64 export_var;
   reg u64 padded_y;
 
-  reg u32[8] SL;
-  reg u32[4] SR;
+  reg u256 SL;
+  reg u128 SR;
 
   for s=0 to 11 {
     
@@ -42,18 +49,7 @@ fn sparkle38411(reg u32[6] x, reg u32[6] y)  -> reg u32[8], reg u32[4] {
 
   }
 
-  SL[0] = x[0];
-  SL[1] = x[1];
-  SL[2] = x[2];
-  SL[3] = x[3];
-  SL[4] = x[4];
-  SL[5] = x[5];
-  SL[6] = y[0];
-  SL[7] = y[1];
-  SR[0] = y[2];
-  SR[1] = y[3];
-  SR[2] = y[4];
-  SR[3] = y[5];
+  SL, SR = sparkle_post_padding(x,y);
 
   return SL, SR;
 }

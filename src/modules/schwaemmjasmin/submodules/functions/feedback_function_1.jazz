@@ -1,12 +1,12 @@
 require "FeistelSwap.jazz"
 
 inline
-fn feedback_function_1(S, D) -> {
+fn feedback_function_1(inline u256 S, inline u256 D) -> inline u256 {
 
   S = FeistelSwap(S);
   
   D^=S;
 
-  return S,D
+  return D;
 
 }

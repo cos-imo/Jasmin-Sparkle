@@ -1,0 +1,25 @@
+inline
+fn pad_256(inline u64 str_start, inline u64 str_end) {
+  inline u64 strlen;
+  inline u64 padding_size;
+  inline int counter;
+  counter = 0;
+
+  inline u8[256] res;
+
+  strlen = str_end - str_start;
+  padding_size = 256 - strlen -1;
+
+  while (counter < str_end) {
+    res[counter] = [str_start+counter];
+    counter += 1;
+  }
+  
+  res[counter] = 1;
+
+  while (counter < 256) {
+    res[counter] = 0;
+    counter += 1;
+  }
+
+}
