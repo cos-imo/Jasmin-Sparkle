@@ -25,6 +25,7 @@ fn schwaemm(reg u128 K, reg u256 N, reg u64 A_start, reg u64 A_end, reg u64 M_st
   M_lenght = M_end;
   M_lenght -= M_start;
 
+  stack u64 A_lenght_save;
   stack u64 M_lenght_save;
   M_lenght_save = M_lenght;
 
@@ -34,8 +35,8 @@ fn schwaemm(reg u128 K, reg u256 N, reg u64 A_start, reg u64 A_end, reg u64 M_st
   stack u128 constA_save;
   stack u128 constM_save;
 
-  reg u32[8] x;
-  reg u32[4] y;
+  reg u64 x;
+  reg u64 y;
 
   M_lenght = M_lenght_save;
 
@@ -108,6 +109,8 @@ fn schwaemm(reg u128 K, reg u256 N, reg u64 A_start, reg u64 A_end, reg u64 M_st
     SL, SR = sparkle38411(x,y);
 
   }
+
+  A_lenght_save = A_lenght;
 
   M_lenght = M_lenght_save;
 

@@ -1,8 +1,8 @@
 inline
-fn pre_sparkle_padding(reg u256 first_tab, inline u128 second_tab) -> reg u32[8], reg u32[4] {
+fn pre_sparkle_padding(reg u256 first_tab, inline u128 second_tab) -> reg u64, reg u64 {
 
-  reg u32[8] x;
-  reg u32[4] y;
+  reg u64 x;
+  reg u64 y;
 
   inline int i;
 
@@ -13,12 +13,12 @@ fn pre_sparkle_padding(reg u256 first_tab, inline u128 second_tab) -> reg u32[8]
   rotated_second_tab = second_tab;
 
   for i=0 to 7 {
-    x[i] = rotated_first_tab & 0xFF;
+    [x + 4*i] = rotated_first_tab & 0xFF;
     rotated_first_tab >>= 16;
   }
 
   for i=0 to 3 {
-    y[i] = rotated_second_tab & 0xFF;
+    [y + 4*i] = rotated_second_tab & 0xFF;
     rotated_second_tab >>= 16;
   }
 

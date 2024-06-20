@@ -9,15 +9,10 @@ from functions require "alzette.jazz"
 from functions require "L6.jazz"
 
 inline
-fn sparkle38411(reg u32[8] first_tab, reg u32[4] second_tab)  -> reg u256, reg u128 {
+fn sparkle38411(reg u64 x, reg u64 y)  -> reg u256, reg u128 {
 
-  inline int i;
   inline int s;
-
-  reg u32[6] x; 
-  reg u32[6] y; 
-
-  x,y = sparkle_pre_padding(first_tab, second_tab);
+  inline int i;
 
   reg u256 SL;
   reg u128 SR;
@@ -32,12 +27,12 @@ fn sparkle38411(reg u32[8] first_tab, reg u32[4] second_tab)  -> reg u256, reg u
     c_constant = get_sparkle_constant(s_modulo_8);
     s_mod_2_32 = s % (2^32);
 
-    y[0] ^= c_constant;
-    y[1] ^= s_mod_2_32;
+    (u32)[y] ^= c_constant; 
+    (u32)[y + 4] = s_mod_2_32;
 
     for i=0 to 5 {
       c_constant = get_sparkle_constant(i);
-      x[i], y[i] = alzette(c_constant, x[i], y[i]);
+      (u32)[x + 4*i], (u32)[y + 4*i] = alzette(c_constant, [x + 4*i], [y + 4*i]);
     }
     
     x, y = L6(x,y);

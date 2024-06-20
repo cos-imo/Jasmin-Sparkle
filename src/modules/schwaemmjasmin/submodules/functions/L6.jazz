@@ -2,21 +2,21 @@
 require "branch_permutation.jazz"
 
 inline
-fn L6(reg u32[6] x, reg u32[6] y)  -> reg u32[6], reg u32[6] {
+fn L6(reg u64 x, reg u64 y)  -> reg u64, reg u64 {
 
-  inline u32 tx, ty;
-  inline u32 shift_tx, shift_ty;
+  inline u64 tx, ty;
+  inline u64 shift_tx, shift_ty;
 
   /*
     Feistel round
   */
 
-  tx = x[0];
-  tx ^= x[1];
-  tx ^= x[2];
-  ty = y[0];
-  ty ^= y[1];
-  ty ^= y[2];
+  tx = [x];
+  tx ^= [x + 4];
+  tx ^= [x + 8];
+  ty = [y];
+  ty ^= [y + 4];
+  ty ^= [y + 8];
 
   shift_tx = tx;
   shift_tx <<= 16;
@@ -28,19 +28,19 @@ fn L6(reg u32[6] x, reg u32[6] y)  -> reg u32[6], reg u32[6] {
   ty ^= shift_ty;
   ty <<r= 16;
 
-  y[3] ^= y[0];
-  y[3] ^= tx;
-  y[4] ^= y[1];
-  y[4] ^= tx;
-  y[5] ^= y[2];
-  y[5] ^= tx;
+  [y + 12] ^= [y];
+  [y + 12] ^= tx;
+  [y + 16] ^= [y + 4];
+  [y + 16] ^= tx;
+  [y + 20] ^= [y + 8];
+  [y + 20] ^= tx;
 
-  x[3] ^= x[0];
-  x[3] ^= ty;
-  x[4] ^= x[1];
-  x[4] ^= ty;
-  x[5] ^= x[2];
-  x[5] ^= ty;
+  [x + 12] ^= [x];
+  [x + 12] ^= ty;
+  [x + 16] ^= [x + 4];
+  [x + 16] ^= ty;
+  [x + 20] ^= [x + 8];
+  [x + 20] ^= ty;
 
   /*
     Branch permutation
