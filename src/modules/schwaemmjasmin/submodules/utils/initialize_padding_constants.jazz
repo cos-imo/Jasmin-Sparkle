@@ -1,38 +1,35 @@
 inline
-fn initialize_padding_constants(inline u64 A_start, inline u64 A_end, inline u64 M_start, inline u64 M_end) -> inline u8, inline u8 {
-  inline u8 constA;
-  inline u8 constM;
+fn initialize_padding_constants(reg u64 Alen, reg u64 Mlen) -> reg u128, reg u128 {
+  inline u128 constA;
+  inline u128 constM;
+  reg bool zf;
 
-  inline int Alen;
+  ?{zf} = #TEST(Alen,31);
 
-  Alen = A_end - A_start;
-
-  if (Alen%256) == 0 {
-    inline u8 xored;
+  if (zf) {
+    inline u128 xored;
     xored = 1;
     xored <<= 2;
     constA = 0;
     constA ^= xored;
   } else {
-    inline u8 xored;
+    inline u128 xored;
     xored = 1;
     xored <<= 2;
     constA = 0;
     constA ^= xored;
   }
 
-  inline int Mlen;
+  ?{zf} = #TEST(Mlen,31);
 
-  Mlen = M_end - M_start;
-
-  if (Mlen%256) == 0 {
-    inline u8 xored;
+  if (zf) {
+    inline u128 xored;
     xored = 1;
     xored <<= 2;
     constM = 0;
     constM ^= xored;
   } else {
-    inline u8 xored;
+    inline u128 xored;
     xored = 1;
     xored <<= 2;
     constM = 0;

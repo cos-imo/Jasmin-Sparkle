@@ -1,60 +1,180 @@
 /*
-A simple CRAX implementation in Jasmin
+A simple schwaemm implementation in Jasmin
 */
 
 from functions require "sparkle3847.jazz"
 from functions require "sparkle38411.jazz"
-from utils require "strlen.jazz"
+from functions require "feedback_function_1.jazz"
+from functions require "feedback_function_2.jazz"
+from utils require "pad_256.jazz"
+from utils require "W_128_256.jazz"
+from utils require "initialize_padding_constants.jazz"
+from utils require "pre_sparkle_padding.jazz"
 
 export
-fn schwaemm(reg u128 K, reg u256 N, reg u64 A, reg u64 M) ->reg u32 { /* stack ptr? reg u8[]? */
+fn schwaemm(reg u128 K, reg u256 N, reg u64 A_start, reg u64 A_end, reg u64 M_start, reg u64 M_end, reg u64 output_ptr) -> reg u128 { 
 
-  reg u32[8] SL;
-  reg u32[4] SR;
+  reg u256 SL;
+  reg u128 SR;
   inline u8 len;
 
-  inline int i; 
+  reg u64 A_lenght;
+  reg u64 M_lenght;
 
-  reg u32[6] x;
-  reg u32[6] y;
+  A_lenght = A_end;
+  A_lenght -= A_start;
+  M_lenght = M_end;
+  M_lenght -= M_start;
 
-  len = strlen(A);
+  stack u64 M_lenght_save;
+  M_lenght_save = M_lenght;
 
-  /*
-  if (len>256) {
-    x[0]=1;
-    /*
-      padding
-    */
+  reg u128 constA;
+  reg u128 constM;
+
+  stack u128 constA_save;
+  stack u128 constM_save;
+
+  reg u32[8] x;
+  reg u32[4] y;
+
+  M_lenght = M_lenght_save;
+
+  constA, constM = initialize_padding_constants(A_lenght, M_lenght);
+
+  constA_save = constA;
+  constM_save = constM;
+
+  M_lenght_save = M_lenght;
+
+  if A_lenght != 0 {
+    while ((A_lenght) < 256) {
+      inline u256 feedback_1_result;
+      inline u256 W_result;
+
+      inline u256 A_block;
+      A_block = (256u)[A_start];
+
+      stack u64 A_start_save;
+      A_start_save = A_start;
+
+      feedback_1_result = feedback_function_1(SL, A_block);
+      W_result = W_128_256(SR);
+
+      feedback_1_result ^= W_result;
+
+      x,y = pre_sparkle_padding(feedback_1_result, SR);
+
+      SL, SR = sparkle3847(x,y);
+
+      A_start = A_start_save;
+
+      A_start += 32;
+
+      A_lenght -= 32;
+    }
+
+    inline u256 feedback_1_result;
+    inline u256 W_result;
+    reg u256 zero;
+    
+    zero = #set0_256();
+    stack u8[32] t;
+    t.[u256 0] = zero;
+
+    reg u256 A_block;
+    reg u64 i;
+    i=0;
+
+    while (i<A_lenght) {
+      t[i] = (u8)[A_start + i];
+      i += 1;
+    }
+    t[i] = 1;
+
+    A_block = t.[u256 0];
+
+    constA = constA_save;
+
+    SR ^= constA;
+
+    constA_save = constA;
+
+    feedback_1_result = feedback_function_1(SL, A_block);
+    W_result = W_128_256(SR);
+    feedback_1_result ^= W_result;
+
+    x,y = pre_sparkle_padding(feedback_1_result, SR);
+
+    SL, SR = sparkle38411(x,y);
+
   }
-  */
 
-  x[0] = 17;
-  x[1] = 96;
-  x[2] = 92;
-  x[3] = 49;
-  x[4] = 85;
-  x[5] = 66;
-  
-  y[0] = 0;
-  y[1] = 84;
-  y[2] = 35;
-  y[3] = 84;
-  y[4] = 87;
-  y[5] = 99;
+  M_lenght = M_lenght_save;
 
-  SL, SR = sparkle38411(x,y);
+  if M_lenght != 0 {
+    while ((M_lenght) < 256) {
 
-  /*
-  if a!=none:
-  for i=0 to len {
-    SL, SR = sparkle3847();
+      M_lenght_save = M_lenght;
+
+      inline u256 feedback_1_result;
+      inline u256 W_result;
+
+      inline u256 M_block;
+      M_block = (256u)[M_start];
+
+      feedback_1_result = feedback_function_1(SL, M_block);
+      W_result = W_128_256(SR);
+
+      feedback_1_result ^= W_result;
+
+      x,y = pre_sparkle_padding(feedback_1_result, SR);
+
+      SL, SR = sparkle3847(x,y);
+
+      M_start += 32;
+
+      M_lenght = M_lenght_save; 
+
+      M_lenght -= 32;
+
+      M_lenght_save = M_lenght;
+    }
+
+    inline u256 feedback_1_result;
+    inline u256 W_result;
+    reg u256 zero;
+    
+    zero = #set0_256();
+    stack u8[32] t;
+    t.[u256 0] = zero;
+
+    reg u256 M_block;
+    reg u64 i;
+    i=0;
+
+    while (i<M_lenght) {
+      t[i] = (u8)[M_start + i];
+      i += 1;
+    }
+    t[i] = 1;
+
+    M_block = t.[u256 0];
+
+    constM = constM_save;
+
+    SR ^= constM;
+
+    constM_save = constM;
+
+    feedback_1_result = feedback_function_2(SL, M_block);
+    W_result = W_128_256(SR);
+    feedback_1_result ^= W_result;
+
+    x,y = pre_sparkle_padding(feedback_1_result, SR);
+
+    SL, SR = sparkle38411(x, y);
   }
-  */
-  reg u32 EXPORT;
   
-  EXPORT = SL[0];
-  EXPORT ^= SR[0];
-
-  return EXPORT;
+  return SR;
 }

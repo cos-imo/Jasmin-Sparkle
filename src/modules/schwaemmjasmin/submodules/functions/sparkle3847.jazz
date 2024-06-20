@@ -9,15 +9,15 @@ from functions require "alzette.jazz"
 from functions require "L6.jazz"
 
 inline
-fn sparkle3847(reg u256 first_block, reg u128 second_block)  -> reg u256, reg u128 {
+fn sparkle3847(reg u32[8] first_tab, reg u32[4] second_tab) -> reg u256, reg u128 {
 
   inline int i;
   inline int s;
 
-  inline u32[6] x; 
-  inline u32[6] y; 
+  reg u32[6] x; 
+  reg u32[6] y; 
 
-  x,y = sparkle_pre_padding(first_block, second_block);
+  x,y = sparkle_pre_padding(first_tab, second_tab);
 
   reg u256 SL;
   reg u128 SR;

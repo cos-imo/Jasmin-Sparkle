@@ -2,10 +2,10 @@
 require "branch_permutation.jazz"
 
 inline
-fn L6(reg u32[6] x, reg u32[6] y)  -> inline u32[6], inline u32[6] {
+fn L6(reg u32[6] x, reg u32[6] y)  -> reg u32[6], reg u32[6] {
 
-  reg u32 tx, ty;
-  reg u32 shift_tx, shift_ty;
+  inline u32 tx, ty;
+  inline u32 shift_tx, shift_ty;
 
   /*
     Feistel round

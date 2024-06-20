@@ -1,7 +1,7 @@
 inline 
-fn sparkle_post_padding(inline u32[6] x, inline u32[6] y ) -> inline u256, inline u128 {
-  inline u256 first_block; 
-  inline u128 second_block;
+fn sparkle_post_padding(reg u32[6] x, reg u32[6] y ) -> reg u256, reg u128 {
+  reg u256 first_block; 
+  reg u128 second_block;
   
   inline int array_index;
 
