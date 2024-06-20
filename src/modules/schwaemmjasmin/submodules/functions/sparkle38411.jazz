@@ -36,7 +36,6 @@ fn sparkle38411(reg u32[8] first_tab, reg u32[4] second_tab)  -> reg u256, reg u
     y[1] ^= s_mod_2_32;
 
     for i=0 to 5 {
-      inline u32 c_constant;
       c_constant = get_sparkle_constant(i);
       x[i], y[i] = alzette(c_constant, x[i], y[i]);
     }

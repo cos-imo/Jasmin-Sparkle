@@ -16,7 +16,6 @@ fn schwaemm(reg u128 K, reg u256 N, reg u64 A_start, reg u64 A_end, reg u64 M_st
 
   reg u256 SL;
   reg u128 SR;
-  inline u8 len;
 
   reg u64 A_lenght;
   reg u64 M_lenght;

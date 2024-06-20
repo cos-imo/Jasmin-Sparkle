@@ -9,6 +9,9 @@ fn pre_sparkle_padding(reg u256 first_tab, inline u128 second_tab) -> reg u32[8]
   inline u256 rotated_first_tab;
   inline u128 rotated_second_tab;
 
+  rotated_first_tab = first_tab;
+  rotated_second_tab = second_tab;
+
   for i=0 to 7 {
     x[i] = rotated_first_tab & 0xFF;
     rotated_first_tab >>= 16;
