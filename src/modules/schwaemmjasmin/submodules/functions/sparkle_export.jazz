@@ -11,7 +11,7 @@ fn sparkle(reg u64 state) {
   }
 
   for i=0 to 4 {
-    SR[i] = (u32)[state +32 + 4*i];
+    SR[i] = (u32)[state + 32 + 4*i];
   }
 
   SL, SR = sparkle384(SL, SR, 7);
@@ -21,8 +21,7 @@ fn sparkle(reg u64 state) {
   }
 
   for i=0 to 4 {
-    (u32)[state +32 + 4*i] = SR[i];
+    (u32)[state + 32 + 4*i] = SR[i];
   }
-
 
 }

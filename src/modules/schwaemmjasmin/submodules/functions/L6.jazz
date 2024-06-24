@@ -5,6 +5,7 @@ fn L6(stack u32[8] SL, stack u32[4] SR)  -> stack u32[8], stack u32[4] {
 
   reg u32 tx, ty;
   reg u32 shift_tx, shift_ty;
+  reg u32 SL_7, SR_1, SR_3, SL_6, SR_0, SR_2;
 
   /*
     Feistel round
@@ -27,19 +28,31 @@ fn L6(stack u32[8] SL, stack u32[4] SR)  -> stack u32[8], stack u32[4] {
   ty ^= shift_ty;
   ty <<r= 16;
 
-  SL[7] ^= SL[1];
+  SL_7 = SL[7];
+  SL_7 ^= SL[1];
+  SL[7] = SL_7;
   SL[7] ^= tx;
-  SR[1] ^= SL[3];
-  SR[1] ^= tx;
-  SR[3] ^= SL[5];
+  SR_1 = SR[1];
+  SR_1 ^= SL[3];
+  SR_1 ^= tx;
+  SR[1] = SR_1;
+  SR_3 = SR[3];
+  SR_3 ^= SL[5];
+  SR[3] = SR_3;
   SR[3] ^= tx;
 
-  SL[6] ^= SL[0];
+  SL_6 = SL[6];
+  SL_6 ^= SL[0];
+  SL[6] = SL_6;
   SL[6] ^= ty;
-  SR[0] ^= SL[2];
-  SR[0] ^= ty;
-  SR[2] ^= SL[4];
-  SR[2] ^= ty;
+  SR_0 = SR[0];
+  SR_0 ^= SL[2];
+  SR_0 ^= ty;
+  SR[0] = SR_0;
+  SR_2 = SR[2];
+  SR_2 ^= SL[4];
+  SR_2 ^= ty;
+  SR[2] = SR_2;
 
   /*
     Branch permutation

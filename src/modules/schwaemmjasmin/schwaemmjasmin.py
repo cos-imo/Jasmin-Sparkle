@@ -31,25 +31,10 @@ class SchwaemmJasmin_t:
             exit()
 
     def schwaemm(self):
-        int32 = ctypes.c_int32
         int64 = ctypes.c_int64
 
-        args = [int32, int32, int32, int32, int32, int32]
+        args = [int64]
 
-        return_64 = self.jasmin_schwaemm_dll.schwaemm()
+        return_var = self.jasmin_schwaemm_dll.schwaemm()
 
-        return_y = return_64 & 0xFFFFFFFF
-        return_x = (return_64 >> 32) & 0xFFFFFFFF
-
-        return return_x, return_y
-        #self.jasmin_crax_dll.crax.argtypes = args
-        #self.jasmin_crax_dll.crax.restype = int64
-"""
-        padded_x = np.uint32(x)
-        padded_y = np.uint32(y)
-        padded_key_0 = np.uint32(key_0)
-        padded_key_1 = np.uint32(key_1)
-        padded_key_2 = np.uint32(key_2)
-        padded_key_3 = np.uint32(key_3)
-
-"""
+        return return_var
