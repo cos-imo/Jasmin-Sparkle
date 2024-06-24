@@ -9,15 +9,12 @@ from functions require "alzette.jazz"
 from functions require "L6.jazz"
 
 inline
-fn sparkle38411(reg u64 x, reg u64 y)  -> reg u256, reg u128 {
+fn sparkle384(stack u32[8] SL, stack u32[4] SR, inline int steps) -> stack u32[8], stack u32[4] {
 
   inline int s;
   inline int i;
 
-  reg u256 SL;
-  reg u128 SR;
-
-  for s=0 to 11 {
+  for s=0 to steps {
     
     inline u32 c_constant;
     inline int s_modulo_8;
@@ -27,19 +24,28 @@ fn sparkle38411(reg u64 x, reg u64 y)  -> reg u256, reg u128 {
     c_constant = get_sparkle_constant(s_modulo_8);
     s_mod_2_32 = s % (2^32);
 
-    (u32)[y] ^= c_constant; 
-    (u32)[y + 4] = s_mod_2_32;
+    SR[1] ^= c_constant; 
+    SR[3] = s_mod_2_32;
 
-    for i=0 to 5 {
+    for i=0 to 4 {
       c_constant = get_sparkle_constant(i);
-      (u32)[x + 4*i], (u32)[y + 4*i] = alzette(c_constant, [x + 4*i], [y + 4*i]);
+      SL[2*i], SL[2*i] = alzette(c_constant, SL[2*i], SL[2*i]);
+      SL[2*i+1], SL[2*i+1] = alzette(c_constant, SL[2*i+1], SL[2*i+1]);
+    }
+
+    for i=0 to 2 {
+      c_constant = get_sparkle_constant(i);
+      SR[2*i], SR[2*i] = alzette(c_constant, SR[2*i], SR[2*i]);
+    }
+
+    for i=0 to 2 {
+
     }
     
-    x, y = L6(x,y);
+    SL, SR = L6(SL,SR);
 
   }
 
-  SL, SR = sparkle_post_padding(x,y);
 
   return SL, SR;
 }

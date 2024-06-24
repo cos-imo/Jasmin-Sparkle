@@ -1,18 +1,25 @@
 inline
-fn branch_permutation (reg u64 x) -> reg u64 {
-  inline u32[5] save;
-  inline int i;
+fn branch_permutation (stack u32[8] SL, stack u32[4] SR) -> stack u32[8], stack u32[4] {
 
-  save[4] = (u32)[x];
-  save[5] = (u32)[x + 4];
-  save[3] = (u32)[x + 8];
-  save[0] = (u32)[x + 12];
-  save[1] = (u32)[x + 16];
-  save[2] = (u32)[x + 20];
+  reg u32 xy_0_save;
 
-  for i=0 to 6 {
-    (u32)[x + 4*i] = save[i];
-  }
+  xy_0_save = SL[0];
 
-  return x;
+  SL[0] = SR[0];
+  SR[0] = SL[2];
+  SL[2] = SR[2];
+  SR[2] = SL[4];
+  SL[4] = SL[6];
+  SL[6] = xy_0_save;
+
+  xy_0_save = SL[1];
+
+  SL[1] = SR[1];
+  SR[1] = SL[2];
+  SL[3] = SR[2];
+  SR[3] = SL[4];
+  SL[5] = SL[6];
+  SL[7] = xy_0_save;
+
+  return SL, SR;
 }

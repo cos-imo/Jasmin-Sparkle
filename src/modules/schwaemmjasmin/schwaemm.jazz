@@ -2,20 +2,23 @@
 A simple schwaemm implementation in Jasmin
 */
 
-from functions require "sparkle3847.jazz"
-from functions require "sparkle38411.jazz"
+from functions require "sparkle384.jazz"
 from functions require "feedback_function_1.jazz"
 from functions require "feedback_function_2.jazz"
 from utils require "pad_256.jazz"
 from utils require "W_128_256.jazz"
 from utils require "initialize_padding_constants.jazz"
 from utils require "pre_sparkle_padding.jazz"
+from utils require "inline_u256_to_tab.jazz"
+from utils require "stack_u256_to_tab.jazz"
 
 export
 fn schwaemm(reg u128 K, reg u256 N, reg u64 A_start, reg u64 A_end, reg u64 M_start, reg u64 M_end, reg u64 output_ptr) -> reg u128 { 
 
-  reg u256 SL;
-  reg u128 SR;
+  stack u256 SL;
+  stack u128 SR;
+  inline u32[8] SL_tab;
+  inline u32[4] SR_tab;
 
   reg u64 A_lenght;
   reg u64 M_lenght;
@@ -35,8 +38,8 @@ fn schwaemm(reg u128 K, reg u256 N, reg u64 A_start, reg u64 A_end, reg u64 M_st
   stack u128 constA_save;
   stack u128 constM_save;
 
-  reg u64 x;
-  reg u64 y;
+  stack u32[8] x;
+  stack u32[4] y;
 
   M_lenght = M_lenght_save;
 
@@ -53,6 +56,7 @@ fn schwaemm(reg u128 K, reg u256 N, reg u64 A_start, reg u64 A_end, reg u64 M_st
       inline u256 W_result;
 
       inline u256 A_block;
+      inline u32[8] A_block_tab;
       A_block = (256u)[A_start];
 
       stack u64 A_start_save;
@@ -63,9 +67,12 @@ fn schwaemm(reg u128 K, reg u256 N, reg u64 A_start, reg u64 A_end, reg u64 M_st
 
       feedback_1_result ^= W_result;
 
+      SL_tab = stack_u256_to_tab(SL);
+      A_block_tab = stack_u256_to_tab(A_block);
+
       x,y = pre_sparkle_padding(feedback_1_result, SR);
 
-      SL, SR = sparkle3847(x,y);
+      SL_tab, SR_tab = sparkle384(x,y,7);
 
       A_start = A_start_save;
 
@@ -106,7 +113,7 @@ fn schwaemm(reg u128 K, reg u256 N, reg u64 A_start, reg u64 A_end, reg u64 M_st
 
     x,y = pre_sparkle_padding(feedback_1_result, SR);
 
-    SL, SR = sparkle38411(x,y);
+    SL_tab, SR_tab = sparkle384(x,y,11);
 
   }
 
@@ -132,7 +139,7 @@ fn schwaemm(reg u128 K, reg u256 N, reg u64 A_start, reg u64 A_end, reg u64 M_st
 
       x,y = pre_sparkle_padding(feedback_1_result, SR);
 
-      SL, SR = sparkle3847(x,y);
+      SL_tab, SR_tab = sparkle384(x,y,7);
 
       M_start += 32;
 
@@ -175,8 +182,8 @@ fn schwaemm(reg u128 K, reg u256 N, reg u64 A_start, reg u64 A_end, reg u64 M_st
 
     x,y = pre_sparkle_padding(feedback_1_result, SR);
 
-    SL, SR = sparkle38411(x, y);
+    SL_tab, SR_tab = sparkle384(x, y,11);
   }
   
-  return SR;
+  return constM;
 }

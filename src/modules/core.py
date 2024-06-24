@@ -6,6 +6,10 @@ import modules.alzettepython.alzettepython as AlzettePython
 import modules.alzettejasmin.alzettejasmin as AlzetteJasmin 
 
 import modules.craxjasmin.craxjasmin as CraxJasmin 
+import modules.craxjasmin.craxjasmin as CraxJasmin 
+
+import modules.schwaemmjasmin.schwaemmjasmin as SchwaemmJasmin 
+#import modules.schwaemmpython.schwaemmpython as SchwaemmPython
 
 import modules.tests.testmanager
 
@@ -34,6 +38,11 @@ class CoreLauncher:
             craxJasmin = CraxJasmin.CraxJasmin_t()
             self.result_x_crax, self.result_y_crax = craxJasmin.crax(self.values[0], self.values[1], self.values[2])
             print(f"{self.result_x_crax}  {self.result_y_crax}")
+
+        if self.parseur.args.schwaemm_jasmin:
+            schwaemmJasmin = SchwaemmJasmin.SchwaemmJasmin_t()
+            self.result_x_schwaemm, self.result_y_schwaemm = schwaemmJasmin.schwaemm()
+            print(f"{self.result_x_schwaemm}  {self.result_y_schwaemm}")
 
         if self.parseur.args.test:
             modules.tests.testmanager.testmanager_t(self.parseur.args.test, self.parseur.args.python_alzette, self.parseur.args.jasmin_alzette, self.values)

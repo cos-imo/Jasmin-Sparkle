@@ -29,6 +29,8 @@ class Parseur:
         self.parser.add_argument('-j', '--jasmin_alzette', action='store_true', help="Launches Alzette (Jasmin implementation)")
         self.parser.add_argument('-cp', '--crax_python', action='store_true', help="Launches CRAX (Python implementation)")
         self.parser.add_argument('-cj', '--crax_jasmin', action='store_true', help="Launches CRAX (Jasmin implementation)")
+        self.parser.add_argument('-sp', '--schwaemm_python', action='store_true', help="Launches Schwaemm (Python implementation)")
+        self.parser.add_argument('-sj', '--schwaemm_jasmin', action='store_true', help="Launches Schwaemm (Jasmin implementation)")
         self.parser.add_argument('-t', '--test', type = self.check_test, help="Launches tests")
         self.parser.add_argument('-d', '--display', action='store_true', help="Display mode: displays results")
 

@@ -1,22 +1,21 @@
-
 require "branch_permutation.jazz"
 
 inline
-fn L6(reg u64 x, reg u64 y)  -> reg u64, reg u64 {
+fn L6(stack u32[8] SL, stack u32[4] SR)  -> stack u32[8], stack u32[4] {
 
-  inline u64 tx, ty;
-  inline u64 shift_tx, shift_ty;
+  reg u32 tx, ty;
+  reg u32 shift_tx, shift_ty;
 
   /*
     Feistel round
   */
 
-  tx = [x];
-  tx ^= [x + 4];
-  tx ^= [x + 8];
-  ty = [y];
-  ty ^= [y + 4];
-  ty ^= [y + 8];
+  tx = SL[0];
+  tx ^= SL[2];
+  tx ^= SL[4];
+  ty = SL[1];
+  ty ^= SL[3];
+  ty ^= SL[5];
 
   shift_tx = tx;
   shift_tx <<= 16;
@@ -28,26 +27,25 @@ fn L6(reg u64 x, reg u64 y)  -> reg u64, reg u64 {
   ty ^= shift_ty;
   ty <<r= 16;
 
-  [y + 12] ^= [y];
-  [y + 12] ^= tx;
-  [y + 16] ^= [y + 4];
-  [y + 16] ^= tx;
-  [y + 20] ^= [y + 8];
-  [y + 20] ^= tx;
+  SL[7] ^= SL[1];
+  SL[7] ^= tx;
+  SR[1] ^= SL[3];
+  SR[1] ^= tx;
+  SR[3] ^= SL[5];
+  SR[3] ^= tx;
 
-  [x + 12] ^= [x];
-  [x + 12] ^= ty;
-  [x + 16] ^= [x + 4];
-  [x + 16] ^= ty;
-  [x + 20] ^= [x + 8];
-  [x + 20] ^= ty;
+  SL[6] ^= SL[0];
+  SL[6] ^= ty;
+  SR[0] ^= SL[2];
+  SR[0] ^= ty;
+  SR[2] ^= SL[4];
+  SR[2] ^= ty;
 
   /*
     Branch permutation
   */
 
-  x = branch_permutation(x);
-  y = branch_permutation(y);
+  SL, SR = branch_permutation(SL, SR);
 
-  return x,y;
+  return SL,SR;
 }
