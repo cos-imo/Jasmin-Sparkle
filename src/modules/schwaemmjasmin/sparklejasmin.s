@@ -380,20 +380,20 @@ sparkle:
 	roll	$16, %ecx
 	movl	44(%rsp), %edx
 	xorl	20(%rsp), %edx
+	xorl	%eax, %edx
 	movl	%edx, 44(%rsp)
-	xorl	%eax, 44(%rsp)
 	movl	4(%rsp), %edx
 	xorl	28(%rsp), %edx
 	xorl	%eax, %edx
 	movl	%edx, 4(%rsp)
 	movl	12(%rsp), %edx
 	xorl	36(%rsp), %edx
+	xorl	%eax, %edx
 	movl	%edx, 12(%rsp)
-	xorl	%eax, 12(%rsp)
 	movl	40(%rsp), %eax
 	xorl	16(%rsp), %eax
+	xorl	%ecx, %eax
 	movl	%eax, 40(%rsp)
-	xorl	%ecx, 40(%rsp)
 	movl	(%rsp), %eax
 	xorl	24(%rsp), %eax
 	xorl	%ecx, %eax
@@ -774,20 +774,20 @@ sparkle:
 	roll	$16, %ecx
 	movl	44(%rsp), %edx
 	xorl	20(%rsp), %edx
+	xorl	%eax, %edx
 	movl	%edx, 44(%rsp)
-	xorl	%eax, 44(%rsp)
 	movl	4(%rsp), %edx
 	xorl	28(%rsp), %edx
 	xorl	%eax, %edx
 	movl	%edx, 4(%rsp)
 	movl	12(%rsp), %edx
 	xorl	36(%rsp), %edx
+	xorl	%eax, %edx
 	movl	%edx, 12(%rsp)
-	xorl	%eax, 12(%rsp)
 	movl	40(%rsp), %eax
 	xorl	16(%rsp), %eax
+	xorl	%ecx, %eax
 	movl	%eax, 40(%rsp)
-	xorl	%ecx, 40(%rsp)
 	movl	(%rsp), %eax
 	xorl	24(%rsp), %eax
 	xorl	%ecx, %eax
@@ -1168,20 +1168,20 @@ sparkle:
 	roll	$16, %ecx
 	movl	44(%rsp), %edx
 	xorl	20(%rsp), %edx
+	xorl	%eax, %edx
 	movl	%edx, 44(%rsp)
-	xorl	%eax, 44(%rsp)
 	movl	4(%rsp), %edx
 	xorl	28(%rsp), %edx
 	xorl	%eax, %edx
 	movl	%edx, 4(%rsp)
 	movl	12(%rsp), %edx
 	xorl	36(%rsp), %edx
+	xorl	%eax, %edx
 	movl	%edx, 12(%rsp)
-	xorl	%eax, 12(%rsp)
 	movl	40(%rsp), %eax
 	xorl	16(%rsp), %eax
+	xorl	%ecx, %eax
 	movl	%eax, 40(%rsp)
-	xorl	%ecx, 40(%rsp)
 	movl	(%rsp), %eax
 	xorl	24(%rsp), %eax
 	xorl	%ecx, %eax
@@ -1562,20 +1562,20 @@ sparkle:
 	roll	$16, %ecx
 	movl	44(%rsp), %edx
 	xorl	20(%rsp), %edx
+	xorl	%eax, %edx
 	movl	%edx, 44(%rsp)
-	xorl	%eax, 44(%rsp)
 	movl	4(%rsp), %edx
 	xorl	28(%rsp), %edx
 	xorl	%eax, %edx
 	movl	%edx, 4(%rsp)
 	movl	12(%rsp), %edx
 	xorl	36(%rsp), %edx
+	xorl	%eax, %edx
 	movl	%edx, 12(%rsp)
-	xorl	%eax, 12(%rsp)
 	movl	40(%rsp), %eax
 	xorl	16(%rsp), %eax
+	xorl	%ecx, %eax
 	movl	%eax, 40(%rsp)
-	xorl	%ecx, 40(%rsp)
 	movl	(%rsp), %eax
 	xorl	24(%rsp), %eax
 	xorl	%ecx, %eax
@@ -1956,20 +1956,20 @@ sparkle:
 	roll	$16, %ecx
 	movl	44(%rsp), %edx
 	xorl	20(%rsp), %edx
+	xorl	%eax, %edx
 	movl	%edx, 44(%rsp)
-	xorl	%eax, 44(%rsp)
 	movl	4(%rsp), %edx
 	xorl	28(%rsp), %edx
 	xorl	%eax, %edx
 	movl	%edx, 4(%rsp)
 	movl	12(%rsp), %edx
 	xorl	36(%rsp), %edx
+	xorl	%eax, %edx
 	movl	%edx, 12(%rsp)
-	xorl	%eax, 12(%rsp)
 	movl	40(%rsp), %eax
 	xorl	16(%rsp), %eax
+	xorl	%ecx, %eax
 	movl	%eax, 40(%rsp)
-	xorl	%ecx, 40(%rsp)
 	movl	(%rsp), %eax
 	xorl	24(%rsp), %eax
 	xorl	%ecx, %eax
@@ -2350,20 +2350,20 @@ sparkle:
 	roll	$16, %ecx
 	movl	44(%rsp), %edx
 	xorl	20(%rsp), %edx
+	xorl	%eax, %edx
 	movl	%edx, 44(%rsp)
-	xorl	%eax, 44(%rsp)
 	movl	4(%rsp), %edx
 	xorl	28(%rsp), %edx
 	xorl	%eax, %edx
 	movl	%edx, 4(%rsp)
 	movl	12(%rsp), %edx
 	xorl	36(%rsp), %edx
+	xorl	%eax, %edx
 	movl	%edx, 12(%rsp)
-	xorl	%eax, 12(%rsp)
 	movl	40(%rsp), %eax
 	xorl	16(%rsp), %eax
+	xorl	%ecx, %eax
 	movl	%eax, 40(%rsp)
-	xorl	%ecx, 40(%rsp)
 	movl	(%rsp), %eax
 	xorl	24(%rsp), %eax
 	xorl	%ecx, %eax
@@ -2744,20 +2744,20 @@ sparkle:
 	roll	$16, %ecx
 	movl	44(%rsp), %edx
 	xorl	20(%rsp), %edx
+	xorl	%eax, %edx
 	movl	%edx, 44(%rsp)
-	xorl	%eax, 44(%rsp)
 	movl	4(%rsp), %edx
 	xorl	28(%rsp), %edx
 	xorl	%eax, %edx
 	movl	%edx, 4(%rsp)
 	movl	12(%rsp), %edx
 	xorl	36(%rsp), %edx
+	xorl	%eax, %edx
 	movl	%edx, 12(%rsp)
-	xorl	%eax, 12(%rsp)
 	movl	40(%rsp), %eax
 	xorl	16(%rsp), %eax
+	xorl	%ecx, %eax
 	movl	%eax, 40(%rsp)
-	xorl	%ecx, 40(%rsp)
 	movl	(%rsp), %eax
 	xorl	24(%rsp), %eax
 	xorl	%ecx, %eax
@@ -2806,8 +2806,6 @@ sparkle:
 	movl	%eax, 24(%rdi)
 	movl	44(%rsp), %eax
 	movl	%eax, 28(%rdi)
-	movl	(%rsp), %eax
-	movl	%eax, 32(%rdi)
 	movl	4(%rsp), %eax
 	movl	%eax, 36(%rdi)
 	movl	8(%rsp), %eax

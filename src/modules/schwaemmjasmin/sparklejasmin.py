@@ -6,14 +6,7 @@ from pathlib import Path
 import numpy as np
 
 class Argument(ctypes.Structure):
-    _fields_ = [("arg_1", ctypes.c_int32),
-                ("arg_2", ctypes.c_int32),
-                ("arg_3", ctypes.c_int32),
-                ("arg_4", ctypes.c_int32),
-                ("arg_5", ctypes.c_int32),
-                ("arg_6", ctypes.c_int32),
-                ("arg_7", ctypes.c_int32),
-                ("arg_8", ctypes.c_int32),]
+    _fields_ = [("arg_array", ctypes.c_int32 * 8)]
 
 class SchwaemmJasmin_t:
 
@@ -42,19 +35,20 @@ class SchwaemmJasmin_t:
         self.jasmin_sparkle_dll.sparkle.argtypes = args
         self.jasmin_sparkle_dll.sparkle.restype = None
         self.jasmin_sparkle_dll.sparkle(arg)
-        print("ok")
 
 if __name__ == "__main__":
     SparkleInstance = SchwaemmJasmin_t()
-    arg = Argument(1,2,3,4,5,6,7,8)
+    ints = ctypes.c_int32 * 8
+    array = ints(1,2,3,4,5,6,7,8)
+    arg = Argument(array)
     ptr = ctypes.pointer(arg)
     SparkleInstance.sparkle(ptr)
-    print(arg.arg_1)
-    print(arg.arg_2)
-    print(arg.arg_3)
-    print(arg.arg_4)
-    print(arg.arg_5)
-    print(arg.arg_6)
-    print(arg.arg_7)
-    print(arg.arg_8)
-    print("done")
+
+    for i in range(0,4):
+        value = array[i]
+        value1 = value & 0xFF
+        value2 = value
+        value2  = (value2 >> 16) & 0xFFFFFFFF 
+        value2 = value2 & 0xFF
+        print(f"x_{i*2} : {value1}\tx_{i*2+1} : {value2}")
+

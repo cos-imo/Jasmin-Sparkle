@@ -2,23 +2,23 @@ JASMINC?= jasminc
 JFLAGS?=
 CC?=cc
 
-OBJ:=asm/sparkle.o
+OBJ:=asm/schwaemm.o
 
 .SUFFIXES: .c .s .jazz .o .so .a
 .PRECIOUS: asm/%.s
 
-libs: sparkle.so
+libs: schwaemm.so
 
-sparkle.s: submodules/functions/sparkle_export.jazz
+schwaemm.s: schwaemm.jazz
 	mkdir -p asm/
 	$(JASMINC) $(JFLAGS) -I functions:submodules/functions -I utils:submodules/utils -o $@ $<
 
-asm/sparkle.o: sparkle.s
+asm/schwaemm.o: schwaemm.s
 	$(CC) -o $@ -c $<
 
-sparkle.so: $(OBJ)
+schwaemm.so: $(OBJ)
 	$(CC) -shared -o $@ $^
 
 clean:
 	$(RM) -r asm/
-	$(RM) sparkle.s
+	$(RM) schwaemm.s
