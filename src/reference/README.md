@@ -1,4 +1,4 @@
-NOTE: This folder comes from [the official sparkle repository on GitHub](https://github.com/cryptolu/sparkle). I only kept the implementations of the functions I needed to test. Below is the original README of this folder:
+**NOTE**: This folder comes from [the official sparkle repository on GitHub](https://github.com/cryptolu/sparkle). I only kept the implementations of the functions I needed to test. Below is the original README of this folder:
 
 The folder contains the software implementation of the SPARKLE ciphersuite algorithms. 
 
