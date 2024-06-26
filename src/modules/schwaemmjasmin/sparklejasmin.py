@@ -26,7 +26,7 @@ class Sparkle_t:
         try:
             self.jasmin_sparkle_dll = ctypes.cdll.LoadLibrary("sparkle_jasmin.so")
 
-            args = [ctypes.c_int32 * 12]
+            args = [ctypes.c_uint32 * 12]
 
             self.jasmin_sparkle_dll.sparkle.argtypes = args
             self.jasmin_sparkle_dll.sparkle.restype = None
@@ -89,7 +89,7 @@ class Sparkle_t:
 
     def test_sparkle_jasmin(self, x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5):
 
-        self.ints = ctypes.c_int32 *12 
+        self.ints = ctypes.c_uint32 *12 
         array_jasmin = self.ints(x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5)
 
         self.jasmin_sparkle_dll.sparkle(array_jasmin)
