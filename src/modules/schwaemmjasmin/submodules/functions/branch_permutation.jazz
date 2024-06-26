@@ -15,10 +15,10 @@ fn branch_permutation (stack u32[8] SL, stack u32[4] SR) -> stack u32[8], stack 
   xy_0_save = SL[1];
 
   SL[1] = SR[1];
-  SR[1] = SL[2];
-  SL[3] = SR[2];
-  SR[3] = SL[4];
-  SL[5] = SL[6];
+  SR[1] = SL[3];
+  SL[3] = SR[3];
+  SR[3] = SL[5];
+  SL[5] = SL[7];
   SL[7] = xy_0_save;
 
   return SL, SR;
