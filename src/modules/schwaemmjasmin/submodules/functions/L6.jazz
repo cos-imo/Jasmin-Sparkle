@@ -5,7 +5,7 @@ fn L6(stack u32[8] SL, stack u32[4] SR)  -> stack u32[8], stack u32[4] {
 
   reg u32 tx, ty;
   reg u32 shift_tx, shift_ty;
-  reg u32 SL_7, SR_1, SR_3, SL_6, SR_0, SR_2, SL_1;
+  reg u32 SL_7, SR_1, SR_3, SL_6, SR_0, SR_2;
 
   /*
     Feistel round
@@ -17,6 +17,7 @@ fn L6(stack u32[8] SL, stack u32[4] SR)  -> stack u32[8], stack u32[4] {
   ty = SL[1];
   ty ^= SL[3];
   ty ^= SL[5];
+  
 
   shift_tx = tx;
   shift_tx <<= 16;
