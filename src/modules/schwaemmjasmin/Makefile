@@ -13,24 +13,12 @@ schwaemm: schwaemm.so
 
 sparkle: sparkle_jasmin.so
 
-sparkle_all: sparkle7_jasmin.so sparkle11_jasmin.so
+sparkle_all: sparkle7_jasmin.so sparkle11_jasmin.so 
 
 # Sparkle
-## Sparkle "pure"
-
-sparkle.s: submodules/functions/sparkle_export.jazz submodules/functions/sparkle384.jazz
-	mkdir -p asm/
-	$(JASMINC) $(JFLAGS) -I functions:submodules/functions -I utils:submodules/utils -o $@ $<
-
-asm/sparkle.o: sparkle.s
-	$(CC) -o $@ -c $<
-
-sparkle_jasmin.so: asm/sparkle.o
-	$(CC) -shared -o $@ $^
-
 ## Sparkle 7
 
-sparkle7.s: submodules/functions/sparkle384_7.jazz submodules/functions/sparkle384.jazz
+sparkle7.s: submodules/functions/sparkle7.jazz
 	mkdir -p asm/
 	$(JASMINC) $(JFLAGS) -I functions:submodules/functions -I utils:submodules/utils -o $@ $<
 
@@ -42,7 +30,7 @@ sparkle7_jasmin.so: asm/sparkle7.o
 
 ## Sparkle11 
 
-sparkle11.s: submodules/functions/sparkle384_11.jazz submodules/functions/sparkle384.jazz
+sparkle11.s: submodules/functions/sparkle384_11.jazz submodules/functions/sparkle11.jazz
 	mkdir -p asm/
 	$(JASMINC) $(JFLAGS) -I functions:submodules/functions -I utils:submodules/utils -o $@ $<
 
@@ -66,5 +54,5 @@ schwaemm.so: asm/schwaem.so
 
 clean:
 	$(RM) -r asm/
-	$(RM) sparkle.s
+	$(RM) sparkle.s sparkle7.s sparkle11.s
 	$(RM) schwaemm.s
