@@ -7,7 +7,7 @@ from functions require "alzette.jazz"
 from functions require "L6.jazz"
 
 inline
-fn sparkle384(stack u32[8] SL, stack u32[4] SR, inline int steps) -> stack u32[8], stack u32[4] {
+fn sparkle384(reg ptr u32[8] SL, reg ptr u32[4] SR, inline int steps) -> reg ptr u32[8], reg ptr u32[4] {
 
   inline int s;
   inline int i;
