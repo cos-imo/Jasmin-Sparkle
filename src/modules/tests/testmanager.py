@@ -4,7 +4,7 @@ import modules.tests.tests_bank.test2
 
 class testmanager_t:
     def __init__(self, choice="all", python_implementation = None, jasmin_implementation = None, values = [1,2,3]):
-        self.test_library = [modules.tests.tests_bank.test1, modules.tests.tests_bank.test2]
+        self.test_library = [modules.tests.tests_bank.test1, modules.tests.tests_bank.test2, modules.tests.tests_bank.test3]
 
         self.python_implementation = python_implementation
         self.jasmin_implementation = jasmin_implementation
