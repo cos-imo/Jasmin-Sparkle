@@ -12,6 +12,8 @@ class Sparkle_t:
     def __init__(self):
 
         self.load_jasmin_library()
+        self.load_jasmin7_library()
+        self.load_jasmin11_library()
         self.load_c_library()
 
     def load_jasmin_library(self):
@@ -33,6 +35,51 @@ class Sparkle_t:
 
         except:
             sys.stdout.write("Couldn't import sparkle_jasmin.so library\nExiting\n")
+            exit()
+
+
+    def load_jasmin7_library(self):
+        if Path("sparkle7_jasmin.so").exists():
+            self.try_load_jasmin7_library()
+            return
+        else:
+            sys.stdout.write("Jasmin Sparkle7 library (.so) not found. Please compile it.\nExiting\n")
+            exit()
+
+    def try_load_jasmin7_library(self):
+        try:
+            self.jasmin_sparkle7_dll = ctypes.cdll.LoadLibrary("sparkle7_jasmin.so")
+
+            args = [ctypes.c_uint32 * 12]
+            print("args defined")
+
+            self.jasmin_sparkle7_dll.sparkle7.argtypes = args
+            print("args_done")
+            self.jasmin_sparkle7_dll.sparkle384_7.restype = None
+
+        except:
+            sys.stdout.write("Couldn't import sparkle7_jasmin.so library\nExiting\n")
+            exit()
+
+    def load_jasmin11_library(self):
+        if Path("sparkle11_jasmin.so").exists():
+            self.try_load_jasmin11_library()
+            return
+        else:
+            sys.stdout.write("Jasmin Sparkle11 library (.so) not found. Please compile it.\nExiting\n")
+            exit()
+
+    def try_load_jasmin11_library(self):
+        try:
+            self.jasmin_sparkle11_dll = ctypes.cdll.LoadLibrary("sparkle11_jasmin.so")
+
+            args = [ctypes.c_uint32 * 12]
+
+            self.jasmin_sparkle11_dll.sparkle384_11.argtypes = args
+            self.jasmin_sparkle11_dll.sparkle384_11.restype = None
+
+        except:
+            sys.stdout.write("Couldn't import sparkle11_jasmin.so library\nExiting\n")
             exit()
 
     def load_c_library(self):
@@ -96,12 +143,30 @@ class Sparkle_t:
 
         return array_jasmin
 
-    def test_sparkle_reference(self, x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5):
+    def test_sparkle7_jasmin(self, x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5):
+
+        self.ints = ctypes.c_uint32 *12 
+        array_jasmin = self.ints(x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5)
+
+        self.jasmin_sparkle7_dll.sparkle382_7(array_jasmin)
+
+        return array_jasmin
+
+    def test_sparkle11_jasmin(self, x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5):
+
+        self.ints = ctypes.c_uint32 *12 
+        array_jasmin = self.ints(x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5)
+
+        self.jasmin_sparkle11_dll.sparkle384_11(array_jasmin)
+
+        return array_jasmin
+
+    def test_sparkle_reference(self, steps, x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5):
 
         self.ints = ctypes.c_uint32 *12 
         array_reference = self.ints(x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5)
 
-        self.reference_sparkle_dll.sparkle(array_reference, ctypes.c_uint32(6), ctypes.c_uint32(1))
+        self.reference_sparkle_dll.sparkle(array_reference, ctypes.c_uint32(6), ctypes.c_uint32(steps))
 
         return array_reference
 
@@ -110,10 +175,33 @@ class Sparkle_t:
         jasmin_result = self.test_sparkle_jasmin(x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5)
         reference_result = self.test_sparkle_reference(x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5)
 
-        for i in range(0,11):
-            print(f"x_{i} : {['\033[0;31m','\033[0;32m'][jasmin_result[i]==reference_result[i]]}{jasmin_result[i]}\t{['\033[0;31m','\033[0;32m'][jasmin_result[i]==reference_result[i]]}{reference_result[i]}\033[0;37m")
+        print("\n\tJASMIN\t\tREFERENCE")
+
+        for i in range(0,12):
+            print(f"{['x','y'][i%2]}_{[int(i/2), int(i/2)][i%2]} : {['\033[0;31m','\033[0;32m'][jasmin_result[i]==reference_result[i]]}{jasmin_result[i]}\t{['\033[0;31m','\033[0;32m'][jasmin_result[i]==reference_result[i]]}{reference_result[i]}\033[0;37m")
+
+        print()
+
+
+    def compare_sparkle(self, steps, x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5):
+        if steps == "export":
+            jasmin_result = self.test_sparkle_jasmin(x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5)
+            steps = 11
+        elif steps == 7:
+            jasmin_result = self.test_sparkle7_jasmin(x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5)
+        elif steps == 11:
+            jasmin_result = self.test_sparkle11_jasmin(x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5)
+        reference_result = self.test_sparkle_reference(steps, x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5)
+
+        print("\n\tJASMIN\t\tREFERENCE")
+
+        for i in range(0,12):
+            print(f"{['x','y'][i%2]}_{[int(i/2), int(i/2)][i%2]} : {['\033[0;31m','\033[0;32m'][jasmin_result[i]==reference_result[i]]}{jasmin_result[i]}\t{['\033[0;31m','\033[0;32m'][jasmin_result[i]==reference_result[i]]}{reference_result[i]}\033[0;37m")
+
+        print()
 
 if __name__ == "__main__":
     SparkleInstance = Sparkle_t()
+    for i in range(50):
+        SparkleInstance.compare_sparkle(11, 1, 2, 3,4,5,6,7,8,9,10,11,12)
     #SparkleInstance.test_sparkle()
-    SparkleInstance.compare_sparkle(1, 2, 3,4,5,6,7,8,9,10,11,12)
