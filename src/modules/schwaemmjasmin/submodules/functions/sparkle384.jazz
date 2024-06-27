@@ -3,8 +3,6 @@
 */
 
 from utils require "sparkle384_constants.jazz"
-from utils require "sparkle_pre_padding.jazz"
-from utils require "sparkle_post_padding.jazz"
 from functions require "alzette.jazz"
 from functions require "L6.jazz"
 
@@ -24,24 +22,19 @@ fn sparkle384(stack u32[8] SL, stack u32[4] SR, inline int steps) -> stack u32[8
     c_constant = get_sparkle_constant(s_modulo_8);
     s_mod_2_32 = s % (2^32);
 
-    SR[1] ^= c_constant; 
-    SR[3] = s_mod_2_32;
+    SL[1] ^= c_constant; 
+    SL[3] ^= s_mod_2_32;
 
     for i=0 to 4 {
       c_constant = get_sparkle_constant(i);
-      SL[2*i], SL[2*i] = alzette(c_constant, SL[2*i], SL[2*i]);
-      SL[2*i+1], SL[2*i+1] = alzette(c_constant, SL[2*i+1], SL[2*i+1]);
+      SL[2*i], SL[2*i+1] = alzette(c_constant, SL[2*i], SL[2*i+1]);
     }
 
     for i=0 to 2 {
-      c_constant = get_sparkle_constant(i);
-      SR[2*i], SR[2*i] = alzette(c_constant, SR[2*i], SR[2*i]);
+      c_constant = get_sparkle_constant(4+i);
+      SR[2*i], SR[2*i+1] = alzette(c_constant, SR[2*i], SR[2*i+1]);
     }
 
-    for i=0 to 2 {
-
-    }
-    
     SL, SR = L6(SL,SR);
 
   }
