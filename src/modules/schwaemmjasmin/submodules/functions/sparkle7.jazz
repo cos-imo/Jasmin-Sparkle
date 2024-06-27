@@ -1,11 +1,9 @@
-from functions require "sparkle384.jazz"
+from functions require "sparkle384_7.jazz"
 
 export
 fn sparkle7(reg u64 state) {
-  stack u32[8] SL;
-  stack u32[4] SR;
-  reg ptr SL_ptr;
-  reg ptr SR_ptr;
+  reg ptr u32[8] SL;
+  reg ptr u32[4] SR;
   inline int i;
 
   for i=0 to 8 {
@@ -16,7 +14,7 @@ fn sparkle7(reg u64 state) {
     SR[i] = (u32)[state + 32 + 4*i];
   }
 
-  SL, SR = sparkle384(SL, SR, 7);
+  SL, SR = sparkle384_7(SL, SR);
 
   for i=0 to 8 {
     (u32)[state + 4*i] = SL[i];

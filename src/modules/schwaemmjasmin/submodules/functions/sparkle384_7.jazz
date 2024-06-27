@@ -1,0 +1,6 @@
+from functions require "sparkle384.jazz"
+
+fn sparkle384_7(reg ptr u32[8] SL, reg ptr u32[4] SR) -> reg ptr u32[8], reg ptr u32[4] {
+  SL, SR = sparkle384(SL, SR, 7);
+  return SL, SR;
+}
