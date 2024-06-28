@@ -1,7 +1,7 @@
 require "branch_permutation.jazz"
 
 inline
-fn L6(stack u32[8] SL, stack u32[4] SR)  -> stack u32[8], stack u32[4] {
+fn L6(reg ptr u32[8] SL, reg ptr u32[4] SR)  -> reg ptr u32[8], reg ptr u32[4] {
 
   reg u32 tx, ty;
   reg u32 shift_tx, shift_ty;

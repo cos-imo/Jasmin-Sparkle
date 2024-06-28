@@ -16,7 +16,10 @@ fn sparkle11(reg u64 state) {
     SR[i] = (u32)[state + 32 + 4*i];
   }
 
-  SL, SR = sparkle384_11(SL, SR, 7);
+  SL_ptr = state;
+  SR_ptr = state + 32;
+
+  SL, SR = sparkle384_11(SL_ptr, SR_ptr, 7);
 
   for i=0 to 8 {
     (u32)[state + 4*i] = SL[i];

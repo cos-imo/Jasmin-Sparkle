@@ -2,8 +2,8 @@ from functions require "sparkle384_7.jazz"
 
 export
 fn sparkle7(reg u64 state) {
-  reg ptr u32[8] SL;
-  reg ptr u32[4] SR;
+  stack u32[8] SL;
+  stack u32[4] SR;
   inline int i;
 
   for i=0 to 8 {
