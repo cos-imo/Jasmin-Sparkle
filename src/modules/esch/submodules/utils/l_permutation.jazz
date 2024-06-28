@@ -1,0 +1,13 @@
+inline
+fn l(reg u32 x) {
+  reg u32 shifted_x;
+
+  shifted_x = x;
+  shifted_x <<r= 16;
+
+  x &= 0xFFFF;
+
+  x ^= shifted_x;
+
+  return x;
+}
