@@ -16,14 +16,12 @@ fn sparkle384(reg ptr u32[8] SL, reg ptr u32[4] SR, inline int steps) -> reg ptr
     
     inline u32 c_constant;
     inline int s_modulo_8;
-    inline int s_mod_2_32;
 
     s_modulo_8 = s%8;
     c_constant = get_sparkle_constant(s_modulo_8);
-    s_mod_2_32 = s % (2^32);
 
     SL[1] ^= c_constant; 
-    SL[3] ^= s_mod_2_32;
+    SL[3] ^= s;
 
     for i=0 to 4 {
       c_constant = get_sparkle_constant(i);
