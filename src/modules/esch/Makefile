@@ -9,9 +9,9 @@ OBJ:=asm/sparkle.o asm/schwaemm.o
 
 all: esch 
 
-esch.s: submodules/functions/esch.jazz
+esch.s: functions/esch.jazz
 	mkdir -p asm/
-	$(JASMINC) $(JFLAGS) -I functions:submodules/functions -I utils:submodules/utils -o $@ $<
+	$(JASMINC) $(JFLAGS) -I functions:functions -o $@ $<
 
 asm/esch.o: esch.s
 	$(CC) -o $@ -c $<
