@@ -44,7 +44,7 @@ fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
       M3_tab[4] = zero;
       M3_tab[5] = zero;
 
-      M3_tab = M3(M3_tab);
+      M3_tab = M3(M3_tab); // tout mettre avec S et M_Start
 
       for i=0 to 4 {
         reg u32 l;

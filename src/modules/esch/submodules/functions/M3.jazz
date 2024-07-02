@@ -1,19 +1,37 @@
-from utils require "l_permutation.jazz"
+inline
+fn l(reg u32 x) -> reg u32{
+  reg u32 shifted_x;
 
-fn M3(reg u32 x_0, reg u32 y_0, reg u32 x_1, reg u32 y_1, reg u32 x_2, reg u32 y_2) -> reg u32, reg u32, reg u32, reg u32, reg u32, reg u32 {
+  shifted_x = x;
+  shifted_x <<r= 16;
+
+  x &= 0xFFFF;
+
+  x ^= shifted_x;
+
+  return x;
+}
+
+inline
+fn M3(reg ptr u32[6] tab) -> reg ptr u32[6] {
   reg u32 t_x, t_y;
 
-  t_x = x_0 ^ x_1;
-  t_y = y_0 ^ y_1;
+  t_x = tab[0];
+  t_x ^= tab[2];
+  t_y = tab[1];
+  t_y ^= tab[3];
 
   t_x = l(t_x);
   t_y = l(t_y);
 
-  x_0 ^= t_x;
-  x_1 ^= t_x;
+  tab[0] ^= t_x;
+  tab[2] ^= t_x;
 
-  y_0 ^= t_y;
-  y_1 ^= t_y;
+  tab[1] ^= t_y;
+  tab[3] ^= t_y;
 
-  return x_0, y_0, x_1, y_1, t_x, t_y;
+  tab[4] = t_x;
+  tab[5] = t_y;
+
+  return tab;
 }

@@ -2,7 +2,36 @@
 A simple Alzette implementation in Jasmin
 */
 
-from utils require "alzette_offset.jazz"
+
+
+inline
+fn get_offset(inline u32 index) -> inline int, inline int {
+  inline int offset_x;
+  inline int offset_y;
+
+  if (index==0) {
+    offset_x = 31;
+    offset_y = 24;
+  }
+
+  if (index==1) {
+    offset_x = 17;
+    offset_y = 17;
+  }
+
+  if (index==2) {
+    offset_x = 0;
+    offset_y = 31;
+  }
+
+  if (index==3) {
+    offset_x = 24;
+    offset_y = 16;
+  }
+
+  return offset_x, offset_y;
+}
+
 
 inline
 fn alzette(reg u32 c, reg u32 x, reg u32 y) -> reg u32, reg u32 {
@@ -38,3 +67,5 @@ fn alzette(reg u32 c, reg u32 x, reg u32 y) -> reg u32, reg u32 {
 
   return x, y;
 }
+
+

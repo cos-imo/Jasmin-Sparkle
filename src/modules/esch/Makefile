@@ -17,7 +17,7 @@ asm/esch.o: esch.s
 	$(CC) -o $@ -c $<
 
 esch.so: asm/esch.so
-	$(CC) -shared -o $@ $^
+	$(CC) -shared -o $@ $^ -v
 
 clean:
 	$(RM) -r asm/
