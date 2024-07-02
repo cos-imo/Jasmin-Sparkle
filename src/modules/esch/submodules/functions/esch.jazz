@@ -1,88 +1,121 @@
 /*
-A simple schwaemm implementation in Jasmin
+A simple Esch implementation in Jasmin
 */
 
 from functions require "sparkle384.jazz"
+from functions require "M3.jazz"
 
 export
-fn schwaemm(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) -> reg u128 { 
+fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) { 
 
-  reg int l;
-  reg u64 constM;
-  reg u128 S_0;
-  reg u256 S_1;
+  reg u32 constM;
   reg u128 D_0;
   reg u128 D_1;
-
-  if M_end - M_start != 0 {
-    while ((M_end-M_start) < 256) {
-      stack u256 M_block;
-      stack u32[8] M_block_tab;
-      M_block = (128u)[M_start];
-
-      S_0 ^= M_block;
-
-      //Pad M_block
-      // M_3 Mult
-
-      //ou 
-
-      // M_8_128_mult?
+  reg u256 res;
+  reg u64 M_lenght;
 
 
+  M_lenght = M_end;
+  M_lenght -= M_start;
 
+  stack u32[12] S;
 
-      // Pad M_block
+  reg u32 zero;
+  ?{},zero = #set0_32();
 
-      S ^= M_block;
-
-      S = Sparkle384_7(S);
-    }
-
-    if M_end-M_start<128 {
-      // pad 
-      constM = 1;
-      constM <<= 192;
-    } else {
-      constM = 2;
-      constM <<= 192;
-    }
-
-    reg u256 zero;
-    reg u256 M_block;
-    
-    zero = #set0_256();
-    stack u8[32] t;
-    t.[u256 0] = zero;
-
-    reg u64 i;
-    i=0;
-
-    while (i<M_end-M_start) {
-      t[i] = (u8)[M_start + i];
-      i += 1;
-    }
-    t[i] = 1;
-
-    M_block = t.[u256 0];
-
-    // Padd last M M_block
-    
-    S ^= M_block;
-
-    S ^= constM;
-
-    S = sparkle384_11(S);
-
-    D_0 = (128u)S;
-
-    S = Sparkle384_7(S);
-
-    D_1 = (128u)S;
-
-  } else {
-    l = 1;
+  inline int j;
+  for j=0 to 12 {
+    S[j] = zero;
   }
 
-  return constM;
+  // MAIN LOOP
+
+  if M_end != M_start {
+    while (M_lenght < 128) {
+      inline int i;
+      stack u32[4] M_block_tab;
+      stack u32[6] M3_tab;
+    
+
+      for i=0 to 4 {
+        M3_tab[i] = (u32)[M_start + 4*i];
+      }
+
+      M3_tab[4] = zero;
+      M3_tab[5] = zero;
+
+      M3_tab = M3(M3_tab);
+
+      for i=0 to 4 {
+        reg u32 l;
+        l = M3_tab[i];
+        S[i] ^= l;
+      }
+
+      S[0:8], S[8:4] = sparkle384_7(S[0:8], S[8:4]);
+
+      M_start += 32;
+      M_lenght = M_end;
+      M_lenght -= M_start;
+    }
+
+
+    // LAST BLOCK
+
+    stack u32[6] M_block;
+
+    inline int i;
+    for i=0 to 6 {
+      M_block[i] = zero;
+    }
+
+    reg u64 i;
+
+    i=0;
+
+    while (M_lenght>0) {
+      reg u32 l;
+      l = (u32)[M_start];
+      S[i] ^= l;
+      M_start += 32;
+      i += 1;
+      // i = i%12;
+      M_lenght = M_end;
+      M_lenght-=M_start;
+    }
+
+    // PADDING
+
+    if i<6 {
+      S[u8 i] ^= 1;
+      constM = 1;
+    } else {
+      constM =2;
+    }
+
+    S[6] ^= constM;
+
+
+    // D_0
+     
+    inline int j;
+
+    for j=0 to 4 {
+      (u32)[output_ptr + 4*j] = S[j];
+    }
+
+    S[0:8], S[8:4] = sparkle384_7(S[0:8], S[8:4]);
+
+
+    // D_1
+
+    inline int k;
+
+    for k=0 to 4 {
+      (u32)[output_ptr + 16 + 4*k] = S[k];
+    }
+
+  } 
+
 }
+
