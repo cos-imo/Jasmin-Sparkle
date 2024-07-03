@@ -2,7 +2,7 @@
 A simple Esch implementation in Jasmin
 */
 
-from functions require "sparkle384.jazz"
+from sparkle require "sparkle384.jazz"
 from functions require "M3.jazz"
 
 fn 
@@ -37,7 +37,6 @@ fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
   reg u32 constM;
   reg u128 D_0;
   reg u128 D_1;
-  reg u256 res;
   reg u64 M_lenght;
 
 
@@ -108,7 +107,7 @@ fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
     inline int j;
 
     for j=0 to 4 {
-      (u32)[output_ptr + 4*j] = S[j];
+      (u32)[output_ptr + j] = S[j];
     }
 
     S[0:8], S[8:4] = sparkle384_7(S[0:8], S[8:4]);
@@ -119,7 +118,7 @@ fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
     inline int k;
 
     for k=0 to 4 {
-      (u32)[output_ptr + 16 + 4*k] = S[k];
+      (u32)[output_ptr + 16 + k] = S[k];
     }
 
   } 

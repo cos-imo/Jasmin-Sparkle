@@ -7,104 +7,58 @@ from pathlib import Path
 from hypothesis import given
 from hypothesis.strategies import integers
 
-class Sparkle_t:
+class Esch_t:
 
     def __init__(self):
 
-        self.load_jasmin_library()
-        self.load_jasmin7_library()
-        self.load_jasmin11_library()
-        self.load_c_library()
+        self.try_load_esch_library()
+        self.try_load_esch_reference_library()
 
-    def load_jasmin_library(self):
-        if Path("sparkle_jasmin.so").exists():
-            self.try_load_jasmin_library()
+    def try_load_esch_library(self):
+        if Path("esch.so").exists():
+            self.load_esch_library()
             return
         else:
-            sys.stdout.write("Jasmin Sparkle library (.so) not found. Please compile it.\nExiting\n")
+            sys.stdout.write("Jasmin Esch library (.so) not found. Please compile it.\nExiting\n")
             exit()
 
-    def try_load_jasmin_library(self):
+    def load_esch_library(self):
         try:
-            self.jasmin_sparkle_dll = ctypes.cdll.LoadLibrary("sparkle_jasmin.so")
+            self.jasmin_esch_dll = ctypes.cdll.LoadLibrary("esch.so")
 
-            args = [ctypes.c_uint32 * 12]
+            args = [ctypes.POINTER(ctypes.c_char), ctypes.POINTER(ctypes.c_char), ctypes.POINTER(ctypes.c_char)]
 
-            self.jasmin_sparkle_dll.sparkle.argtypes = args
-            self.jasmin_sparkle_dll.sparkle.restype = None
+            self.jasmin_esch_dll.esch.argtypes = args
+            self.jasmin_esch_dll.esch.restype = None
 
         except:
-            sys.stdout.write("Couldn't import sparkle_jasmin.so library\nExiting\n")
+            sys.stdout.write("Couldn't import esch_jasmin.so library\nExiting\n")
             exit()
 
-
-    def load_jasmin7_library(self):
-        if Path("sparkle7_jasmin.so").exists():
-            self.try_load_jasmin7_library()
+    def try_load_esch_reference_library(self):
+        if Path("esch_reference.so").exists():
+            self.load_esch_reference_library()
             return
         else:
-            sys.stdout.write("Jasmin Sparkle7 library (.so) not found. Please compile it.\nExiting\n")
+            sys.stdout.write("C esch library (.so) not found. Please compile it.\nExiting\n")
             exit()
 
-    def try_load_jasmin7_library(self):
+    def load_esch_reference_library(self):
         try:
-            self.jasmin_sparkle7_dll = ctypes.cdll.LoadLibrary("sparkle7_jasmin.so")
+            self.reference_esch_dll = ctypes.cdll.LoadLibrary("esch_reference.so")
 
-            args = [ctypes.c_uint32 * 12]
-            print("args defined")
+            args = [ctypes.POINTER(ctypes.c_char), ctypes.POINTER(ctypes.c_char), ctypes.POINTER(ctypes.c_char)]
 
-            self.jasmin_sparkle7_dll.sparkle7.argtypes = args
-            print("args_done")
-            self.jasmin_sparkle7_dll.sparkle384_7.restype = None
+            self.reference_esch_dll.esch.argtypes = args
+            self.reference_esch_dll.esch.restype = None
 
         except:
-            sys.stdout.write("Couldn't import sparkle7_jasmin.so library\nExiting\n")
-            exit()
-
-    def load_jasmin11_library(self):
-        if Path("sparkle11_jasmin.so").exists():
-            self.try_load_jasmin11_library()
-            return
-        else:
-            sys.stdout.write("Jasmin Sparkle11 library (.so) not found. Please compile it.\nExiting\n")
-            exit()
-
-    def try_load_jasmin11_library(self):
-        try:
-            self.jasmin_sparkle11_dll = ctypes.cdll.LoadLibrary("sparkle11_jasmin.so")
-
-            args = [ctypes.c_uint32 * 12]
-
-            self.jasmin_sparkle11_dll.sparkle384_11.argtypes = args
-            self.jasmin_sparkle11_dll.sparkle384_11.restype = None
-
-        except:
-            sys.stdout.write("Couldn't import sparkle11_jasmin.so library\nExiting\n")
-            exit()
-
-    def load_c_library(self):
-        if Path("sparklereference/sparkle.so").exists():
-            self.try_load_c_library()
-            return
-        else:
-            sys.stdout.write("C Sparkle library (.so) not found. Please compile it.\nExiting\n")
-            exit()
-
-    def try_load_c_library(self):
-        try:
-            self.reference_sparkle_dll = ctypes.cdll.LoadLibrary("sparklereference/sparkle.so")
-
-            args = [ctypes.c_uint32 * 12, ctypes.c_uint32, ctypes.c_uint32]
-
-            self.reference_sparkle_dll.sparkle.argtypes = args
-            self.reference_sparkle_dll.sparkle.restype = None
-        except:
-            sys.stdout.write("Couldn't import sparkle.so reference library\nExiting\n")
+            sys.stdout.write("Couldn't import esch_reference.so library\nExiting\n")
             exit()
 
 
-    @given(integers(min_value = -2147483647, max_value = 2147483647), integers(min_value = -2147483647, max_value = 2147483647), integers(min_value = -2147483647, max_value = 2147483647), integers(min_value = -2147483647, max_value = 2147483647), integers(min_value = -2147483647, max_value = 2147483647), integers(min_value = -2147483647, max_value = 2147483647), integers(min_value = -2147483647, max_value = 2147483647), integers(min_value = -2147483647, max_value = 2147483647), integers(min_value = -2147483647, max_value = 2147483647), integers(min_value = -2147483647, max_value = 2147483647), integers(min_value = -2147483647, max_value = 2147483647), integers(min_value = -2147483647, max_value = 2147483647))
-    def test_sparkle(self, x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5):
+    def test_esch(self, x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5):
+        #given ...
 
         self.ints = ctypes.c_int32 *12 
         args = [ctypes.c_int32 * 12]
@@ -116,7 +70,7 @@ class Sparkle_t:
 
         print(f"x_0 : {array_jasmin[0]}        y_0 : {array_jasmin[1]}\nx_1 : {array_jasmin[2]}        y_1 : {array_jasmin[3]} \nx_2 : {array_jasmin[4]}        y_2 : {array_jasmin[5]}\nx_3 : {array_jasmin[6]}        y_3 : {array_jasmin[7]}\nx_4 : {array_jasmin[8]}        y_0 : {array_jasmin[9]}\nx_5 : {array_jasmin[10]}        y_5 : {array_jasmin[11]}" )
 
-        self.jasmin_sparkle_dll.sparkle(array_jasmin)
+        self.jasmin_esch_dll.esch(array_jasmin)
 
         print("JASMIN")
 
@@ -124,7 +78,7 @@ class Sparkle_t:
 
         print(array_reference == array_jasmin)
 
-        self.reference_sparkle_dll.sparkle(array_reference, ctypes.c_uint32(6), ctypes.c_uint32(0))
+        self.reference_esch_dll.esch(array_reference, ctypes.c_uint32(6), ctypes.c_uint32(0))
 
         print("Reference")
 
@@ -134,64 +88,22 @@ class Sparkle_t:
 
         print(f"{test}\n\n")
 
-    def test_sparkle_jasmin(self, x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5):
+    def test_esch_jasmin(self, start_ptr, end_ptr, output_ptr):
 
-        self.ints = ctypes.c_uint32 *12 
-        array_jasmin = self.ints(x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5)
+        self.jasmin_esch_dll.esch(start_ptr, end_ptr, output_ptr)
 
-        self.jasmin_sparkle_dll.sparkle(array_jasmin)
+        return output_ptr 
 
-        return array_jasmin
+    def test_esch_reference(self, start_ptr, end_ptr, output_ptr):
 
-    def test_sparkle7_jasmin(self, x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5):
+        self.reference_esch_dll.esch(start_ptr, end_ptr, output_ptr)
 
-        self.ints = ctypes.c_uint32 *12 
-        array_jasmin = self.ints(x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5)
+        return output_ptr 
 
-        self.jasmin_sparkle7_dll.sparkle382_7(array_jasmin)
-
-        return array_jasmin
-
-    def test_sparkle11_jasmin(self, x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5):
-
-        self.ints = ctypes.c_uint32 *12 
-        array_jasmin = self.ints(x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5)
-
-        self.jasmin_sparkle11_dll.sparkle384_11(array_jasmin)
-
-        return array_jasmin
-
-    def test_sparkle_reference(self, steps, x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5):
-
-        self.ints = ctypes.c_uint32 *12 
-        array_reference = self.ints(x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5)
-
-        self.reference_sparkle_dll.sparkle(array_reference, ctypes.c_uint32(6), ctypes.c_uint32(steps))
-
-        return array_reference
-
-
-    def compare_sparkle(self, x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5):
-        jasmin_result = self.test_sparkle_jasmin(x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5)
-        reference_result = self.test_sparkle_reference(x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5)
-
-        print("\n\tJASMIN\t\tREFERENCE")
-
-        for i in range(0,12):
-            print(f"{['x','y'][i%2]}_{[int(i/2), int(i/2)][i%2]} : {['\033[0;31m','\033[0;32m'][jasmin_result[i]==reference_result[i]]}{jasmin_result[i]}\t{['\033[0;31m','\033[0;32m'][jasmin_result[i]==reference_result[i]]}{reference_result[i]}\033[0;37m")
-
-        print()
-
-
-    def compare_sparkle(self, steps, x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5):
-        if steps == "export":
-            jasmin_result = self.test_sparkle_jasmin(x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5)
-            steps = 11
-        elif steps == 7:
-            jasmin_result = self.test_sparkle7_jasmin(x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5)
-        elif steps == 11:
-            jasmin_result = self.test_sparkle11_jasmin(x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5)
-        reference_result = self.test_sparkle_reference(steps, x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5)
+    def compare_esch(self, ptr_start, ptr_end, output_ptr):
+        jasmin_result = self.test_esch_jasmin(ptr_start, ptr_end, output_ptr)
+        print("Jasmin ran successfully")
+        reference_result = self.test_esch_reference(ptr_start, ptr_end, output_ptr)
 
         print("\n\tJASMIN\t\tREFERENCE")
 
@@ -201,7 +113,27 @@ class Sparkle_t:
         print()
 
 if __name__ == "__main__":
-    SparkleInstance = Sparkle_t()
-    for i in range(50):
-        SparkleInstance.compare_sparkle(11, 1, 2, 3,4,5,6,7,8,9,10,11,12)
-    #SparkleInstance.test_sparkle()
+    eschInstance = Esch_t()
+    output_str = (ctypes.c_ubyte * 100)() 
+    #pointer = ctypes.cast(output_str, ctypes.POINTER(ctypes.c_char))
+    #print(pointer)
+    #address = ctypes.addressof(output_str)
+    #print(address)
+
+
+    string = "Hello, this is a test string"
+    buffer = ctypes.create_string_buffer(string.encode('utf-8'))
+
+    start_pointer = ctypes.addressof(buffer)
+    end_pointer = start_pointer + len(string.encode('utf-8')) - 1
+
+    print("ok")
+    eschInstance.test_esch_reference(ctypes.cast(buffer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(end_pointer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(output_str, ctypes.POINTER(ctypes.c_char)))
+    print("reference ok")
+    for i in range(100):
+        if output_str[i]:
+            sys.stdout.write(str(output_str[i]) + " ")
+    print("print done?")
+    eschInstance.test_esch_jasmin(ctypes.cast(start_pointer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(end_pointer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(output_str, ctypes.POINTER(ctypes.c_char)))
+    #print(output_str.value)
+    #eschInstance.test_esch()
