@@ -1,0 +1,183 @@
+/*
+  Sparkle implementation in Jasmin
+*/
+
+from functions require "alzette.jazz"
+
+inline
+fn get_sparkle_constant(inline u32 index) -> inline u32 {
+  inline u32 constant;
+
+  if (index==0) {
+    constant = 0xB7E15162;
+  }
+
+  if (index==1) {
+    constant = 0xBF715880;
+  }
+
+  if (index==2) {
+    constant = 0x38B4DA56;
+  }
+
+  if (index == 3) {
+    constant = 0x324E7738;
+  }
+
+  if (index == 4) {
+    constant = 0xBB1185EB;
+  }
+
+  if (index == 5) {
+    constant = 0x4F7C7B57;
+  }
+
+  if (index == 6) {
+    constant = 0xCFBFA1C8;
+  }
+
+  if (index == 7) {
+    constant = 0xC2B3293D;
+  }
+
+  return constant;
+}
+
+
+inline
+fn branch_permutation (reg ptr u32[8] SL, reg ptr u32[4] SR) -> reg ptr u32[8], reg ptr u32[4] {
+
+  reg u32 xy_0_save;
+
+  xy_0_save = SL[0];
+
+  SL[0] = SR[0];
+  SR[0] = SL[2];
+  SL[2] = SR[2];
+  SR[2] = SL[4];
+  SL[4] = SL[6];
+  SL[6] = xy_0_save;
+
+  xy_0_save = SL[1];
+
+  SL[1] = SR[1];
+  SR[1] = SL[3];
+  SL[3] = SR[3];
+  SR[3] = SL[5];
+  SL[5] = SL[7];
+  SL[7] = xy_0_save;
+
+  return SL, SR;
+}
+
+inline
+fn L6(reg ptr u32[8] SL, reg ptr u32[4] SR)  -> reg ptr u32[8], reg ptr u32[4] {
+
+  reg u32 tx, ty;
+  reg u32 shift_tx, shift_ty;
+  reg u32 SL_7, SR_1, SR_3, SL_6, SR_0, SR_2;
+
+  /*
+    Feistel round
+  */
+
+  tx = SL[0];
+  tx ^= SL[2];
+  tx ^= SL[4];
+  ty = SL[1];
+  ty ^= SL[3];
+  ty ^= SL[5];
+  
+
+  shift_tx = tx;
+  shift_tx <<= 16;
+  tx ^= shift_tx;
+  tx <<r= 16;
+
+  shift_ty = ty;
+  shift_ty <<= 16;
+  ty ^= shift_ty;
+  ty <<r= 16;
+
+  SL_7 = SL[7];
+  SL_7 ^= SL[1];
+  SL_7 ^= tx;
+  SL[7] = SL_7;
+  SR_1 = SR[1];
+  SR_1 ^= SL[3];
+  SR_1 ^= tx;
+  SR[1] = SR_1;
+  SR_3 = SR[3];
+  SR_3 ^= SL[5];
+  SR_3 ^= tx;
+  SR[3] = SR_3;
+
+  SL_6 = SL[6];
+  SL_6 ^= SL[0];
+  SL_6 ^= ty;
+  SL[6] = SL_6;
+  SR_0 = SR[0];
+  SR_0 ^= SL[2];
+  SR_0 ^= ty;
+  SR[0] = SR_0;
+  SR_2 = SR[2];
+  SR_2 ^= SL[4];
+  SR_2 ^= ty;
+  SR[2] = SR_2;
+
+  /*
+    Branch permutation
+  */
+
+  SL, SR = branch_permutation(SL, SR);
+
+  return SL,SR;
+}
+
+inline
+fn sparkle384(reg ptr u32[8] SL, reg ptr u32[4] SR, inline int steps) -> reg ptr u32[8], reg ptr u32[4] {
+
+  inline int s;
+  inline int i;
+
+  for s=0 to steps {
+    
+    inline u32 c_constant;
+    inline int s_modulo_8;
+
+    s_modulo_8 = s%8;
+    c_constant = get_sparkle_constant(s_modulo_8);
+
+    SL[1] ^= c_constant; 
+    SL[3] ^= s;
+
+    for i=0 to 4 {
+      c_constant = get_sparkle_constant(i);
+      SL[2*i], SL[2*i+1] = alzette(c_constant, SL[2*i], SL[2*i+1]);
+    }
+
+    for i=0 to 2 {
+      c_constant = get_sparkle_constant(4+i);
+      SR[2*i], SR[2*i+1] = alzette(c_constant, SR[2*i], SR[2*i+1]);
+    }
+
+    SL, SR = L6(SL,SR);
+
+  }
+
+
+  return SL, SR;
+}
+
+
+fn sparkle384_11(reg ptr u32[8] SL, reg ptr u32[4] SR) -> reg ptr u32[8], reg ptr u32[4] {
+  SL, SR = sparkle384(SL, SR, 11);
+  return SL, SR;
+}
+
+fn sparkle384_7(reg ptr u32[8] SL, reg ptr u32[4] SR) -> reg ptr u32[8], reg ptr u32[4] {
+  SL, SR = sparkle384(SL, SR, 7);
+  return SL, SR;
+}
+
+
