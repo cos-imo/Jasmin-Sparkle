@@ -56,12 +56,12 @@ fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
   // MAIN LOOP
 
   if M_end != M_start {
-    while (M_lenght > 128) {
+    while (M_lenght > 16) {
       S = M3_XOR_S(M_start, S);  // padd + apply M3
 
       S[0:8], S[8:4] = sparkle384_7(S[0:8], S[8:4]);
 
-      M_start += 32;
+      M_start += 4;
       M_lenght = M_end;
       M_lenght -= M_start;
     }
