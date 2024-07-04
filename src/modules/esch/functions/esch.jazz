@@ -71,9 +71,9 @@ fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
 
     stack u32[6] M_block;
 
-    inline int i;
-    for i=0 to 6 {
-      M_block[i] = zero;
+    inline int j;
+    for j=0 to 6 {
+      M_block[j] = zero;
     }
 
     reg u64 i;
@@ -101,6 +101,7 @@ fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
 
     S[6] ^= constM;
 
+    S[0:8], S[8:4] = sparkle384_11(S[0:8], S[8:4]);
 
     // D_0
      
@@ -111,7 +112,6 @@ fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
     }
 
     S[0:8], S[8:4] = sparkle384_7(S[0:8], S[8:4]);
-
 
     // D_1
 
