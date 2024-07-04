@@ -108,7 +108,7 @@ fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
     inline int j;
 
     for j=0 to 4 {
-      (u32)[output_ptr + j] = S[j];
+      (u32)[output_ptr + 4*j] = S[j];
     }
 
     S[0:8], S[8:4] = sparkle384_7(S[0:8], S[8:4]);
@@ -118,7 +118,7 @@ fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
     inline int k;
 
     for k=0 to 4 {
-      (u32)[output_ptr + 16 + k] = S[k];
+      (u32)[output_ptr + 16 + 4*k] = S[k];
     }
 
   } 
