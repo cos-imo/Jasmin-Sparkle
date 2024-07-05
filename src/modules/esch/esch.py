@@ -4,6 +4,8 @@ import os
 import subprocess
 from pathlib import Path
 
+from tabulate import tabulate
+
 from hypothesis import given
 from hypothesis.strategies import integers
 
@@ -100,40 +102,45 @@ class Esch_t:
 
         return output_ptr 
 
-    def compare_esch(self, ptr_start, ptr_end, output_ptr):
-        jasmin_result = self.test_esch_jasmin(ptr_start, ptr_end, output_ptr)
-        print("Jasmin ran successfully")
-        reference_result = self.test_esch_reference(ptr_start, ptr_end, output_ptr)
+    def compare_esch(self, string):
+        result = {"Jasmin" : [], "Reference" : []}
 
-        print("\n\tJASMIN\t\tREFERENCE")
+        jasmin_result = []
+        reference_result = []
 
-        for i in range(0,12):
-            print(f"{['x','y'][i%2]}_{[int(i/2), int(i/2)][i%2]} : {['\033[0;31m','\033[0;32m'][jasmin_result[i]==reference_result[i]]}{jasmin_result[i]}\t{['\033[0;31m','\033[0;32m'][jasmin_result[i]==reference_result[i]]}{reference_result[i]}\033[0;37m")
+        output_str = (ctypes.c_ubyte * 100)() 
 
-        print()
+        buffer = ctypes.create_string_buffer(string.encode('utf-8'))
+
+        start_pointer = ctypes.addressof(buffer)
+        end_pointer = start_pointer + len(string.encode('utf-8')) - 1
+
+        self.test_esch_reference(ctypes.cast(buffer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(end_pointer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(output_str, ctypes.POINTER(ctypes.c_char)))
+        for i in range(100):
+            if output_str[i]:
+                jasmin_result.append(str(output_str[i]))
+
+        self.test_esch_jasmin(ctypes.cast(start_pointer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(end_pointer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(output_str, ctypes.POINTER(ctypes.c_char)))
+        for i in range(100):
+            if output_str[i]:
+                reference_result.append(str(output_str[i]))
+
+        for i in range(len(jasmin_result)):
+            if jasmin_result[i] == reference_result[i]:
+                jasmin_result[i] = f"\033[0;32m{jasmin_result[i]}\033[0m"
+                reference_result[i] = f"\033[0;32m{reference_result[i]}\033[0m"
+            else:
+                jasmin_result[i] = f"\033[0;31m{jasmin_result[i]}\033[0m"
+                reference_result[i] = f"\033[0;31m{reference_result[i]}\033[0m"
+
+        result["Jasmin"] = jasmin_result
+        result["Reference"] = reference_result
+
+        print(tabulate(result, headers="keys"))
 
 if __name__ == "__main__":
     eschInstance = Esch_t()
-    output_str = (ctypes.c_ubyte * 100)() 
-    #pointer = ctypes.cast(output_str, ctypes.POINTER(ctypes.c_char))
-    #print(pointer)
-    #address = ctypes.addressof(output_str)
-    #print(address)
-
 
     string = "Hello, this is a test string"
-    buffer = ctypes.create_string_buffer(string.encode('utf-8'))
-
-    start_pointer = ctypes.addressof(buffer)
-    end_pointer = start_pointer + len(string.encode('utf-8')) - 1
-
-    print("ok")
-    eschInstance.test_esch_reference(ctypes.cast(buffer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(end_pointer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(output_str, ctypes.POINTER(ctypes.c_char)))
-    print("reference ok")
-    for i in range(100):
-        if output_str[i]:
-            sys.stdout.write(str(output_str[i]) + " ")
-    print("print done?")
-    eschInstance.test_esch_jasmin(ctypes.cast(start_pointer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(end_pointer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(output_str, ctypes.POINTER(ctypes.c_char)))
-    #print(output_str.value)
-    #eschInstance.test_esch()
+    
+    eschInstance.compare_esch(string)
