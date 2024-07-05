@@ -69,7 +69,7 @@ fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
 
     // LAST BLOCK
 
-    stack u32[12] M_block;
+    stack u32[4] M_block;
 
     reg u128 zero_128;
     zero_128 = #set0_128();
@@ -100,7 +100,7 @@ fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
       constM =2;
     }
 
-    //S = M3_XOR_S(M_start, S);
+    S = M3_XOR_S(M_start, S);
 
     S[6] ^= constM;
 
