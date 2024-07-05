@@ -56,7 +56,7 @@ fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
   // MAIN LOOP
 
   if M_end != M_start {
-    while (M_lenght > 16) {
+    while (M_lenght > 4) {
       S = M3_XOR_S(M_start, S);  // padd + apply M3
 
       S[0:8], S[8:4] = sparkle384_7(S[0:8], S[8:4]);
@@ -69,16 +69,16 @@ fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
 
     // LAST BLOCK
 
-    stack u32[6] M_block;
+    stack u32[12] M_block;
 
     reg u128 zero_128;
-    
     zero_128 = #set0_128();
+
     stack u8[16] t;
     t.[u128 0] = zero_128;
 
     reg u64 i;
-    i=0;
+    i=#set0_64();
 
     while (i<M_lenght) {
       t[i] = (u8)[M_start + i];
@@ -87,27 +87,9 @@ fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
 
     inline int index;
 
-    for index=0 to 5 {
-      M_block[index] = t.[u32 32*index];
-    }
+    M_start -= 4;
 
-    /*
-
-    reg u64 i;
-
-    i=0;
-
-    while (M_lenght>0) {
-      reg u32 l;
-      l = (u32)[M_start];
-      S[i] ^= l;
-      M_start += 32;
-      i += 1;
-      M_lenght = M_end;
-      M_lenght-=M_start;
-    }
-
-    */
+    (u32)[M_start] = t.[u32 0];
 
     // PADDING
 
@@ -117,6 +99,8 @@ fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
     } else {
       constM =2;
     }
+
+    //S = M3_XOR_S(M_start, S);
 
     S[6] ^= constM;
 
