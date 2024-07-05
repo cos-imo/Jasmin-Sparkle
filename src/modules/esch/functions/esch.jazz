@@ -71,11 +71,6 @@ fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
 
     stack u32[6] M_block;
 
-    inline int j;
-    for j=0 to 6 {
-      M_block[j] = zero;
-    }
-    
     reg u128 zero_128;
     
     zero_128 = #set0_128();
@@ -116,7 +111,7 @@ fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
 
     // PADDING
 
-    if i<6 {
+    if i<16 {
       S[u8 i] ^= 1;
       constM = 1;
     } else {
