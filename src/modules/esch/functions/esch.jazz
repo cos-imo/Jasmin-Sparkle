@@ -22,7 +22,7 @@ M3_XOR_S(reg u64 M_start, reg ptr u32[12] S) -> reg ptr u32[12] {
 
   M3_tab = M3(M3_tab);
 
-  for i=0 to 4 {
+  for i=0 to 6 {
     reg u32 l;
     l = M3_tab[i];
     S[i] ^= l;
@@ -39,6 +39,9 @@ fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
   reg u128 D_1;
   reg u64 M_lenght;
 
+  M_lenght = M_end;
+  M_lenght -= M_start;
+
   stack u32[12] S;
 
   reg u32 zero;
@@ -52,12 +55,12 @@ fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
   // MAIN LOOP
 
   if M_end != M_start {
-    while (M_lenght > 4) {
+    while (M_lenght > 16) {
       S = M3_XOR_S(M_start, S);  // padd + apply M3
 
       S[0:8], S[8:4] = sparkle384_7(S[0:8], S[8:4]);
 
-      M_start += 4;
+      M_start += 16;
       M_lenght = M_end;
       M_lenght -= M_start;
     }
@@ -67,11 +70,13 @@ fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
 
     stack u32[4] M_block;
 
-    reg u128 zero_128;
-    zero_128 = #set0_128();
+    stack u8[24] t;
 
-    stack u8[16] t;
-    t.[u128 0] = zero_128;
+    inline int j;
+
+    for j=0 to 24 {
+      t[j] = 0;
+    }
 
     reg u64 i;
     i=#set0_64();
@@ -80,30 +85,31 @@ fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
       t[i] = (u8)[M_start + i];
       i += 1;
     }
-
-    inline int index;
-
-    M_start -= 16;
-
-    for index=0 to 4 {
-      (u32)[M_start + 4*index] = (32u)t.[u32 index];
-    }
-
+    
     // PADDING
 
     if i<16 {
-      i += 1;
       reg u8 var_1;
       var_1 = 1;
-      S[u8 i] = var_1;
+      t[u8 i] = var_1;
       constM = 1;
     } else {
       constM =2;
     }
 
-    S = M3_XOR_S(M_start, S);
+    t[u32 0:6] = M3(t[u32 0:6]);
+
+    inline int index;
 
     S[6] ^= constM;
+
+    inline int i;
+
+    for i=0 to 6 {
+      reg u32 t_val;
+      t_val = t[u32 i];
+      S[i] ^= t_val;
+    }
 
     S[0:8], S[8:4] = sparkle384_11(S[0:8], S[8:4]);
 
