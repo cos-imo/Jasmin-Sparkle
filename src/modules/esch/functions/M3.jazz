@@ -24,14 +24,14 @@ fn M3(reg ptr u32[6] tab) -> reg ptr u32[6] {
   t_x = l(t_x);
   t_y = l(t_y);
 
-  tab[0] ^= t_x;
-  tab[2] ^= t_x;
+  tab[0] ^= t_y;
+  tab[2] ^= t_y;
 
-  tab[1] ^= t_y;
-  tab[3] ^= t_y;
+  tab[1] ^= t_x;
+  tab[3] ^= t_x;
 
-  tab[4] = t_x;
-  tab[5] = t_y;
+  tab[4] = t_y;
+  tab[5] = t_x;
 
   return tab;
 }
