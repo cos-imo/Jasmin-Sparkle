@@ -103,20 +103,20 @@ class Esch_t:
         return output_ptr 
 
     def test_esch_reference(self, string):
-        output_str = (ctypes.c_ubyte * 100)() 
+        output_str = (ctypes.c_ubyte * 32)() 
 
         buffer = ctypes.create_string_buffer(string.encode('utf-8'))
 
         start_pointer = ctypes.addressof(buffer)
-        end_pointer = start_pointer + len(string.encode('utf-8')) - 1
+        end_pointer = start_pointer + len(string.encode('utf-8'))
 
-        self.esch_reference(ctypes.cast(buffer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(end_pointer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(output_str, ctypes.POINTER(ctypes.c_char)))
-        for i in range(100):
+        self.esch_reference(buffer, ctypes.cast(end_pointer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(output_str, ctypes.POINTER(ctypes.c_char)))
+        for i in range(32):
             if output_str[i]:
-                sys.stdout.write(f"{output_str[i]}\t")
+                sys.stdout.write(f"{hex(output_str[i])[2:]}")
 
     def test_esch_jasmin(self, string):
-        output_str = (ctypes.c_ubyte * 100)() 
+        output_str = (ctypes.c_ubyte * 32)() 
 
         buffer = ctypes.create_string_buffer(string.encode('utf-8'))
 
@@ -124,9 +124,8 @@ class Esch_t:
         end_pointer = start_pointer + len(string.encode('utf-8')) - 1
 
         self.esch_jasmin(ctypes.cast(buffer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(end_pointer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(output_str, ctypes.POINTER(ctypes.c_char)))
-        for i in range(100):
-            if output_str[i]:
-                sys.stdout.write(f"{output_str[i]}\t")
+        for i in range(32):
+            sys.stdout.write(f"{hex(output_str[i])}\t")
 
     def compare_esch(self, string):
         result = {"Jasmin" : [], "Reference" : []}
@@ -134,22 +133,21 @@ class Esch_t:
         jasmin_result = []
         reference_result = []
 
-        output_str = (ctypes.c_ubyte * 100)() 
+        output_str = (ctypes.c_ubyte * 32)() 
 
         buffer = ctypes.create_string_buffer(string.encode('utf-8'))
 
         start_pointer = ctypes.addressof(buffer)
-        end_pointer = start_pointer + len(string.encode('utf-8')) - 1
+        end_pointer = start_pointer + len(string.encode('utf-8'))
 
         self.esch_reference(ctypes.cast(buffer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(end_pointer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(output_str, ctypes.POINTER(ctypes.c_char)))
-        for i in range(100):
-            if output_str[i]:
-                reference_result.append(str(output_str[i]))
+        for i in range(32):
+            reference_result.append(str(hex(output_str[i])))
 
+        output_str = (ctypes.c_ubyte * 32)() 
         self.esch_jasmin(ctypes.cast(start_pointer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(end_pointer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(output_str, ctypes.POINTER(ctypes.c_char)))
-        for i in range(100):
-            if output_str[i]:
-                jasmin_result.append(str(output_str[i]))
+        for i in range(32):
+            jasmin_result.append(str(hex(output_str[i])))
 
         for i in range(min(len(jasmin_result), len(reference_result))):
             if jasmin_result[i] == reference_result[i]:
@@ -173,6 +171,6 @@ class Esch_t:
 if __name__ == "__main__":
     eschInstance = Esch_t()
 
-    string = "Hi, here is a toy string to hash" # Note: Segmentation fault on esch official implementation when called with an empty string?? 
+    string = "1234567890123U456" # Note: Segmentation fault on esch official implementation when called with an empty string?? 
     
     eschInstance.compare_esch(string)
