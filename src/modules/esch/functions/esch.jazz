@@ -54,84 +54,82 @@ fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
 
   // MAIN LOOP
 
-  if M_end != M_start {
-    while (M_lenght > 16) {
-      S = M3_XOR_S(M_start, S);  // padd + apply M3
-
-      S[0:8], S[8:4] = sparkle384_7(S[0:8], S[8:4]);
-
-      M_start += 16;
-      M_lenght = M_end;
-      M_lenght -= M_start;
-    }
-
-
-    // LAST BLOCK
-
-    stack u32[4] M_block;
-
-    stack u8[24] t;
-
-    inline int j;
-
-    for j=0 to 24 {
-      t[j] = 0;
-    }
-
-    reg u64 i;
-    i=#set0_64();
-
-    while (i<M_lenght) {
-      t[i] = (u8)[M_start + i];
-      i += 1;
-    }
-    
-    // PADDING
-
-    if i<16 {
-      reg u8 var_1;
-      var_1 = 1;
-      t[u8 i] = var_1;
-      constM = 1;
-    } else {
-      constM =2;
-    }
-
-    t[u32 0:6] = M3(t[u32 0:6]);
-
-    inline int index;
-
-    S[6] ^= constM;
-
-    inline int i;
-
-    for i=0 to 6 {
-      reg u32 t_val;
-      t_val = t[u32 i];
-      S[i] ^= t_val;
-    }
-
-    S[0:8], S[8:4] = sparkle384_11(S[0:8], S[8:4]);
-
-    // D_0
-     
-    inline int j;
-
-    for j=0 to 4 {
-      (u32)[output_ptr + 4*j] = S[j];
-    }
+  while (M_lenght > 16) {
+    S = M3_XOR_S(M_start, S);  // padd + apply M3
 
     S[0:8], S[8:4] = sparkle384_7(S[0:8], S[8:4]);
 
-    // D_1
+    M_start += 16;
+    M_lenght = M_end;
+    M_lenght -= M_start;
+  }
 
-    inline int k;
 
-    for k=0 to 4 {
-      (u32)[output_ptr + 16 + 4*k] = S[k];
-    }
+  // LAST BLOCK
 
-  } 
+  stack u32[4] M_block;
+
+  stack u8[24] t;
+
+  inline int j;
+
+  for j=0 to 24 {
+    t[j] = 0;
+  }
+
+  reg u64 i;
+  i=#set0_64();
+
+  while (i<M_lenght) {
+    t[i] = (u8)[M_start + i];
+    i += 1;
+  }
+  
+  // PADDING
+
+  if i<16 {
+    reg u8 var_1;
+    var_1 = 0x80;
+    t[u8 i] = var_1;
+    constM = 1<<24;
+  } else {
+    constM =2<<24;
+  }
+
+  t[u32 0:6] = M3(t[u32 0:6]);
+
+  inline int index;
+
+  S[5] ^= constM;
+
+  inline int i;
+
+  for i=0 to 6 {
+    reg u32 t_val;
+    t_val = t[u32 i];
+    S[i] ^= t_val;
+  }
+
+  S[0:8], S[8:4] = sparkle384_11(S[0:8], S[8:4]);
+
+  // D_0
+   
+  inline int j;
+
+  for j=0 to 4 {
+    (u32)[output_ptr + 4*j] = S[j];
+  }
+
+  S[0:8], S[8:4] = sparkle384_7(S[0:8], S[8:4]);
+
+  // D_1
+
+  inline int k;
+
+  for k=0 to 4 {
+    (u32)[output_ptr + 16 + 4*k] = S[k];
+  }
+
 
 }
 
