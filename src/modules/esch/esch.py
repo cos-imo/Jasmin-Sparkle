@@ -7,7 +7,7 @@ from pathlib import Path
 from tabulate import tabulate
 
 from hypothesis import given
-from hypothesis.strategies import integers
+from hypothesis.strategies import text 
 
 class Esch_t:
 
@@ -15,6 +15,8 @@ class Esch_t:
 
         self.try_load_esch_library()
         self.try_load_esch_reference_library()
+
+        self.results = {"Jasmin": [], "Reference":[], "Result":[]}
 
     def try_load_esch_library(self):
         if Path("esch.so").exists():
@@ -57,50 +59,44 @@ class Esch_t:
         except:
             sys.stdout.write("Couldn't import esch_reference.so library\nExiting\n")
             exit()
+    
+    @given(text())
+    def esch(self, string):
+        jasmin_result = ""
+        reference_result = ""
 
+        output_str = (ctypes.c_ubyte * 32)() 
 
-    def esch(self, x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5):
-        #given ...
+        buffer = ctypes.create_string_buffer(string.encode('utf-8'))
 
-        self.ints = ctypes.c_int32 *12 
-        args = [ctypes.c_int32 * 12]
+        start_pointer = ctypes.addressof(buffer)
+        end_pointer = start_pointer + len(string.encode('utf-8'))
 
-        array_jasmin = self.ints(x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5)
-        array_reference = self.ints(x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5)
+        self.esch_reference(ctypes.cast(buffer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(end_pointer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(output_str, ctypes.POINTER(ctypes.c_char)))
+        for i in range(32):
+            reference_result += (str(hex(output_str[i]))[2:])
 
-        print("Given values:")
+        output_str = (ctypes.c_ubyte * 32)() 
+        self.esch_jasmin(ctypes.cast(start_pointer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(end_pointer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(output_str, ctypes.POINTER(ctypes.c_char)))
+        for i in range(32):
+            jasmin_result += (str(hex(output_str[i]))[2:])
 
-        print(f"x_0 : {array_jasmin[0]}        y_0 : {array_jasmin[1]}\nx_1 : {array_jasmin[2]}        y_1 : {array_jasmin[3]} \nx_2 : {array_jasmin[4]}        y_2 : {array_jasmin[5]}\nx_3 : {array_jasmin[6]}        y_3 : {array_jasmin[7]}\nx_4 : {array_jasmin[8]}        y_0 : {array_jasmin[9]}\nx_5 : {array_jasmin[10]}        y_5 : {array_jasmin[11]}" )
+        if jasmin_result == reference_result:
+            jasmin_result = f"\033[0;32m{jasmin_result}\033[0m"
+            reference_result = f"\033[0;32m{reference_result}\033[0m"
+        else:
+            jasmin_result = f"\033[0;31m{jasmin_result}\033[0m"
+            reference_result = f"\033[0;31m{reference_result}\033[0m"
 
-        self.jasmin_esch_dll.esch(array_jasmin)
-
-        print("JASMIN")
-
-        print(f"x_0 : {array_jasmin[0]}        y_0 : {array_jasmin[1]}\nx_1 : {array_jasmin[2]}        y_1 : {array_jasmin[3]} \nx_2 : {array_jasmin[4]}        y_2 : {array_jasmin[5]}\nx_3 : {array_jasmin[6]}        y_3 : {array_jasmin[7]}\nx_4 : {array_jasmin[8]}        y_0 : {array_jasmin[9]}\nx_5 : {array_jasmin[10]}        y_5 : {array_jasmin[11]}" )
-
-        print(array_reference == array_jasmin)
-
-        self.reference_esch_dll.esch(array_reference, ctypes.c_uint32(6), ctypes.c_uint32(0))
-
-        print("Reference")
-
-        print(f"x_0 : {array_reference[0]}        y_0 : {array_reference[1]}\nx_1 : {array_reference[2]}        y_1 : {array_reference[3]}\n x_2 : {array_reference[4]}        y_2 : {array_reference[5]}\nx_3 : {array_reference[6]}        y_3 : {array_reference[7]}\nx_4 : {array_reference[8]}        y_0 : {array_reference[9]}\nx_5 : {array_reference[10]}        y_5 : {array_reference[11]}" )
-
-        test = (array_jasmin == array_reference)
-
-        print(f"{test}\n\n")
+        self.process_test_results((jasmin_result, reference_result))
 
     def esch_jasmin(self, start_ptr, end_ptr, output_ptr):
 
         self.jasmin_esch_dll.esch(start_ptr, end_ptr, output_ptr)
 
-        return output_ptr 
-
     def esch_reference(self, start_ptr, end_ptr, output_ptr):
 
         self.reference_esch_dll.esch(start_ptr, end_ptr, output_ptr)
-
-        return output_ptr 
 
     def test_esch_reference(self, string):
         output_str = (ctypes.c_ubyte * 32)() 
@@ -168,9 +164,20 @@ class Esch_t:
 
         print(tabulate(result, headers="keys"))
 
+    def test_full_esch(self, ntests):
+        for i in range(ntests):
+            self.esch()
+
+        print(tabulate(self.results, headers="keys", tablefmt='grid'))
+        print(f"test passed: {self.results['Result'].count(True)}/{ntests*100} ({(self.results['Result'].count("\033[0;32mPassed\033[0m"))/(ntests)}%)")
+        print("done")
+
+    def process_test_results(self, tuple):
+        self.results["Jasmin"].append(tuple[0])
+        self.results["Reference"].append(tuple[1])
+        self.results["Result"].append(["\033[0;31mFailed\033[0m", "\033[0;32mPassed\033[0m"][tuple[0] == tuple[1]])
+
 if __name__ == "__main__":
     eschInstance = Esch_t()
 
-    string = "1234567890123U456" # Note: Segmentation fault on esch official implementation when called with an empty string?? 
-    
-    eschInstance.compare_esch(string)
+    eschInstance.test_full_esch(1)
