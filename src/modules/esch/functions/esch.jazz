@@ -39,10 +39,6 @@ fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
   reg u128 D_1;
   reg u64 M_lenght;
 
-
-  M_lenght = M_end;
-  M_lenght -= M_start;
-
   stack u32[12] S;
 
   reg u32 zero;
@@ -87,14 +83,19 @@ fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
 
     inline int index;
 
-    M_start -= 4;
+    M_start -= 16;
 
-    (u32)[M_start] = t.[u32 0];
+    for index=0 to 4 {
+      (u32)[M_start + 4*index] = (32u)t.[u32 index];
+    }
 
     // PADDING
 
     if i<16 {
-      S[u8 i] ^= 1;
+      i += 1;
+      reg u8 var_1;
+      var_1 = 1;
+      S[u8 i] = var_1;
       constM = 1;
     } else {
       constM =2;

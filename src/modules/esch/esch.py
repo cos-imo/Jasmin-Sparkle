@@ -59,7 +59,7 @@ class Esch_t:
             exit()
 
 
-    def test_esch(self, x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5):
+    def esch(self, x_0, y_0, x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, x_5, y_5):
         #given ...
 
         self.ints = ctypes.c_int32 *12 
@@ -90,17 +90,43 @@ class Esch_t:
 
         print(f"{test}\n\n")
 
-    def test_esch_jasmin(self, start_ptr, end_ptr, output_ptr):
+    def esch_jasmin(self, start_ptr, end_ptr, output_ptr):
 
         self.jasmin_esch_dll.esch(start_ptr, end_ptr, output_ptr)
 
         return output_ptr 
 
-    def test_esch_reference(self, start_ptr, end_ptr, output_ptr):
+    def esch_reference(self, start_ptr, end_ptr, output_ptr):
 
         self.reference_esch_dll.esch(start_ptr, end_ptr, output_ptr)
 
         return output_ptr 
+
+    def test_esch_reference(self, string):
+        output_str = (ctypes.c_ubyte * 100)() 
+
+        buffer = ctypes.create_string_buffer(string.encode('utf-8'))
+
+        start_pointer = ctypes.addressof(buffer)
+        end_pointer = start_pointer + len(string.encode('utf-8')) - 1
+
+        self.esch_reference(ctypes.cast(buffer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(end_pointer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(output_str, ctypes.POINTER(ctypes.c_char)))
+        for i in range(100):
+            if output_str[i]:
+                sys.stdout.write(f"{output_str[i]}\t")
+
+    def test_esch_jasmin(self, string):
+        output_str = (ctypes.c_ubyte * 100)() 
+
+        buffer = ctypes.create_string_buffer(string.encode('utf-8'))
+
+        start_pointer = ctypes.addressof(buffer)
+        end_pointer = start_pointer + len(string.encode('utf-8')) - 1
+
+        self.esch_jasmin(ctypes.cast(buffer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(end_pointer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(output_str, ctypes.POINTER(ctypes.c_char)))
+        for i in range(100):
+            if output_str[i]:
+                sys.stdout.write(f"{output_str[i]}\t")
 
     def compare_esch(self, string):
         result = {"Jasmin" : [], "Reference" : []}
@@ -115,20 +141,26 @@ class Esch_t:
         start_pointer = ctypes.addressof(buffer)
         end_pointer = start_pointer + len(string.encode('utf-8')) - 1
 
-        self.test_esch_reference(ctypes.cast(buffer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(end_pointer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(output_str, ctypes.POINTER(ctypes.c_char)))
-        for i in range(100):
-            if output_str[i]:
-                jasmin_result.append(str(output_str[i]))
-
-        self.test_esch_jasmin(ctypes.cast(start_pointer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(end_pointer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(output_str, ctypes.POINTER(ctypes.c_char)))
+        self.esch_reference(ctypes.cast(buffer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(end_pointer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(output_str, ctypes.POINTER(ctypes.c_char)))
         for i in range(100):
             if output_str[i]:
                 reference_result.append(str(output_str[i]))
 
-        for i in range(len(jasmin_result)):
+        self.esch_jasmin(ctypes.cast(start_pointer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(end_pointer, ctypes.POINTER(ctypes.c_char)), ctypes.cast(output_str, ctypes.POINTER(ctypes.c_char)))
+        for i in range(100):
+            if output_str[i]:
+                jasmin_result.append(str(output_str[i]))
+
+        for i in range(min(len(jasmin_result), len(reference_result))):
             if jasmin_result[i] == reference_result[i]:
                 jasmin_result[i] = f"\033[0;32m{jasmin_result[i]}\033[0m"
                 reference_result[i] = f"\033[0;32m{reference_result[i]}\033[0m"
+            elif jasmin_result[i] in reference_result:
+                jasmin_result[i] = f"\033[0;33m{jasmin_result[i]}\033[0m"
+                if reference_result[i] in jasmin_result:
+                    reference_result[i] = f"\033[0;33m{reference_result[i]}\033[0m"
+                else:
+                    reference_result[i] = f"\033[0;31m{reference_result[i]}\033[0m"
             else:
                 jasmin_result[i] = f"\033[0;31m{jasmin_result[i]}\033[0m"
                 reference_result[i] = f"\033[0;31m{reference_result[i]}\033[0m"
@@ -141,6 +173,6 @@ class Esch_t:
 if __name__ == "__main__":
     eschInstance = Esch_t()
 
-    string = "Hello, this is a test string"
+    string = "Hi, here is a toy string to hash" # Note: Segmentation fault on esch official implementation when called with an empty string?? 
     
     eschInstance.compare_esch(string)
