@@ -59,15 +59,28 @@ class Esch_t:
         except:
             sys.stdout.write("Couldn't import esch_reference.so library\nExiting\n")
             exit()
+
+    def init_structs(self, string):
+
+        output_ptr = (ctypes.c_ubyte * 32)() 
+
+        buffer = ctypes.create_string_buffer(string.encode('utf-8'))
+
+        start_ptr = ctypes.addressof(buffer)
+        end_ptr = start_ptr + len(string.encode('utf-8'))
+
+        end_ptr = ctypes.cast(end_ptr, ctypes.POINTER(ctypes.c_char))
+        start_ptr = ctypes.cast(start_ptr, ctypes.POINTER(ctypes.c_char))
+        output_ptr = ctypes.cast(output_ptr, ctypes.POINTER(ctypes.c_char))
+
+        return (start_ptr, end_ptr, output_ptr)
     
     @given(text())
     def esch(self, string):
         jasmin_result = ""
         reference_result = ""
 
-        output = self.esch_reference(string)
-        for i in range(32):
-            reference_result += (str(output[i].hex()))
+        reference_result += self.format_output_text(self.esch_reference(string))
 
         output = self.esch_jasmin(string)
         for i in range(32):
@@ -81,16 +94,7 @@ class Esch_t:
 
     def esch_jasmin(self, string):
 
-        output_ptr = (ctypes.c_ubyte * 32)() 
-
-        buffer = ctypes.create_string_buffer(string.encode('utf-8'))
-
-        start_ptr = ctypes.addressof(buffer)
-        end_ptr = start_ptr + len(string.encode('utf-8'))
-
-        end_ptr = ctypes.cast(end_ptr, ctypes.POINTER(ctypes.c_char))
-        start_ptr = ctypes.cast(start_ptr, ctypes.POINTER(ctypes.c_char))
-        output_ptr = ctypes.cast(output_ptr, ctypes.POINTER(ctypes.c_char))
+        (start_ptr, end_ptr, output_ptr) = self.init_structs()
 
         self.jasmin_esch_dll.esch(start_ptr, end_ptr, output_ptr)
 
@@ -98,16 +102,7 @@ class Esch_t:
 
     def esch_reference(self, string):
 
-        output_ptr = (ctypes.c_ubyte * 32)() 
-
-        buffer = ctypes.create_string_buffer(string.encode('utf-8'))
-
-        start_ptr = ctypes.addressof(buffer)
-        end_ptr = start_ptr + len(string.encode('utf-8'))
-
-        end_ptr = ctypes.cast(end_ptr, ctypes.POINTER(ctypes.c_char))
-        start_ptr = ctypes.cast(start_ptr, ctypes.POINTER(ctypes.c_char))
-        output_ptr = ctypes.cast(output_ptr, ctypes.POINTER(ctypes.c_char))
+        (start_ptr, end_ptr, output_ptr) = self.init_structs(string)
 
         self.reference_esch_dll.esch(start_ptr, end_ptr, output_ptr)
 
@@ -122,8 +117,8 @@ class Esch_t:
 
     def test_esch_jasmin(self, string):
         output = self.esch_jasmin(string)
-        for i in range(32):
-            sys.stdout.write(f"{hex(output[i])}\t")
+        
+        return self.format_output_text(output)
 
     def compare_esch(self, string):
         result = {"Jasmin" : [], "Reference" : []}
@@ -175,6 +170,12 @@ class Esch_t:
             else:
                 return f"\033[0;32m{value[1]}\033[0m"
 
+    def format_output_text(self, output_ptr):
+        output = "0x"
+        for i in range(32):
+            output += (f"{hex(output_ptr[i])}\t")
+
+        return output
 
 if __name__ == "__main__":
     eschInstance = Esch_t()
