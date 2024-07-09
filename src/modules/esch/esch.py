@@ -83,8 +83,8 @@ class Esch_t:
         reference_result += self.format_output_text(self.esch_reference(string))
 
         output = self.esch_jasmin(string)
-        for i in range(32):
-            jasmin_result += (str(output[i].hex()))
+
+        jasmin_result += self.format_output_text(self.esch_reference(string))
 
         condition = (jasmin_result == reference_result)
         jasmin_result = self.format_result_text(jasmin_result, condition)
@@ -94,7 +94,7 @@ class Esch_t:
 
     def esch_jasmin(self, string):
 
-        (start_ptr, end_ptr, output_ptr) = self.init_structs()
+        (start_ptr, end_ptr, output_ptr) = self.init_structs(string)
 
         self.jasmin_esch_dll.esch(start_ptr, end_ptr, output_ptr)
 
@@ -173,7 +173,7 @@ class Esch_t:
     def format_output_text(self, output_ptr):
         output = "0x"
         for i in range(32):
-            output += (f"{hex(output_ptr[i])}\t")
+            output += (f"{output_ptr[i].hex()}")
 
         return output
 
