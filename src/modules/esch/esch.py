@@ -60,7 +60,17 @@ class Esch_t:
             sys.stdout.write("Couldn't import esch_reference.so library\nExiting\n")
             exit()
 
-    def init_structs(self, string):
+    @given(text())
+    def esch(self, string):
+        reference_raw_result = self.esch_reference(string)
+        reference_result = self.format_output_text(reference_raw_result)
+
+        jasmin_raw_result = self.esch_jasmin(string)
+        jasmin_result = self.format_output_text(jasmin_raw_result)
+        
+        self.process_test_results((jasmin_result, reference_result))
+
+    def esch_jasmin(self, string):
 
         output_ptr = (ctypes.c_ubyte * 32)() 
 
@@ -69,51 +79,27 @@ class Esch_t:
         start_ptr = ctypes.addressof(buffer)
         end_ptr = start_ptr + len(string.encode('utf-8'))
 
-        end_ptr = ctypes.cast(end_ptr, ctypes.POINTER(ctypes.c_char))
-        start_ptr = ctypes.cast(start_ptr, ctypes.POINTER(ctypes.c_char))
-        output_ptr = ctypes.cast(output_ptr, ctypes.POINTER(ctypes.c_char))
-
-        return (start_ptr, end_ptr, output_ptr)
-    
-    @given(text())
-    def esch(self, string):
-        jasmin_result = ""
-        reference_result = ""
-
-        reference_result += self.format_output_text(self.esch_reference(string))
-
-        output = self.esch_jasmin(string)
-
-        jasmin_result += self.format_output_text(self.esch_reference(string))
-
-        condition = (jasmin_result == reference_result)
-        jasmin_result = self.format_result_text(jasmin_result, condition)
-        reference_result = self.format_result_text(reference_result, condition)
-
-        self.process_test_results((jasmin_result, reference_result))
-
-    def esch_jasmin(self, string):
-
-        (start_ptr, end_ptr, output_ptr) = self.init_structs(string)
-
-        self.jasmin_esch_dll.esch(start_ptr, end_ptr, output_ptr)
+        self.jasmin_esch_dll.esch(ctypes.cast(start_ptr, ctypes.POINTER(ctypes.c_char)), ctypes.cast(end_ptr, ctypes.POINTER(ctypes.c_char)), ctypes.cast(output_ptr, ctypes.POINTER(ctypes.c_char)))
 
         return output_ptr
 
     def esch_reference(self, string):
 
-        (start_ptr, end_ptr, output_ptr) = self.init_structs(string)
+        output_ptr = (ctypes.c_ubyte * 32)() 
 
-        self.reference_esch_dll.esch(start_ptr, end_ptr, output_ptr)
+        buffer = ctypes.create_string_buffer(string.encode('utf-8'))
+
+        start_ptr = ctypes.addressof(buffer)
+        end_ptr = start_ptr + len(string.encode('utf-8'))
+
+        self.reference_esch_dll.esch(ctypes.cast(start_ptr, ctypes.POINTER(ctypes.c_char)), ctypes.cast(end_ptr, ctypes.POINTER(ctypes.c_char)), ctypes.cast(output_ptr, ctypes.POINTER(ctypes.c_char)))
 
         return output_ptr
 
     def test_esch_reference(self, string):
         output = self.esch_reference(string)
 
-        for i in range(32):
-            if output[i]:
-                sys.stdout.write(f"{hex(output[i])[2:]}")
+        return self.format_output_text(output)
 
     def test_esch_jasmin(self, string):
         output = self.esch_jasmin(string)
@@ -127,12 +113,10 @@ class Esch_t:
         reference_result = []
 
         output = self.esch_reference(string)
-        for i in range(32):
-            reference_result.append((hex(output[i])))
+        reference_result.append(self.format_output_text(output))
 
         output = self.esch_jasmin(string)
-        for i in range(32):
-            jasmin_result.append(str(hex(output[i])))
+        jasmin_result.append(self.format_output_text(output))
 
         for i in range(min(len(jasmin_result), len(reference_result))):
             condition = (jasmin_result[i] == reference_result[i])
@@ -150,13 +134,19 @@ class Esch_t:
             self.esch()
 
         print(tabulate(self.results, headers="keys", tablefmt='grid'))
-        print(f"test passed: {self.results['Result'].count(True)}/{ntests*100} ({(self.results['Result'].count("\033[0;32mPassed\033[0m"))/(ntests)}%)")
-        print("done")
+        print(f"test passed: {self.results['Result'].count("\033[0;32mPassed\033[0m")}/{ntests*100} ({(self.results['Result'].count("\033[0;32mPassed\033[0m"))/(ntests)}%)")
 
     def process_test_results(self, tuple):
-        self.results["Jasmin"].append(tuple[0])
-        self.results["Reference"].append(tuple[1])
-        self.results["Result"].append(self.format_result_text(["Failed", "Passed"], (tuple[0] == tuple[1])))
+        jasmin_result = tuple[0]
+        reference_result = tuple[1]
+
+        condition = (jasmin_result == reference_result)
+        jasmin_result = self.format_result_text(jasmin_result, condition)
+        reference_result = self.format_result_text(reference_result, condition)
+
+        self.results["Jasmin"].append(jasmin_result)
+        self.results["Reference"].append(reference_result)
+        self.results["Result"].append(self.format_result_text(["Failed", "Passed"], (jasmin_result == reference_result)))
 
     def format_result_text(self, value, condition):
         if isinstance(value, str):
@@ -173,7 +163,7 @@ class Esch_t:
     def format_output_text(self, output_ptr):
         output = "0x"
         for i in range(32):
-            output += (f"{output_ptr[i].hex()}")
+            output += (f"{str(hex(output_ptr[i]))[2:]}")
 
         return output
 
