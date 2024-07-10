@@ -1,5 +1,0 @@
-export fn cqo128() {
-  reg u128 x;
-  x = #set0_128();
-  x = #CQO_128(x);
-}

@@ -1,8 +1,0 @@
-export
-fn main() -> reg u64 {
-    reg u64 msf msf0 msf1;
-    msf = #init_msf();
-    msf = #protect(msf, msf);
-    msf = #protect(msf, msf);
-    return msf;
-}

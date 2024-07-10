@@ -1,5 +1,0 @@
-export
-fn main(reg u32 x) -> reg u32 {
-    x = #AND(x, 0x000cb000);
-    return x;
-}

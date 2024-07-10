@@ -1,5 +1,0 @@
-export
-fn main(reg u32 x) {
-    x = #MOV(0x000acaca);
-    [x] = x;
-}

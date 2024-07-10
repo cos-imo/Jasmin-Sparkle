@@ -1,6 +1,0 @@
-export
-fn main(reg u64 x) {
-  while {
-    x -= 1;
-  } (x > 0)
-}

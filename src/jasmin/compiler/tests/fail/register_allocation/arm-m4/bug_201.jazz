@@ -1,3 +1,0 @@
-export
-fn main (reg u64 state)  {
-}

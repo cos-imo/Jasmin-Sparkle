@@ -1,4 +1,0 @@
-export
-fn flush(reg u64 p) {
-  () = #CLFLUSH(p);
-}

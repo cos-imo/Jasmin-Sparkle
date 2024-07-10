@@ -1,8 +1,0 @@
-fn add_H_L_L(#secret reg u64 x, #public reg u64 ya) -> #public reg u64 {
-
- reg u64 t;
-
- t = x + ya;
-
- return t;
-}

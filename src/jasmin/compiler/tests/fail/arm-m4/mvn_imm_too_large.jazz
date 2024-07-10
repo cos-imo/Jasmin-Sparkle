@@ -1,5 +1,0 @@
-export
-fn main(reg u32 x) {
-    x = #MVN(0x0000caca);
-    [x] = x;
-}

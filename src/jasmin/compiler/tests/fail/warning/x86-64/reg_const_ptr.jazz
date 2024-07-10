@@ -1,3 +1,0 @@
-fn f (reg const ptr u64[3] r) -> reg ptr u64[3] {
-  return r;
-}

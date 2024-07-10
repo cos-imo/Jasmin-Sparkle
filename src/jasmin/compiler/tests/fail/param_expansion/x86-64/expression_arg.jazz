@@ -1,3 +1,0 @@
-param int N = (int)(64u) 3;
-
-inline fn f (reg u64[N] a) { }

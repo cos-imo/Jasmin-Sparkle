@@ -1,5 +1,0 @@
-export
-fn main(reg u32 x) {
-    x = #EOR(x, 0x000cb000);
-    [x] = x;
-}

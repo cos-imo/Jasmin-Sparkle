@@ -1,3 +1,0 @@
-export fn undefined(reg u16 x y) {
-  ?{}, _ = #SHLD_16(x, y, 16);
-}

@@ -1,4 +1,0 @@
-export
-fn main(reg u64 p) {
-  [p] = (2u32)[1, 0];
-}

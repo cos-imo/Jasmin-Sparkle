@@ -1,2 +1,0 @@
-param int N = 65536;
-require "large_internal_stack_template.jazz"
