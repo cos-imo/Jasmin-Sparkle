@@ -4,32 +4,6 @@ A simple CRAX implementation in Jasmin
 
 require "alzette.jazz"
 
-inline
-fn get_round_constant(inline u32 index) -> inline u32 {
-  inline u32 constant;
-
-  if (index==0) {
-    constant = 0xB7E15162;
-  }
-
-  if (index==1) {
-    constant = 0xBF715880;
-  }
-
-  if (index==2) {
-    constant = 0x38B4DA56;
-  }
-
-  if (index==3) {
-    constant = 0x324E7738;
-  }
-
-  if (index==4) {
-    constant = 0xBB1185EB;
-  }
-
-  return constant;
-}
 
 fn crax (reg u32 xword, reg u32 yword, reg u32 key_0, reg u32 key_1, reg u32 key_2, reg u32 key_3) -> reg u64 {
 
