@@ -2,7 +2,7 @@
   Sparkle implementation in Jasmin
 */
 
-from functions require "alzette.jazz"
+require "alzette.jazz"
 
 inline
 fn get_sparkle_constant(inline u32 index) -> inline u32 {
