@@ -1,8 +1,0 @@
-inline
-fn feedback_function_2(inline u256 S, inline u256 D) -> inline u256 {
-
-  D^=S;
-
-  return D;
-
-}

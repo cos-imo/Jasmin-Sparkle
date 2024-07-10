@@ -1,0 +1,857 @@
+inline
+fn FeistelSwap(inline u256 S) -> inline u256 {
+
+  inline u128 s_1;
+  inline u128 s_2;
+  inline u128 s_1_xor_s_2;
+  inline u256 res;
+
+  s_1 = S & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+  S >>= 128;
+  s_2 = S & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+
+  s_1_xor_s_2 = s_1 ^ s_2;
+  res = (256u)s_2;
+  res <<= 128;
+  res += (256u)s_1_xor_s_2;
+
+  return res;
+}
+require "branch_permutation.jazz"
+
+inline
+fn L6(reg ptr u32[8] SL, reg ptr u32[4] SR)  -> reg ptr u32[8], reg ptr u32[4] {
+
+  reg u32 tx, ty;
+  reg u32 shift_tx, shift_ty;
+  reg u32 SL_7, SR_1, SR_3, SL_6, SR_0, SR_2;
+
+  /*
+    Feistel round
+  */
+
+  tx = SL[0];
+  tx ^= SL[2];
+  tx ^= SL[4];
+  ty = SL[1];
+  ty ^= SL[3];
+  ty ^= SL[5];
+  
+
+  shift_tx = tx;
+  shift_tx <<= 16;
+  tx ^= shift_tx;
+  tx <<r= 16;
+
+  shift_ty = ty;
+  shift_ty <<= 16;
+  ty ^= shift_ty;
+  ty <<r= 16;
+
+  SL_7 = SL[7];
+  SL_7 ^= SL[1];
+  SL_7 ^= tx;
+  SL[7] = SL_7;
+  SR_1 = SR[1];
+  SR_1 ^= SL[3];
+  SR_1 ^= tx;
+  SR[1] = SR_1;
+  SR_3 = SR[3];
+  SR_3 ^= SL[5];
+  SR_3 ^= tx;
+  SR[3] = SR_3;
+
+  SL_6 = SL[6];
+  SL_6 ^= SL[0];
+  SL_6 ^= ty;
+  SL[6] = SL_6;
+  SR_0 = SR[0];
+  SR_0 ^= SL[2];
+  SR_0 ^= ty;
+  SR[0] = SR_0;
+  SR_2 = SR[2];
+  SR_2 ^= SL[4];
+  SR_2 ^= ty;
+  SR[2] = SR_2;
+
+  /*
+    Branch permutation
+  */
+
+  SL, SR = branch_permutation(SL, SR);
+
+  return SL,SR;
+}
+/*
+A simple Alzette implementation in Jasmin
+*/
+
+from utils require "alzette_offset.jazz"
+
+inline
+fn alzette(reg u32 c, reg u32 x, reg u32 y) -> reg u32, reg u32 {
+
+  inline int i;
+
+  reg u32 temp;
+
+  for i=0 to 4 {
+    
+    inline int offset_x;
+    inline int offset_y;
+
+    offset_x, offset_y = get_offset(i);
+
+    temp = y;
+    temp>>r = offset_x;
+    x += temp;
+
+    temp=temp;
+    temp ^= temp;
+
+    temp = x;
+    temp>>r = offset_y;
+    y ^= temp;
+
+    x^=c;
+
+  }
+
+  x=x;
+  y=y;
+
+  return x, y;
+}
+inline
+fn branch_permutation (reg ptr u32[8] SL, reg ptr u32[4] SR) -> reg ptr u32[8], reg ptr u32[4] {
+
+  reg u32 xy_0_save;
+
+  xy_0_save = SL[0];
+
+  SL[0] = SR[0];
+  SR[0] = SL[2];
+  SL[2] = SR[2];
+  SR[2] = SL[4];
+  SL[4] = SL[6];
+  SL[6] = xy_0_save;
+
+  xy_0_save = SL[1];
+
+  SL[1] = SR[1];
+  SR[1] = SL[3];
+  SL[3] = SR[3];
+  SR[3] = SL[5];
+  SL[5] = SL[7];
+  SL[7] = xy_0_save;
+
+  return SL, SR;
+}
+#! /bin/sh 
+
+for file in $PWD/*
+do 
+  cat $file >> ../output.jazz
+done
+require "FeistelSwap.jazz"
+
+inline
+fn feedback_function_1(inline u256 S, inline u256 D) -> inline u256 {
+
+  S = FeistelSwap(S);
+  
+  D^=S;
+
+  return D;
+
+}
+inline
+fn feedback_function_2(inline u256 S, inline u256 D) -> inline u256 {
+
+  D^=S;
+
+  return D;
+
+}
+inline
+fn FeistelSwap(inline u256 S) -> inline u256 {
+
+  inline u128 s_1;
+  inline u128 s_2;
+  inline u128 s_1_xor_s_2;
+  inline u256 res;
+
+  s_1 = S & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+  S >>= 128;
+  s_2 = S & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+
+  s_1_xor_s_2 = s_1 ^ s_2;
+  res = (256u)s_2;
+  res <<= 128;
+  res += (256u)s_1_xor_s_2;
+
+  return res;
+}
+require "branch_permutation.jazz"
+
+inline
+fn L6(reg ptr u32[8] SL, reg ptr u32[4] SR)  -> reg ptr u32[8], reg ptr u32[4] {
+
+  reg u32 tx, ty;
+  reg u32 shift_tx, shift_ty;
+  reg u32 SL_7, SR_1, SR_3, SL_6, SR_0, SR_2;
+
+  /*
+    Feistel round
+  */
+
+  tx = SL[0];
+  tx ^= SL[2];
+  tx ^= SL[4];
+  ty = SL[1];
+  ty ^= SL[3];
+  ty ^= SL[5];
+  
+
+  shift_tx = tx;
+  shift_tx <<= 16;
+  tx ^= shift_tx;
+  tx <<r= 16;
+
+  shift_ty = ty;
+  shift_ty <<= 16;
+  ty ^= shift_ty;
+  ty <<r= 16;
+
+  SL_7 = SL[7];
+  SL_7 ^= SL[1];
+  SL_7 ^= tx;
+  SL[7] = SL_7;
+  SR_1 = SR[1];
+  SR_1 ^= SL[3];
+  SR_1 ^= tx;
+  SR[1] = SR_1;
+  SR_3 = SR[3];
+  SR_3 ^= SL[5];
+  SR_3 ^= tx;
+  SR[3] = SR_3;
+
+  SL_6 = SL[6];
+  SL_6 ^= SL[0];
+  SL_6 ^= ty;
+  SL[6] = SL_6;
+  SR_0 = SR[0];
+  SR_0 ^= SL[2];
+  SR_0 ^= ty;
+  SR[0] = SR_0;
+  SR_2 = SR[2];
+  SR_2 ^= SL[4];
+  SR_2 ^= ty;
+  SR[2] = SR_2;
+
+  /*
+    Branch permutation
+  */
+
+  SL, SR = branch_permutation(SL, SR);
+
+  return SL,SR;
+}
+/*
+A simple Alzette implementation in Jasmin
+*/
+
+from utils require "alzette_offset.jazz"
+
+inline
+fn alzette(reg u32 c, reg u32 x, reg u32 y) -> reg u32, reg u32 {
+
+  inline int i;
+
+  reg u32 temp;
+
+  for i=0 to 4 {
+    
+    inline int offset_x;
+    inline int offset_y;
+
+    offset_x, offset_y = get_offset(i);
+
+    temp = y;
+    temp>>r = offset_x;
+    x += temp;
+
+    temp=temp;
+    temp ^= temp;
+
+    temp = x;
+    temp>>r = offset_y;
+    y ^= temp;
+
+    x^=c;
+
+  }
+
+  x=x;
+  y=y;
+
+  return x, y;
+}
+inline
+fn branch_permutation (reg ptr u32[8] SL, reg ptr u32[4] SR) -> reg ptr u32[8], reg ptr u32[4] {
+
+  reg u32 xy_0_save;
+
+  xy_0_save = SL[0];
+
+  SL[0] = SR[0];
+  SR[0] = SL[2];
+  SL[2] = SR[2];
+  SR[2] = SL[4];
+  SL[4] = SL[6];
+  SL[6] = xy_0_save;
+
+  xy_0_save = SL[1];
+
+  SL[1] = SR[1];
+  SR[1] = SL[3];
+  SL[3] = SR[3];
+  SR[3] = SL[5];
+  SL[5] = SL[7];
+  SL[7] = xy_0_save;
+
+  return SL, SR;
+}
+#! /bin/sh 
+
+for file in $PWD/*
+do 
+  cat $file >> output.jazz
+done
+require "FeistelSwap.jazz"
+
+inline
+fn feedback_function_1(inline u256 S, inline u256 D) -> inline u256 {
+
+  S = FeistelSwap(S);
+  
+  D^=S;
+
+  return D;
+
+}
+inline
+fn feedback_function_2(inline u256 S, inline u256 D) -> inline u256 {
+
+  D^=S;
+
+  return D;
+
+}
+from functions require "sparkle384_11.jazz"
+
+export
+fn sparkle11(reg u64 state) {
+  stack u32[8] SL;
+  stack u32[4] SR;
+  reg ptr SL_ptr;
+  reg ptr SR_ptr;
+  inline int i;
+
+  for i=0 to 8 {
+    SL[i] = (u32)[state + 4*i];
+  }
+
+  for i=0 to 4 {
+    SR[i] = (u32)[state + 32 + 4*i];
+  }
+
+  SL_ptr = state;
+  SR_ptr = state + 32;
+
+  SL, SR = sparkle384_11(SL_ptr, SR_ptr, 7);
+
+  for i=0 to 8 {
+    (u32)[state + 4*i] = SL[i];
+  }
+
+  for i=0 to 4 {
+    (u32)[state + 32 + 4*i] = SR[i];
+  }
+}
+/*
+  Sparkle implementation in Jasmin
+*/
+
+from utils require "sparkle384_constants.jazz"
+from functions require "alzette.jazz"
+from functions require "L6.jazz"
+
+inline
+fn sparkle384(reg ptr u32[8] SL, reg ptr u32[4] SR, inline int steps) -> reg ptr u32[8], reg ptr u32[4] {
+
+  inline int s;
+  inline int i;
+
+  for s=0 to steps {
+    
+    inline u32 c_constant;
+    inline int s_modulo_8;
+
+    s_modulo_8 = s%8;
+    c_constant = get_sparkle_constant(s_modulo_8);
+
+    SL[1] ^= c_constant; 
+    SL[3] ^= s;
+
+    for i=0 to 4 {
+      c_constant = get_sparkle_constant(i);
+      SL[2*i], SL[2*i+1] = alzette(c_constant, SL[2*i], SL[2*i+1]);
+    }
+
+    for i=0 to 2 {
+      c_constant = get_sparkle_constant(4+i);
+      SR[2*i], SR[2*i+1] = alzette(c_constant, SR[2*i], SR[2*i+1]);
+    }
+
+    SL, SR = L6(SL,SR);
+
+  }
+
+
+  return SL, SR;
+}
+
+from functions require "sparkle384.jazz"
+
+fn sparkle384_11(reg ptr u32[8] SL, reg ptr u32[4] SR) -> reg ptr u32[8], reg ptr u32[4] {
+  SL, SR = sparkle384(SL, SR, 11);
+  return SL, SR;
+}
+from functions require "sparkle384.jazz"
+
+fn sparkle384_7(reg ptr u32[8] SL, reg ptr u32[4] SR) -> reg ptr u32[8], reg ptr u32[4] {
+  SL, SR = sparkle384(SL, SR, 7);
+  return SL, SR;
+}
+from functions require "sparkle384_7.jazz"
+
+export
+fn sparkle7(reg u64 state) {
+  stack u32[8] SL;
+  stack u32[4] SR;
+  inline int i;
+
+  for i=0 to 8 {
+    SL[i] = (u32)[state + 4*i];
+  }
+
+  for i=0 to 4 {
+    SR[i] = (u32)[state + 32 + 4*i];
+  }
+
+  SL, SR = sparkle384_7(SL, SR);
+
+  for i=0 to 8 {
+    (u32)[state + 4*i] = SL[i];
+  }
+
+  for i=0 to 4 {
+    (u32)[state + 32 + 4*i] = SR[i];
+  }
+
+}
+from functions require "sparkle384.jazz"
+
+export
+fn sparkle7(reg u64 state) {
+  stack u32[8] SL;
+  stack u32[4] SR;
+  reg ptr SL_ptr;
+  reg ptr SR_ptr;
+  inline int i;
+
+  for i=0 to 8 {
+    SL[i] = (u32)[state + 4*i];
+  }
+
+  for i=0 to 4 {
+    SR[i] = (u32)[state + 32 + 4*i];
+  }
+
+  SL, SR = sparkle384(SL, SR, 7);
+
+  for i=0 to 8 {
+    (u32)[state + 4*i] = SL[i];
+  }
+
+  for i=0 to 4 {
+    (u32)[state + 32 + 4*i] = SR[i];
+  }
+
+}
+from functions require "sparkle384_11.jazz"
+
+export
+fn sparkle11(reg u64 state) {
+  stack u32[8] SL;
+  stack u32[4] SR;
+  reg ptr SL_ptr;
+  reg ptr SR_ptr;
+  inline int i;
+
+  for i=0 to 8 {
+    SL[i] = (u32)[state + 4*i];
+  }
+
+  for i=0 to 4 {
+    SR[i] = (u32)[state + 32 + 4*i];
+  }
+
+  SL_ptr = state;
+  SR_ptr = state + 32;
+
+  SL, SR = sparkle384_11(SL_ptr, SR_ptr, 7);
+
+  for i=0 to 8 {
+    (u32)[state + 4*i] = SL[i];
+  }
+
+  for i=0 to 4 {
+    (u32)[state + 32 + 4*i] = SR[i];
+  }
+}
+/*
+  Sparkle implementation in Jasmin
+*/
+
+from utils require "sparkle384_constants.jazz"
+from functions require "alzette.jazz"
+from functions require "L6.jazz"
+
+inline
+fn sparkle384(reg ptr u32[8] SL, reg ptr u32[4] SR, inline int steps) -> reg ptr u32[8], reg ptr u32[4] {
+
+  inline int s;
+  inline int i;
+
+  for s=0 to steps {
+    
+    inline u32 c_constant;
+    inline int s_modulo_8;
+
+    s_modulo_8 = s%8;
+    c_constant = get_sparkle_constant(s_modulo_8);
+
+    SL[1] ^= c_constant; 
+    SL[3] ^= s;
+
+    for i=0 to 4 {
+      c_constant = get_sparkle_constant(i);
+      SL[2*i], SL[2*i+1] = alzette(c_constant, SL[2*i], SL[2*i+1]);
+    }
+
+    for i=0 to 2 {
+      c_constant = get_sparkle_constant(4+i);
+      SR[2*i], SR[2*i+1] = alzette(c_constant, SR[2*i], SR[2*i+1]);
+    }
+
+    SL, SR = L6(SL,SR);
+
+  }
+
+
+  return SL, SR;
+}
+
+from functions require "sparkle384.jazz"
+
+fn sparkle384_11(reg ptr u32[8] SL, reg ptr u32[4] SR) -> reg ptr u32[8], reg ptr u32[4] {
+  SL, SR = sparkle384(SL, SR, 11);
+  return SL, SR;
+}
+from functions require "sparkle384.jazz"
+
+fn sparkle384_7(reg ptr u32[8] SL, reg ptr u32[4] SR) -> reg ptr u32[8], reg ptr u32[4] {
+  SL, SR = sparkle384(SL, SR, 7);
+  return SL, SR;
+}
+from functions require "sparkle384_7.jazz"
+
+export
+fn sparkle7(reg u64 state) {
+  stack u32[8] SL;
+  stack u32[4] SR;
+  inline int i;
+
+  for i=0 to 8 {
+    SL[i] = (u32)[state + 4*i];
+  }
+
+  for i=0 to 4 {
+    SR[i] = (u32)[state + 32 + 4*i];
+  }
+
+  SL, SR = sparkle384_7(SL, SR);
+
+  for i=0 to 8 {
+    (u32)[state + 4*i] = SL[i];
+  }
+
+  for i=0 to 4 {
+    (u32)[state + 32 + 4*i] = SR[i];
+  }
+
+}
+from functions require "sparkle384.jazz"
+
+export
+fn sparkle7(reg u64 state) {
+  stack u32[8] SL;
+  stack u32[4] SR;
+  reg ptr SL_ptr;
+  reg ptr SR_ptr;
+  inline int i;
+
+  for i=0 to 8 {
+    SL[i] = (u32)[state + 4*i];
+  }
+
+  for i=0 to 4 {
+    SR[i] = (u32)[state + 32 + 4*i];
+  }
+
+  SL, SR = sparkle384(SL, SR, 7);
+
+  for i=0 to 8 {
+    (u32)[state + 4*i] = SL[i];
+  }
+
+  for i=0 to 4 {
+    (u32)[state + 32 + 4*i] = SR[i];
+  }
+
+}
+inline
+fn W_128_256(inline u128 arg) -> inline u256 {
+  inline u256 res;
+  inline u64 lower_half;
+  inline u64 upper_half;
+
+  lower_half = arg & 0xFFFFFFFFFFFFFFFF;
+  arg >>= 64;
+  upper_half = arg & 0xFFFFFFFFFFFFFFFF;
+
+  res += (256u)upper_half;
+  res <<= 64;
+  res += (256u)lower_half;
+  res <<= 64;
+  res += (256u)upper_half;
+  res <<= 64;
+  res += (256u)lower_half;
+  res <<= 64;
+
+  return res;
+}
+inline
+fn get_offset(inline u32 index) -> inline int, inline int {
+  inline int offset_x;
+  inline int offset_y;
+
+  if (index==0) {
+    offset_x = 31;
+    offset_y = 24;
+  }
+
+  if (index==1) {
+    offset_x = 17;
+    offset_y = 17;
+  }
+
+  if (index==2) {
+    offset_x = 0;
+    offset_y = 31;
+  }
+
+  if (index==3) {
+    offset_x = 24;
+    offset_y = 16;
+  }
+
+  return offset_x, offset_y;
+}
+
+inline
+fn initialize_padding_constants(reg u64 Alen, reg u64 Mlen) -> reg u128, reg u128 {
+  inline u128 constA;
+  inline u128 constM;
+  reg bool zf;
+
+  ?{zf} = #TEST(Alen,31);
+
+  if (zf) {
+    inline u128 xored;
+    xored = 1;
+    xored <<= 2;
+    constA = 0;
+    constA ^= xored;
+  } else {
+    inline u128 xored;
+    xored = 1;
+    xored <<= 2;
+    constA = 0;
+    constA ^= xored;
+  }
+
+  ?{zf} = #TEST(Mlen,31);
+
+  if (zf) {
+    inline u128 xored;
+    xored = 1;
+    xored <<= 2;
+    constM = 0;
+    constM ^= xored;
+  } else {
+    inline u128 xored;
+    xored = 1;
+    xored <<= 2;
+    constM = 0;
+    constM ^= xored;
+  }
+
+  return constA, constM;
+}
+inline
+fn inline_u256_to_tab(inline u256 data) -> inline u32[8] {
+  inline u32[8] tab;
+  inline u256 rotated_data;
+  inline int i;
+
+  rotated_data = data;
+
+  for i=0 to 7 {
+    tab[i] = rotated_data & 0xFF;
+    rotated_data >>= 32;
+  }
+
+  return tab;
+
+}
+inline
+fn pad_256(inline u64 str_start, inline u64 str_end) {
+  inline u64 strlen;
+  inline u64 padding_size;
+  inline int counter;
+  counter = 0;
+
+  inline u8[256] res;
+
+  strlen = str_end - str_start;
+  padding_size = 256 - strlen -1;
+
+  while (counter < str_end) {
+    res[counter] = [str_start+counter];
+    counter += 1;
+  }
+  
+  res[counter] = 1;
+
+  while (counter < 256) {
+    res[counter] = 0;
+    counter += 1;
+  }
+
+}
+inline
+fn pre_sparkle_padding(reg u256 first_tab, inline u128 second_tab) -> stack u32[8], stack u32[4] {
+
+  stack u32[8] x;
+  stack u32[4] y;
+
+  inline int i;
+
+  inline u256 rotated_first_tab;
+  inline u128 rotated_second_tab;
+
+  rotated_first_tab = first_tab;
+  rotated_second_tab = second_tab;
+
+  for i=0 to 7 {
+    x[i] = rotated_first_tab & 0xFF;
+    rotated_first_tab >>= 16;
+  }
+
+  for i=0 to 3 {
+    y[i] = rotated_second_tab & 0xFF;
+    rotated_second_tab >>= 16;
+  }
+
+  return x,y;
+}
+inline
+fn get_round_constant(inline u32 index) -> inline u32 {
+  inline u32 constant;
+
+  if (index==0) {
+    constant = 0xB7E15162;
+  }
+
+  if (index==1) {
+    constant = 0xBF715880;
+  }
+
+  if (index==2) {
+    constant = 0x38B4DA56;
+  }
+
+  if (index==3) {
+    constant = 0x324E7738;
+  }
+
+  if (index==4) {
+    constant = 0xBB1185EB;
+  }
+
+  return constant;
+}
+
+inline
+fn stack_tab_to_u256(stack u32[8] data) -> stack u256 {
+  stack u256 res;
+  inline int i;
+
+  for i=0 to 7 {
+    res += (256u)data[i];
+    res >>r= 32;
+  }
+
+  return res;
+}
+inline
+fn stack_u256_to_tab(stack u256 data) -> inline u32[8] {
+  inline u32[8] tab;
+  inline u256 rotated_data;
+  inline int i;
+
+  rotated_data = data;
+
+  for i=0 to 7 {
+    tab[i] = rotated_data & 0xFF;
+    rotated_data >>= 32;
+  }
+
+  return tab;
+
+}
+inline
+fn strlen(reg u64 str) -> reg u8 {
+  reg u8 len c;
+  len = 0;
+  while {
+    c = (u8)[str];
+  } (c != 0) {
+    str += 1;
+    len += 1;
+  }
+  return len;
+}

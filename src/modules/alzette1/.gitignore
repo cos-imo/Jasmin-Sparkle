@@ -1,4 +1,0 @@
-*.s 
-asm/
-*.so
-__pycache__/
