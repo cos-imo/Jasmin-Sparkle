@@ -12,7 +12,6 @@ from utils require "pre_sparkle_padding.jazz"
 from utils require "inline_u256_to_tab.jazz"
 from utils require "stack_u256_to_tab.jazz"
 
-export
 fn schwaemm(reg u128 K, reg u256 N, reg u64 A_start, reg u64 A_end, reg u64 M_start, reg u64 M_end, reg u64 output_ptr) -> reg u128 { 
 
   stack u256 SL;

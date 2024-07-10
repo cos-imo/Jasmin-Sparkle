@@ -31,7 +31,6 @@ fn get_offset(inline u32 index) -> inline int, inline int {
 }
 
 
-export
 fn alzette(reg u32 c, reg u32 x, reg u32 y) -> reg u64 {
 
   inline int i;
