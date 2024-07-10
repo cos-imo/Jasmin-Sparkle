@@ -1,3 +1,73 @@
+require "alzette.jazz"
+
+inline
+fn get_sparkle_constant(inline u32 index) -> inline u32 {
+  inline u32 constant;
+
+  if (index==0) {
+    constant = 0xB7E15162;
+  }
+
+  if (index==1) {
+    constant = 0xBF715880;
+  }
+
+  if (index==2) {
+    constant = 0x38B4DA56;
+  }
+
+  if (index == 3) {
+    constant = 0x324E7738;
+  }
+
+  if (index == 4) {
+    constant = 0xBB1185EB;
+  }
+
+  if (index == 5) {
+    constant = 0x4F7C7B57;
+  }
+
+  if (index == 6) {
+    constant = 0xCFBFA1C8;
+  }
+
+  if (index == 7) {
+    constant = 0xC2B3293D;
+  }
+
+  return constant;
+}
+
+inline
+fn get_round_constant(inline u32 index) -> inline u32 {
+  inline u32 constant;
+
+  if (index==0) {
+    constant = 0xB7E15162;
+  }
+
+  if (index==1) {
+    constant = 0xBF715880;
+  }
+
+  if (index==2) {
+    constant = 0x38B4DA56;
+  }
+
+  if (index==3) {
+    constant = 0x324E7738;
+  }
+
+  if (index==4) {
+    constant = 0xBB1185EB;
+  }
+
+  return constant;
+}
+
+
+
 inline
 fn FeistelSwap(inline u256 S) -> inline u256 {
 
@@ -17,7 +87,33 @@ fn FeistelSwap(inline u256 S) -> inline u256 {
 
   return res;
 }
-require "branch_permutation.jazz"
+
+inline
+fn branch_permutation (reg ptr u32[8] SL, reg ptr u32[4] SR) -> reg ptr u32[8], reg ptr u32[4] {
+
+  reg u32 xy_0_save;
+
+  xy_0_save = SL[0];
+
+  SL[0] = SR[0];
+  SR[0] = SL[2];
+  SL[2] = SR[2];
+  SR[2] = SL[4];
+  SL[4] = SL[6];
+  SL[6] = xy_0_save;
+
+  xy_0_save = SL[1];
+
+  SL[1] = SR[1];
+  SR[1] = SL[3];
+  SL[3] = SR[3];
+  SR[3] = SL[5];
+  SL[5] = SL[7];
+  SL[7] = xy_0_save;
+
+  return SL, SR;
+}
+
 
 inline
 fn L6(reg ptr u32[8] SL, reg ptr u32[4] SR)  -> reg ptr u32[8], reg ptr u32[4] {
@@ -82,79 +178,6 @@ fn L6(reg ptr u32[8] SL, reg ptr u32[4] SR)  -> reg ptr u32[8], reg ptr u32[4] {
 
   return SL,SR;
 }
-/*
-A simple Alzette implementation in Jasmin
-*/
-
-from utils require "alzette_offset.jazz"
-
-inline
-fn alzette(reg u32 c, reg u32 x, reg u32 y) -> reg u32, reg u32 {
-
-  inline int i;
-
-  reg u32 temp;
-
-  for i=0 to 4 {
-    
-    inline int offset_x;
-    inline int offset_y;
-
-    offset_x, offset_y = get_offset(i);
-
-    temp = y;
-    temp>>r = offset_x;
-    x += temp;
-
-    temp=temp;
-    temp ^= temp;
-
-    temp = x;
-    temp>>r = offset_y;
-    y ^= temp;
-
-    x^=c;
-
-  }
-
-  x=x;
-  y=y;
-
-  return x, y;
-}
-inline
-fn branch_permutation (reg ptr u32[8] SL, reg ptr u32[4] SR) -> reg ptr u32[8], reg ptr u32[4] {
-
-  reg u32 xy_0_save;
-
-  xy_0_save = SL[0];
-
-  SL[0] = SR[0];
-  SR[0] = SL[2];
-  SL[2] = SR[2];
-  SR[2] = SL[4];
-  SL[4] = SL[6];
-  SL[6] = xy_0_save;
-
-  xy_0_save = SL[1];
-
-  SL[1] = SR[1];
-  SR[1] = SL[3];
-  SL[3] = SR[3];
-  SR[3] = SL[5];
-  SL[5] = SL[7];
-  SL[7] = xy_0_save;
-
-  return SL, SR;
-}
-#! /bin/sh 
-
-for file in $PWD/*
-do 
-  cat $file >> ../output.jazz
-done
-require "FeistelSwap.jazz"
-
 inline
 fn feedback_function_1(inline u256 S, inline u256 D) -> inline u256 {
 
@@ -172,220 +195,11 @@ fn feedback_function_2(inline u256 S, inline u256 D) -> inline u256 {
 
   return D;
 
-}
-inline
-fn FeistelSwap(inline u256 S) -> inline u256 {
-
-  inline u128 s_1;
-  inline u128 s_2;
-  inline u128 s_1_xor_s_2;
-  inline u256 res;
-
-  s_1 = S & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
-  S >>= 128;
-  s_2 = S & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
-
-  s_1_xor_s_2 = s_1 ^ s_2;
-  res = (256u)s_2;
-  res <<= 128;
-  res += (256u)s_1_xor_s_2;
-
-  return res;
-}
-require "branch_permutation.jazz"
-
-inline
-fn L6(reg ptr u32[8] SL, reg ptr u32[4] SR)  -> reg ptr u32[8], reg ptr u32[4] {
-
-  reg u32 tx, ty;
-  reg u32 shift_tx, shift_ty;
-  reg u32 SL_7, SR_1, SR_3, SL_6, SR_0, SR_2;
-
-  /*
-    Feistel round
-  */
-
-  tx = SL[0];
-  tx ^= SL[2];
-  tx ^= SL[4];
-  ty = SL[1];
-  ty ^= SL[3];
-  ty ^= SL[5];
-  
-
-  shift_tx = tx;
-  shift_tx <<= 16;
-  tx ^= shift_tx;
-  tx <<r= 16;
-
-  shift_ty = ty;
-  shift_ty <<= 16;
-  ty ^= shift_ty;
-  ty <<r= 16;
-
-  SL_7 = SL[7];
-  SL_7 ^= SL[1];
-  SL_7 ^= tx;
-  SL[7] = SL_7;
-  SR_1 = SR[1];
-  SR_1 ^= SL[3];
-  SR_1 ^= tx;
-  SR[1] = SR_1;
-  SR_3 = SR[3];
-  SR_3 ^= SL[5];
-  SR_3 ^= tx;
-  SR[3] = SR_3;
-
-  SL_6 = SL[6];
-  SL_6 ^= SL[0];
-  SL_6 ^= ty;
-  SL[6] = SL_6;
-  SR_0 = SR[0];
-  SR_0 ^= SL[2];
-  SR_0 ^= ty;
-  SR[0] = SR_0;
-  SR_2 = SR[2];
-  SR_2 ^= SL[4];
-  SR_2 ^= ty;
-  SR[2] = SR_2;
-
-  /*
-    Branch permutation
-  */
-
-  SL, SR = branch_permutation(SL, SR);
-
-  return SL,SR;
-}
-/*
-A simple Alzette implementation in Jasmin
-*/
-
-from utils require "alzette_offset.jazz"
-
-inline
-fn alzette(reg u32 c, reg u32 x, reg u32 y) -> reg u32, reg u32 {
-
-  inline int i;
-
-  reg u32 temp;
-
-  for i=0 to 4 {
-    
-    inline int offset_x;
-    inline int offset_y;
-
-    offset_x, offset_y = get_offset(i);
-
-    temp = y;
-    temp>>r = offset_x;
-    x += temp;
-
-    temp=temp;
-    temp ^= temp;
-
-    temp = x;
-    temp>>r = offset_y;
-    y ^= temp;
-
-    x^=c;
-
-  }
-
-  x=x;
-  y=y;
-
-  return x, y;
-}
-inline
-fn branch_permutation (reg ptr u32[8] SL, reg ptr u32[4] SR) -> reg ptr u32[8], reg ptr u32[4] {
-
-  reg u32 xy_0_save;
-
-  xy_0_save = SL[0];
-
-  SL[0] = SR[0];
-  SR[0] = SL[2];
-  SL[2] = SR[2];
-  SR[2] = SL[4];
-  SL[4] = SL[6];
-  SL[6] = xy_0_save;
-
-  xy_0_save = SL[1];
-
-  SL[1] = SR[1];
-  SR[1] = SL[3];
-  SL[3] = SR[3];
-  SR[3] = SL[5];
-  SL[5] = SL[7];
-  SL[7] = xy_0_save;
-
-  return SL, SR;
-}
-#! /bin/sh 
-
-for file in $PWD/*
-do 
-  cat $file >> output.jazz
-done
-require "FeistelSwap.jazz"
-
-inline
-fn feedback_function_1(inline u256 S, inline u256 D) -> inline u256 {
-
-  S = FeistelSwap(S);
-  
-  D^=S;
-
-  return D;
-
-}
-inline
-fn feedback_function_2(inline u256 S, inline u256 D) -> inline u256 {
-
-  D^=S;
-
-  return D;
-
-}
-from functions require "sparkle384_11.jazz"
-
-export
-fn sparkle11(reg u64 state) {
-  stack u32[8] SL;
-  stack u32[4] SR;
-  reg ptr SL_ptr;
-  reg ptr SR_ptr;
-  inline int i;
-
-  for i=0 to 8 {
-    SL[i] = (u32)[state + 4*i];
-  }
-
-  for i=0 to 4 {
-    SR[i] = (u32)[state + 32 + 4*i];
-  }
-
-  SL_ptr = state;
-  SR_ptr = state + 32;
-
-  SL, SR = sparkle384_11(SL_ptr, SR_ptr, 7);
-
-  for i=0 to 8 {
-    (u32)[state + 4*i] = SL[i];
-  }
-
-  for i=0 to 4 {
-    (u32)[state + 32 + 4*i] = SR[i];
-  }
 }
 /*
   Sparkle implementation in Jasmin
 */
 
-from utils require "sparkle384_constants.jazz"
-from functions require "alzette.jazz"
-from functions require "L6.jazz"
 
 inline
 fn sparkle384(reg ptr u32[8] SL, reg ptr u32[4] SR, inline int steps) -> reg ptr u32[8], reg ptr u32[4] {
@@ -422,19 +236,16 @@ fn sparkle384(reg ptr u32[8] SL, reg ptr u32[4] SR, inline int steps) -> reg ptr
   return SL, SR;
 }
 
-from functions require "sparkle384.jazz"
 
 fn sparkle384_11(reg ptr u32[8] SL, reg ptr u32[4] SR) -> reg ptr u32[8], reg ptr u32[4] {
   SL, SR = sparkle384(SL, SR, 11);
   return SL, SR;
 }
-from functions require "sparkle384.jazz"
 
 fn sparkle384_7(reg ptr u32[8] SL, reg ptr u32[4] SR) -> reg ptr u32[8], reg ptr u32[4] {
   SL, SR = sparkle384(SL, SR, 7);
   return SL, SR;
 }
-from functions require "sparkle384_7.jazz"
 
 export
 fn sparkle7(reg u64 state) {
@@ -461,8 +272,8 @@ fn sparkle7(reg u64 state) {
   }
 
 }
-from functions require "sparkle384.jazz"
 
+/*
 export
 fn sparkle7(reg u64 state) {
   stack u32[8] SL;
@@ -490,7 +301,7 @@ fn sparkle7(reg u64 state) {
   }
 
 }
-from functions require "sparkle384_11.jazz"
+
 
 export
 fn sparkle11(reg u64 state) {
@@ -521,13 +332,11 @@ fn sparkle11(reg u64 state) {
     (u32)[state + 32 + 4*i] = SR[i];
   }
 }
+
 /*
   Sparkle implementation in Jasmin
 */
 
-from utils require "sparkle384_constants.jazz"
-from functions require "alzette.jazz"
-from functions require "L6.jazz"
 
 inline
 fn sparkle384(reg ptr u32[8] SL, reg ptr u32[4] SR, inline int steps) -> reg ptr u32[8], reg ptr u32[4] {
@@ -564,19 +373,16 @@ fn sparkle384(reg ptr u32[8] SL, reg ptr u32[4] SR, inline int steps) -> reg ptr
   return SL, SR;
 }
 
-from functions require "sparkle384.jazz"
 
 fn sparkle384_11(reg ptr u32[8] SL, reg ptr u32[4] SR) -> reg ptr u32[8], reg ptr u32[4] {
   SL, SR = sparkle384(SL, SR, 11);
   return SL, SR;
 }
-from functions require "sparkle384.jazz"
 
 fn sparkle384_7(reg ptr u32[8] SL, reg ptr u32[4] SR) -> reg ptr u32[8], reg ptr u32[4] {
   SL, SR = sparkle384(SL, SR, 7);
   return SL, SR;
 }
-from functions require "sparkle384_7.jazz"
 
 export
 fn sparkle7(reg u64 state) {
@@ -603,7 +409,6 @@ fn sparkle7(reg u64 state) {
   }
 
 }
-from functions require "sparkle384.jazz"
 
 export
 fn sparkle7(reg u64 state) {
@@ -855,3 +660,5 @@ fn strlen(reg u64 str) -> reg u8 {
   }
   return len;
 }
+
+*/
