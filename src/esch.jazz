@@ -2,8 +2,7 @@
 A simple Esch implementation in Jasmin
 */
 
-from sparkle require "sparkle384.jazz"
-from includes require "M3.jazz"
+require "appendix.jazz"
 
 fn 
 M3_XOR_S(reg u64 M_start, reg ptr u32[12] S) -> reg ptr u32[12] {

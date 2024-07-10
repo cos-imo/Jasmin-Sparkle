@@ -2,8 +2,7 @@
 A simple schwaemm implementation in Jasmin
 */
 
-from functions require "sparkle384.jazz"
-from includes require "include.jazz"
+require "appendix.jazz"
 
 fn schwaemm(reg u128 K, reg u256 N, reg u64 A_start, reg u64 A_end, reg u64 M_start, reg u64 M_end, reg u64 output_ptr) -> reg u128 { 
 
