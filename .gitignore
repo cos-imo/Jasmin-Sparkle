@@ -1,11 +1,2 @@
 .DS_Store
-.obsidian/
-code/alzette-python/.venv
-code/.DS_Store
-Documents/.obsidian
-Documents/Administratif/
-Documents/Heures.xlsx
-Documents/Questions.md
-Documents/TODO.md
-Documents/IMG_2408.HEIC
-Documents/stv2023*
+shared/*
