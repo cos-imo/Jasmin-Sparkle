@@ -5,6 +5,7 @@ A simple CRAX implementation in Jasmin
 require "alzette.jazz"
 
 
+export 
 fn crax (reg u32 xword, reg u32 yword, reg u32 key_0, reg u32 key_1, reg u32 key_2, reg u32 key_3) -> reg u64 {
 
   inline int step;

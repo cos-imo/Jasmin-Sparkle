@@ -28,6 +28,7 @@ M3_XOR_S(reg u64 M_start, reg ptr u32[12] S) -> reg ptr u32[12] {
   return S;
 }
 
+export
 fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) { 
 
   reg u32 constM;
