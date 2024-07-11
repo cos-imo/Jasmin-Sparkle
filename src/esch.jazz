@@ -2,8 +2,6 @@
 A simple Esch implementation in Jasmin
 */
 
-require "appendix.jazz"
-
 fn 
 M3_XOR_S(reg u64 M_start, reg ptr u32[12] S) -> reg ptr u32[12] {
   reg u32 zero;
