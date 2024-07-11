@@ -1,0 +1,43 @@
+require "alzette.jazz"
+require "crax.jazz"
+require "esch.jazz"
+require "schwaemm.jazz"
+require "sparkle384.jazz"
+
+export
+fn crax_export(reg u32 xword, reg u32 yword, reg u32 key_0, reg u32 key_3) -> reg u64 {
+	reg u64 res;
+
+	res = crax(xword, yword, key_0, key_3);
+
+	return res;
+}
+
+export
+fn esch_export(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
+	esch(M_Start, M_end, output_ptr);
+}
+
+export
+fn schwaemm_export(reg u64 K, reg u256 N, reg u64 A_start, reg u64 M_end, reg u64 output_ptr) -> reg u128 {
+	reg u128 res;
+
+	res = schwaemm(K, N, A_start, M_end, output_ptr);
+
+	return res;
+
+}
+
+export
+fn sparkle384_11_export(reg ptr u32[8] SL, reg ptr u32[4] SR) -> reg ptr u32[8], reg ptr u32[4] {
+  SL, SR = sparkle384(SL, SR, 11);
+  return SL, SR;
+}
+
+export
+fn sparkle384_7_export(reg ptr u32[8] SL, reg ptr u32[4] SR) -> reg ptr u32[8], reg ptr u32[4] {
+  SL, SR = sparkle384(SL, SR, 7);
+  return SL, SR;
+}
+
+
