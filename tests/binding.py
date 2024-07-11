@@ -27,29 +27,42 @@ class Wrapper:
 		int32 = ctypes.c_int32
 		int64 = ctypes.c_int64
 
-		self.try_load_sparkle_library()
-		self.args = {"alzette_export": [int32, int32, int32],"crax_export": [int32, int32, int32, int32, int32, int32], "esch_export" : [int64, int32], "sparkle384_7" : [int32 * 8, int32 * 4], "sparkle384_11" : [int32 * 8, int32 * 4]}
+		self.libraries = {}
+
+		self.args = {"alzette": [int32, int32, int32],"crax": [int32, int32, int32, int32, int32, int32], "esch" : [int64, int32]}
+
+		self.loadlibraries()
+
 		# "schwaemm_export" : [int64, int256, int64, int64, int64], -> pas de u256 dans ctypes? 
 
 		self.parseur = Parseur()
 		self.set_func(self.parseur.args.program)
 
-	def try_load_sparkle_library(self):
-		if Path("../shared/sparkle_suite.so").exists():
-			self.load_sparkle_library()
+	def loadlibraries(self):
+		for function in self.args:
+			library = function + ".so"
+			self.try_load_library(library)
+
+	def try_load_library(self, library):
+		if Path(f"../shared/{library}").exists():
+			self.load_library(library)
 			return
 		else:
-			sys.stdout.write("Jasmin SparkleSuite library (.so) not found. Please compile it.\nExiting\n")
+			sys.stdout.write(f"Jasmin {library} library (.so) not found. Please compile it.\nExiting\n")
 			exit()
 
-	def load_sparkle_library(self):
+	def load_library(self, library):
 		try:
-			self.jasmin_sparkle_dll = ctypes.cdll.LoadLibrary("../shared/sparkle_suite.so")
-
+			self.libraries[library] = ctypes.cdll.LoadLibrary("../shared/{library}")
 		except:
-			sys.stdout.write("Couldn't import sparkle_suite.so library\nExiting\n")
+			sys.stdout.write(f"Couldn't import {library} library\nExiting\n")
 			exit()
+
 	def set_func(self, function):
+		func = getattr(self.libraries[library], function)
+		func.argtypes = self.args[function]
+		#self.jasmin_sparkle_dll.crax_export.argtypes = [ctypes.c_int64, ctypes.c_int64, ctypes.c_int64]
+		"""
 		if function not in ["crax_export", "esch_export", "schwaemm_export", "sparkle384_11_export", "schwaemm384_7_export"]:
 			print("function not recognized")
 			print("Available functions:")
@@ -58,9 +71,7 @@ class Wrapper:
 		else:
 			func = getattr(self.jasmin_sparkle_dll, function)
 			func.args = self.args[function]
+        """
 
 if __name__ == "__main__":
 	wrapper = Wrapper()
-
-
-
