@@ -142,7 +142,7 @@ fn sparkle384(reg ptr u32[8] SL, reg ptr u32[4] SR, inline int steps) -> reg ptr
 
   for s=0 to steps {
     
-    inline u32 c_constant;
+    reg u32 c_constant;
     inline int s_modulo_8;
 
     s_modulo_8 = s%8;

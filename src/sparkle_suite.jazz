@@ -2,7 +2,8 @@ require "alzette.jazz"
 require "crax.jazz"
 //require "esch.jazz"
 //require "schwaemm.jazz"
-//require "sparkle384.jazz"
+require "sparkle384.jazz"
+
 export
 fn crax_export(reg u32 xword, reg u32 yword, reg u32 key_0, reg u32 key_1, reg u32 key_2, reg u32 key_3) -> reg u64 {
 	reg u32 xword, yword;
@@ -35,8 +36,12 @@ fn schwaemm_export(reg u128 K, reg u256 N, reg u64 A_start, reg u64 A_end, reg u
 
 }
 
+*/
 export
-fn sparkle384_11_export(reg u64 SL_ptr, reg u64 SR_ptr) -> reg u64, reg u64 {
+fn sparkle384_11_export(reg u64 SL_ptr, reg u64 SR_ptr) {
+
+  SL_ptr = SL_ptr;
+  SR_ptr = SR_ptr;
 
   stack u32[8] SL;
   stack u32[4] SR;
@@ -60,11 +65,13 @@ fn sparkle384_11_export(reg u64 SL_ptr, reg u64 SR_ptr) -> reg u64, reg u64 {
   for i=0 to 4 {
 	(u32)[SR_ptr + 4*i] = SR[i];
   }
-  return SL_ptr, SR_ptr;
 }
 
 export
-fn sparkle384_7_export(reg u64 SL_ptr, reg u64 SR_ptr) -> reg u64, reg u64 {
+fn sparkle384_7_export(reg u64 SL_ptr, reg u64 SR_ptr) {
+
+  SL_ptr = SL_ptr;
+  SR_ptr = SR_ptr;
 
   stack u32[8] SL;
   stack u32[4] SR;
@@ -88,9 +95,8 @@ fn sparkle384_7_export(reg u64 SL_ptr, reg u64 SR_ptr) -> reg u64, reg u64 {
   for i=0 to 4 {
 	(u32)[SR_ptr + 4*i] = SR[i];
   }
-  return SL_ptr, SR_ptr;
+
 }
-*/
 
 export
 fn alzette_export(reg u32 c, reg u32 x, reg u32 y) -> reg u64 { //renvoyer sur 64 bits
