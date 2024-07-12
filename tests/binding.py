@@ -27,9 +27,7 @@ class Wrapper:
 		int32 = ctypes.c_int32
 		int64 = ctypes.c_int64
 
-		self.libraries = {}
-
-		self.args = {"alzette": [int32, int32, int32],"crax": [int32, int32, int32, int32, int32, int32], "esch" : [int64, int32]}
+		self.args = {"alzette_export": [int32, int32, int32],"crax_export": [int32, int32, int32, int32, int32, int32], "esch_export" : [int64, int32]}
 
 		self.loadlibraries()
 
@@ -39,27 +37,21 @@ class Wrapper:
 		self.set_func(self.parseur.args.program)
 
 	def loadlibraries(self):
-		for function in self.args:
-			library = function + ".so"
-			self.try_load_library(library)
+		self.try_load_library()
 
-	def try_load_library(self, library):
-		if Path(f"../shared/{library}").exists():
-			self.load_library(library)
+	def try_load_library(self):
+		if Path(f"../shared/sparkle_suite.so").exists():
+			self.load_library()
 			return
 		else:
-			sys.stdout.write(f"Jasmin {library} library (.so) not found. Please compile it.\nExiting\n")
+			sys.stdout.write(f"Jasmin sparkle suite library (.so) not found. Please compile it.\nExiting\n")
 			exit()
 
-	def load_library(self, library):
-		try:
-			self.libraries[library] = ctypes.cdll.LoadLibrary("../shared/{library}")
-		except:
-			sys.stdout.write(f"Couldn't import {library} library\nExiting\n")
-			exit()
+	def load_library(self):
+		self.library = ctypes.cdll.LoadLibrary("../shared/sparkle_suite.so")
 
 	def set_func(self, function):
-		func = getattr(self.libraries[library], function)
+		func = getattr(self.library, function)
 		func.argtypes = self.args[function]
 		#self.jasmin_sparkle_dll.crax_export.argtypes = [ctypes.c_int64, ctypes.c_int64, ctypes.c_int64]
 		"""
