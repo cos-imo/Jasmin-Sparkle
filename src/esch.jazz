@@ -2,7 +2,6 @@
 A simple Esch implementation in Jasmin
 */
 
-require "sparkle_suite.jazz"
 require "sparkle384.jazz"
 
 inline
