@@ -31,11 +31,10 @@ fn get_round_constant(inline u32 index) -> inline u32 {
   return constant;
 }
 
-export
-fn crax (reg u32 xword, reg u32 yword, reg u32 key_0, reg u32 key_1, reg u32 key_2, reg u32 key_3) -> reg u64 {
+fn crax (reg u32 xword, reg u32 yword, reg u32 key_0, reg u32 key_1, reg u32 key_2, reg u32 key_3) -> reg u32, reg u32 {
 
   inline int step;
-  inline u32 round_constant;
+  reg u32 round_constant;
 
   reg u64 export_var;
   reg u64 padded_y;
@@ -51,22 +50,12 @@ fn crax (reg u32 xword, reg u32 yword, reg u32 key_0, reg u32 key_1, reg u32 key
       yword ^= key_3;
     }
     round_constant = get_round_constant(step%5);
-    alzette_res = alzette(round_constant, xword, yword);
-    xword = (32u) alzette_res;
-    alzette_res<<r=32;
-    ywword = (32u) alzette_res;
+    #inline
+    xword, yword = alzette(round_constant, xword, yword);
   }
 
   xword ^= key_0;
   yword ^= key_1;
 
-  xword = xword;
-  yword = yword;
-
-  export_var = (64u) xword;
-  export_var>>r=32;
-  padded_y = (64u) yword;
-  export_var += padded_y;
-
-  return export_var;
+  return xword, yword;
 }
