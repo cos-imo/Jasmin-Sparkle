@@ -7,7 +7,7 @@ OBJ:=src/asm/alzette.o src/asm/crax.o src/asm/esch.o src/asm/sparkle.o  src/asm/
 .SUFFIXES: .s .jazz .o .so 
 .PRECIOUS: asm/%.s
 
-all: shared/alzette.so shared/crax.so shared/esch.so shared/schwaemm.so shared/sparkle.so shared/sparkle_suite.so clean
+all: shared/sparkle_suite.so clean
 
 libs: alzette.so
 
@@ -55,7 +55,7 @@ src/asm/schwaemm.o: src/schwaemm.s
 shared/schwaemm.so: $(OBJ)
 	$(CC) -shared -o $@ $^
 
-src/sparkle.s: src/sparkle.jazz
+src/sparkle.s: src/sparkle384.jazz
 	mkdir -p shared
 	mkdir -p src/asm/
 	$(JASMINC) $(JFLAGS) -o $@ $<
