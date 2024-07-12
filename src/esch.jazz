@@ -3,6 +3,7 @@ A simple Esch implementation in Jasmin
 */
 
 require "sparkle_suite.jazz"
+require "sparkle384.jazz"
 
 inline
 fn l(reg u32 x) -> reg u32{
@@ -68,7 +69,6 @@ M3_XOR_S(reg u64 M_start, reg ptr u32[12] S) -> reg ptr u32[12] {
   return S;
 }
 
-export
 fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) { 
 
   reg u32 constM;
