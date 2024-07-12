@@ -2,9 +2,156 @@
 A simple schwaemm implementation in Jasmin
 */
 
-require "appendix.jazz"
+require "sparkle384.jazz"
 
-export
+
+inline
+fn pre_sparkle_padding(reg u256 first_tab, inline u128 second_tab) -> stack u32[8], stack u32[4] {
+
+  stack u32[8] x;
+  stack u32[4] y;
+
+  inline int i;
+
+  inline u256 rotated_first_tab;
+  inline u128 rotated_second_tab;
+
+  rotated_first_tab = first_tab;
+  rotated_second_tab = second_tab;
+
+  for i=0 to 7 {
+    x[i] = rotated_first_tab & 0xFF;
+    rotated_first_tab >>= 16;
+  }
+
+  for i=0 to 3 {
+    y[i] = rotated_second_tab & 0xFF;
+    rotated_second_tab >>= 16;
+  }
+
+  return x,y;
+}
+
+inline
+fn stack_u256_to_tab(stack u256 data) -> inline u32[8] {
+  inline u32[8] tab;
+  inline u256 rotated_data;
+  inline int i;
+
+  rotated_data = data;
+
+  for i=0 to 7 {
+    tab[i] = rotated_data & 0xFF;
+    rotated_data >>= 32;
+  }
+
+  return tab;
+
+}
+
+inline
+fn W_128_256(inline u128 arg) -> inline u256 {
+  inline u256 res;
+  inline u64 lower_half;
+  inline u64 upper_half;
+
+  lower_half = arg & 0xFFFFFFFFFFFFFFFF;
+  arg >>= 64;
+  upper_half = arg & 0xFFFFFFFFFFFFFFFF;
+
+  res += (256u)upper_half;
+  res <<= 64;
+  res += (256u)lower_half;
+  res <<= 64;
+  res += (256u)upper_half;
+  res <<= 64;
+  res += (256u)lower_half;
+  res <<= 64;
+
+  return res;
+}
+
+inline
+fn FeistelSwap(inline u256 S) -> inline u256 {
+
+  inline u128 s_1;
+  inline u128 s_2;
+  inline u128 s_1_xor_s_2;
+  inline u256 res;
+
+  s_1 = S & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+  S >>= 128;
+  s_2 = S & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+
+  s_1_xor_s_2 = s_1 ^ s_2;
+  res = (256u)s_2;
+  res <<= 128;
+  res += (256u)s_1_xor_s_2;
+
+  return res;
+}
+
+inline
+fn feedback_function_1(inline u256 S, inline u256 D) -> inline u256 {
+
+  S = FeistelSwap(S);
+  
+  D^=S;
+
+  return D;
+
+}
+
+inline
+fn feedback_function_2(inline u256 S, inline u256 D) -> inline u256 {
+
+  D^=S;
+
+  return D;
+
+}
+
+inline
+fn initialize_padding_constants(reg u64 Alen, reg u64 Mlen) -> reg u128, reg u128 {
+  inline u128 constA;
+  inline u128 constM;
+  reg bool zf;
+
+  ?{zf} = #TEST(Alen,31);
+
+  if (zf) {
+    inline u128 xored;
+    xored = 1;
+    xored <<= 2;
+    constA = 0;
+    constA ^= xored;
+  } else {
+    inline u128 xored;
+    xored = 1;
+    xored <<= 2;
+    constA = 0;
+    constA ^= xored;
+  }
+
+  ?{zf} = #TEST(Mlen,31);
+
+  if (zf) {
+    inline u128 xored;
+    xored = 1;
+    xored <<= 2;
+    constM = 0;
+    constM ^= xored;
+  } else {
+    inline u128 xored;
+    xored = 1;
+    xored <<= 2;
+    constM = 0;
+    constM ^= xored;
+  }
+
+  return constA, constM;
+}
+
 fn schwaemm(reg u128 K, reg u256 N, reg u64 A_start, reg u64 A_end, reg u64 M_start, reg u64 M_end, reg u64 output_ptr) -> reg u128 { 
 
   stack u256 SL;

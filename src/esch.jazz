@@ -2,6 +2,46 @@
 A simple Esch implementation in Jasmin
 */
 
+require "sparkle_suite.jazz"
+
+inline
+fn l(reg u32 x) -> reg u32{
+  reg u32 shifted_x;
+
+  shifted_x = x;
+  shifted_x <<r= 16;
+
+  x &= 0xffff;
+
+  x ^= shifted_x;
+
+  return x;
+}
+
+inline
+fn M3(reg ptr u32[6] tab) -> reg ptr u32[6] {
+  reg u32 t_x, t_y;
+
+  t_x = tab[0];
+  t_x ^= tab[2];
+  t_y = tab[1];
+  t_y ^= tab[3];
+
+  t_x = l(t_x);
+  t_y = l(t_y);
+
+  tab[0] ^= t_y;
+  tab[2] ^= t_y;
+
+  tab[1] ^= t_x;
+  tab[3] ^= t_x;
+
+  tab[4] = t_y;
+  tab[5] = t_x;
+
+  return tab;
+}
+
 fn 
 M3_XOR_S(reg u64 M_start, reg ptr u32[12] S) -> reg ptr u32[12] {
   reg u32 zero;
@@ -32,8 +72,6 @@ export
 fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) { 
 
   reg u32 constM;
-  reg u128 D_0;
-  reg u128 D_1;
   reg u64 M_lenght;
 
   M_lenght = M_end;
@@ -64,18 +102,14 @@ fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
 
   // LAST BLOCK
 
-  stack u32[4] M_block;
-
   stack u8[24] t;
-
-  inline int j;
 
   for j=0 to 24 {
     t[j] = 0;
   }
 
   reg u64 i;
-  i=#set0_64();
+  ?{},i=#set0_64();
 
   while (i<M_lenght) {
     t[i] = (u8)[M_start + i];
@@ -95,16 +129,12 @@ fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
 
   t[u32 0:6] = M3(t[u32 0:6]);
 
-  inline int index;
-
   S[5] ^= constM;
 
-  inline int i;
-
-  for i=0 to 6 {
+  for j=0 to 6 {
     reg u32 t_val;
-    t_val = t[u32 i];
-    S[i] ^= t_val;
+    t_val = t[u32 j];
+    S[j] ^= t_val;
   }
 
   S[0:8], S[8:4] = sparkle384_11(S[0:8], S[8:4]);

@@ -5,39 +5,92 @@ require "schwaemm.jazz"
 require "sparkle384.jazz"
 
 export
-fn crax_export(reg u32 xword, reg u32 yword, reg u32 key_0, reg u32 key_3) -> reg u64 {
+fn crax_export(reg u32 xword, reg u32 yword, reg u32 key_0, reg u32 key_1, reg u32 key_2, reg u32 key_3) -> reg u64 {
 	reg u64 res;
 
-	res = crax(xword, yword, key_0, key_3);
+	res = crax(xword, yword, key_0, key_1, key_2, key_3);
 
 	return res;
 }
 
+/*
 export
 fn esch_export(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
 	esch(M_Start, M_end, output_ptr);
 }
+*/
 
 export
-fn schwaemm_export(reg u64 K, reg u256 N, reg u64 A_start, reg u64 M_end, reg u64 output_ptr) -> reg u128 {
+fn schwaemm_export(reg u128 K, reg u256 N, reg u64 A_start, reg u64 A_end, reg u64 M_start, reg u64 M_end, reg u64 output_ptr) -> reg u128 {
 	reg u128 res;
 
-	res = schwaemm(K, N, A_start, M_end, output_ptr);
+	res = schwaemm(K, N, A_start, A_end, M_start, M_end, output_ptr);
 
 	return res;
 
 }
 
+/*
 export
-fn sparkle384_11_export(reg ptr u32[8] SL, reg ptr u32[4] SR) -> reg ptr u32[8], reg ptr u32[4] {
+fn sparkle384_11_export(reg u64 SL_ptr, reg u64 SR_ptr) -> reg u64, reg u64 {
+
+  stack u32[8] SL;
+  stack u32[4] SR;
+
+  inline int i;
+
+  for i=0 to 8 {
+	SL[i] = (u32)[SL_ptr + 4*i];
+  }
+
+  for i=0 to 4 {
+	SR[i] = (u32)[SR_ptr + 4*i];
+  }
+
   SL, SR = sparkle384(SL, SR, 11);
-  return SL, SR;
+
+  for i=0 to 8 {
+	(u32)[SL_ptr + 4*i] = SL[i];
+  }
+
+  for i=0 to 4 {
+	(u32)[SR_ptr + 4*i] = SR[i];
+  }
+  return SL_ptr, SR_ptr;
 }
 
 export
-fn sparkle384_7_export(reg ptr u32[8] SL, reg ptr u32[4] SR) -> reg ptr u32[8], reg ptr u32[4] {
+fn sparkle384_7_export(reg u64 SL_ptr, reg u64 SR_ptr) -> reg u64, reg u64 {
+
+  stack u32[8] SL;
+  stack u32[4] SR;
+
+  inline int i;
+
+  for i=0 to 8 {
+	SL[i] = (u32)[SL_ptr + 4*i];
+  }
+
+  for i=0 to 4 {
+	SR[i] = (u32)[SR_ptr + 4*i];
+  }
+
   SL, SR = sparkle384(SL, SR, 7);
-  return SL, SR;
+
+  for i=0 to 8 {
+	(u32)[SL_ptr + 4*i] = SL[i];
+  }
+
+  for i=0 to 4 {
+	(u32)[SR_ptr + 4*i] = SR[i];
+  }
+  return SL_ptr, SR_ptr;
 }
+*/
 
-
+export
+fn alzette_export(reg u32 c, reg u32 x, reg u32 y) -> reg u32, reg u32 {
+	reg u32 x_out, y_out;
+	x_out, y_out = alzette(c, x, y);
+	return x_out, y_out;
+}

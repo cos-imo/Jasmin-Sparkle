@@ -2,7 +2,7 @@ JASMINC?= jasminc
 JFLAGS?=
 CC?=cc
 
-OBJ:=src/asm/alzette.o
+OBJ:=src/asm/alzette.o src/asm/crax.o src/asm/esch.o src/asm/sparkle.o  src/asm/sparkle_suite.o
 
 .SUFFIXES: .s .jazz .o .so 
 .PRECIOUS: asm/%.s

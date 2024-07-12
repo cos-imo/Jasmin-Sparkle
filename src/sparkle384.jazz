@@ -153,12 +153,22 @@ fn sparkle384(reg ptr u32[8] SL, reg ptr u32[4] SR, inline int steps) -> reg ptr
 
     for i=0 to 4 {
       c_constant = get_sparkle_constant(i);
-      SL[2*i], SL[2*i+1] = alzette(c_constant, SL[2*i], SL[2*i+1]);
+      reg u32 SL_2i, SL_2i_1;
+      SL_2i = SL[2*i];
+      SL_2i_1 = SL[2*i+1];
+      SL_2i, SL_2i_1 = alzette(c_constant, SL_2i, SL_2i_1);
+      SL[2*i] = SL_2i;
+      SL[2*i+1] = SL_2i_1;
     }
 
     for i=0 to 2 {
       c_constant = get_sparkle_constant(4+i);
-      SR[2*i], SR[2*i+1] = alzette(c_constant, SR[2*i], SR[2*i+1]);
+      reg u32 SR_2i, SR_2i_1;
+      SR_2i = SR[2*i];
+      SR_2i_1 = SR[2*i+1];
+      SR_2i, SR_2i_1 = alzette(c_constant, SR_2i, SR_2i_1);
+      SR[2*i] = SR_2i;
+      SR[2*i+1] = SR_2i_1;
     }
 
     SL, SR = L6(SL,SR);
