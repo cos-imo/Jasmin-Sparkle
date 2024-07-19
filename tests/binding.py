@@ -19,10 +19,8 @@ class Parseur:
         self.parser.add_argument('-h', '--help', action='help', help="shows this help message")
         self.parser.add_argument('-p', '--program', type=str, help='functions to summon. Choices: crax_export, esch_export, schwaemm_export, sparkle384_11_export, sparkle384_7_export')
         self.parser.add_argument('-c', '--constant', help="Alzette required argument #1")
-        self.parser.add_argument('-xa', '--axword', help="Alzette required argument #2")
-        self.parser.add_argument('-ya', '--ayword', help="Alzette required argument #3")
-        self.parser.add_argument('-xc', '--cxword', help="Crax required argument #1")
-        self.parser.add_argument('-yc', '--cyword', help="Crax required argument #2")
+        self.parser.add_argument('-x', '--xword', help="X Word")
+        self.parser.add_argument('-y', '--yword', help="Y Word")
         self.parser.add_argument('-k0', '--key_0', help="Crax required argument #3")
         self.parser.add_argument('-k1', '--key_1', help="Crax required argument #4")
         self.parser.add_argument('-k2', '--key_2', help="Crax required argument #5")
@@ -53,7 +51,9 @@ class Wrapper:
 
 		self.jasmin_args = {"alzette_export": [self.int32, self.int32, self.int32],"crax_export": [self.int32, self.int32, self.int32, self.int32, self.int32, self.int32], "esch_export" : [ctypes.POINTER(ctypes.c_char), ctypes.POINTER(ctypes.c_char), ctypes.POINTER(ctypes.c_char)], "sparkle384_7_export": [ctypes.c_int32 * 12], "sparkle384_11_export": [ctypes.c_int32 * 12]}
 
-		self.required_flags = {"alzette_export": ["constant", "axword", "ayword"], "crax_export": ["cxword","cyword","key_0","key_1","key_2","key_3"], "esch_export": ["esch_entry"], "sparkle384_7": ["state_pointer"], "sparkle384_11_export": ['sparkle_x0', 'sparkle_x1', 'sparkle_x2', 'sparkle_x3', 'sparkle_x4', 'sparkle_y0', 'sparkle_y1', 'sparkle_y2', 'sparkle_y3', 'sparkle_y4'], "sparkle384_7_export": ['sparkle_x0', 'sparkle_x1', 'sparkle_x2', 'sparkle_x3', 'sparkle_x4', 'sparkle_y0', 'sparkle_y1', 'sparkle_y2', 'sparkle_y3', 'sparkle_y4']} 
+		self.reference_args = {}
+
+		self.required_flags = {"alzette_export": ["constant", "xword", "yword"], "crax_export": ["yword","yword","key_0","key_1","key_2","key_3"], "esch_export": ["esch_entry"], "sparkle384_7": ["state_pointer"], "sparkle384_11_export": ['sparkle_x0', 'sparkle_x1', 'sparkle_x2', 'sparkle_x3', 'sparkle_x4', 'sparkle_y0', 'sparkle_y1', 'sparkle_y2', 'sparkle_y3', 'sparkle_y4'], "sparkle384_7_export": ['sparkle_x0', 'sparkle_x1', 'sparkle_x2', 'sparkle_x3', 'sparkle_x4', 'sparkle_y0', 'sparkle_y1', 'sparkle_y2', 'sparkle_y3', 'sparkle_y4']} 
 
 
 		# "schwaemm_export" : [self.int64, int256, self.int64, self.int64, self.int64], -> pas de u256 dans ctypes? 
@@ -90,13 +90,13 @@ class Wrapper:
 		func.argtypes = self.jasmin_args[function]
 		match function:
 			case "alzette_export":
-				alzette_res = func(self.int32(int(self.parseur.args.constant)), self.int32(int(self.parseur.args.axword)), self.int32(int(self.parseur.args.ayword)))
-				print(f"Alzette ran with:\n\tc: {self.parseur.args.constant}\n\tx: {self.parseur.args.axword}\n\ty: {self.parseur.args.ayword}\n\nOutput: {alzette_res}")
+				alzette_res = func(self.int32(int(self.parseur.args.constant)), self.int32(int(self.parseur.args.xword)), self.int32(int(self.parseur.args.yword)))
+				print(f"Alzette ran with:\n\tc: {self.parseur.args.constant}\n\tx: {self.parseur.args.xword}\n\ty: {self.parseur.args.yword}\n\nOutput: {alzette_res}")
 			case "crax_export":
-				crax_res_64 = func(self.int32(int(self.parseur.args.cxword)), self.int32(int(self.parseur.args.cyword)), self.int32(int(self.parseur.args.key_0)),self.int32(int(self.parseur.args.key_1)),self.int32(int(self.parseur.args.key_2)),self.int32(int(self.parseur.args.key_3)))
+				crax_res_64 = func(self.int32(int(self.parseur.args.yword)), self.int32(int(self.parseur.args.yword)), self.int32(int(self.parseur.args.key_0)),self.int32(int(self.parseur.args.key_1)),self.int32(int(self.parseur.args.key_2)),self.int32(int(self.parseur.args.key_3)))
 				crax_res_x = crax_res_64 & 0xFFFFFFFF
 				crax_res_y = (crax_res_64 >> 32) & 0xFFFFFFFF
-				print(f"Crax ran with:\n\tx: {self.parseur.args.cxword}\n\ty: {self.parseur.args.cyword}\n\tkey_0: {self.parseur.args.key_0}\n\tkey_1: {self.parseur.args.key_1}\n\tkey_2: {self.parseur.args.key_2}\n\tkey_3: {self.parseur.args.key_3}\n\nOutput:\n\tx: {crax_res_x}\n\ty: {crax_res_y}")
+				print(f"Crax ran with:\n\tx: {self.parseur.args.yword}\n\ty: {self.parseur.args.yword}\n\tkey_0: {self.parseur.args.key_0}\n\tkey_1: {self.parseur.args.key_1}\n\tkey_2: {self.parseur.args.key_2}\n\tkey_3: {self.parseur.args.key_3}\n\nOutput:\n\tx: {crax_res_x}\n\ty: {crax_res_y}")
 			case "esch_export":
 				output_str = (ctypes.c_ubyte * 32)()
 				buffer = ctypes.create_string_buffer(self.parseur.args.esch_entry.encode('utf-8'))
