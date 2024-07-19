@@ -49,17 +49,25 @@ class Wrapper:
 		self.int32 = ctypes.c_int32
 		self.int64 = ctypes.c_int64
 
-		self.args = {"alzette_export": [self.int32, self.int32, self.int32],"crax_export": [self.int32, self.int32, self.int32, self.int32, self.int32, self.int32], "esch_export" : [ctypes.POINTER(ctypes.c_char), ctypes.POINTER(ctypes.c_char), ctypes.POINTER(ctypes.c_char)], "sparkle384_7_export": [ctypes.c_int32 * 12], "sparkle384_11_export": [ctypes.c_int32 * 12]}
+		self.parseur = Parseur()
+
+		self.jasmin_args = {"alzette_export": [self.int32, self.int32, self.int32],"crax_export": [self.int32, self.int32, self.int32, self.int32, self.int32, self.int32], "esch_export" : [ctypes.POINTER(ctypes.c_char), ctypes.POINTER(ctypes.c_char), ctypes.POINTER(ctypes.c_char)], "sparkle384_7_export": [ctypes.c_int32 * 12], "sparkle384_11_export": [ctypes.c_int32 * 12]}
 
 		self.required_flags = {"alzette_export": ["constant", "axword", "ayword"], "crax_export": ["cxword","cyword","key_0","key_1","key_2","key_3"], "esch_export": ["esch_entry"], "sparkle384_7": ["state_pointer"], "sparkle384_11_export": ['sparkle_x0', 'sparkle_x1', 'sparkle_x2', 'sparkle_x3', 'sparkle_x4', 'sparkle_y0', 'sparkle_y1', 'sparkle_y2', 'sparkle_y3', 'sparkle_y4'], "sparkle384_7_export": ['sparkle_x0', 'sparkle_x1', 'sparkle_x2', 'sparkle_x3', 'sparkle_x4', 'sparkle_y0', 'sparkle_y1', 'sparkle_y2', 'sparkle_y3', 'sparkle_y4']} 
 
 
-		self.loadlibraries()
-
 		# "schwaemm_export" : [self.int64, int256, self.int64, self.int64, self.int64], -> pas de u256 dans ctypes? 
 
-		self.parseur = Parseur()
-		self.parseur.args.program = self.parseur.args.program + "_export"
+		if self.parseur.args.program:
+			self.parseur.args.program = self.parseur.args.program + "_export"
+		else:
+			self.parseur.parser.print_help()
+			exit(1)
+
+
+		self.check_jasmin_args()
+
+		self.loadlibraries()
 		self.set_func(self.parseur.args.program)
 
 	def loadlibraries(self):
@@ -77,9 +85,9 @@ class Wrapper:
 		self.library = ctypes.cdll.LoadLibrary("../shared/sparkle_suite.so")
 
 	def set_func(self, function):
-		self.check_args()
+		self.check_jasmin_args()
 		func = getattr(self.library, function)
-		func.argtypes = self.args[function]
+		func.argtypes = self.jasmin_args[function]
 		match function:
 			case "alzette_export":
 				alzette_res = func(self.int32(int(self.parseur.args.constant)), self.int32(int(self.parseur.args.axword)), self.int32(int(self.parseur.args.ayword)))
@@ -104,32 +112,34 @@ class Wrapper:
 
 			case "sparkle384_7_export":
 				ints = ctypes.c_int32 * 12
-				sparkle_args = ints(int(self.parseur.args.sparkle_x0), int(self.parseur.args.sparkle_x1), int(self.parseur.args.sparkle_x2), int(self.parseur.args.sparkle_x3), int(self.parseur.args.sparkle_x4), int(self.parseur.args.sparkle_y0), int(self.parseur.args.sparkle_y1), int(self.parseur.args.sparkle_y2), int(self.parseur.args.sparkle_y3), int(self.parseur.args.sparkle_y4), int(self.parseur.args.sparkle_x5), int(self.parseur.args.sparkle_y5))
-				func(sparkle_args)
+				sparkle_jasmin_args = ints(int(self.parseur.args.sparkle_x0), int(self.parseur.args.sparkle_x1), int(self.parseur.args.sparkle_x2), int(self.parseur.args.sparkle_x3), int(self.parseur.args.sparkle_x4), int(self.parseur.args.sparkle_y0), int(self.parseur.args.sparkle_y1), int(self.parseur.args.sparkle_y2), int(self.parseur.args.sparkle_y3), int(self.parseur.args.sparkle_y4), int(self.parseur.args.sparkle_x5), int(self.parseur.args.sparkle_y5))
+				func(sparkle_jasmin_args)
 				sparkle_output = f"Sparkle384_7 ran. Output:\n\t"
 				for i in range(12):
-					sparkle_output += ["x","y"][i%2] + f"{i//2} : " + str(sparkle_args[i]) + "\n\t"
+					sparkle_output += ["x","y"][i%2] + f"{i//2} : " + str(sparkle_jasmin_args[i]) + "\n\t"
 				print(sparkle_output)
 
 			case "sparkle384_11_export":
 				ints = ctypes.c_int32 * 12
-				sparkle_args = ints(int(self.parseur.args.sparkle_x0), int(self.parseur.args.sparkle_x1), int(self.parseur.args.sparkle_x2), int(self.parseur.args.sparkle_x3), int(self.parseur.args.sparkle_x4), int(self.parseur.args.sparkle_y0), int(self.parseur.args.sparkle_y1), int(self.parseur.args.sparkle_y2), int(self.parseur.args.sparkle_y3), int(self.parseur.args.sparkle_y4), int(self.parseur.args.sparkle_x5), int(self.parseur.args.sparkle_y5))
-				func(sparkle_args)
+				sparkle_jasmin_args = ints(int(self.parseur.args.sparkle_x0), int(self.parseur.args.sparkle_x1), int(self.parseur.args.sparkle_x2), int(self.parseur.args.sparkle_x3), int(self.parseur.args.sparkle_x4), int(self.parseur.args.sparkle_y0), int(self.parseur.args.sparkle_y1), int(self.parseur.args.sparkle_y2), int(self.parseur.args.sparkle_y3), int(self.parseur.args.sparkle_y4), int(self.parseur.args.sparkle_x5), int(self.parseur.args.sparkle_y5))
+				func(sparkle_jasmin_args)
 				sparkle_output = f"Sparkle384_11 ran. Output:\n\t"
 				for i in range(12):
-					sparkle_output += ["x","y"][i%2] + f"{i//2} : " + str(sparkle_args[i]) + "\n\t"
+					sparkle_output += ["x","y"][i%2] + f"{i//2} : " + str(sparkle_jasmin_args[i]) + "\n\t"
 				print(sparkle_output)
 
-	def check_args(self):
+	def check_jasmin_args(self):
 		if self.parseur.args.program:
 			valid = 1
 			missings=[]
 			for flag in self.required_flags[self.parseur.args.program]:
-				if flag not in self.parseur.args:
-					if self.parseur.args.flag == None:
-						valid = 0
-						missings.append(flag)
+				if not getattr(self.parseur.args,flag):
+					valid = 0
+					missings.append(flag)
+		else:
+			print("Error: please choose primitive using -p")
 		if valid:
+			print("all valid")
 			pass
 		else:
 			print(f"Error: missing {" ".join(missings)} flag{['','s'][len(missings) >1]}")
