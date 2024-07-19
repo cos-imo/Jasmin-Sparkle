@@ -68,7 +68,7 @@ class Wrapper:
 		self.check_jasmin_args()
 
 		self.loadlibraries()
-		self.set_func(self.parseur.args.program)
+		self.set_jasmin_func(self.parseur.args.program)
 
 	def loadlibraries(self):
 		self.try_load_library()
@@ -84,7 +84,7 @@ class Wrapper:
 	def load_library(self):
 		self.library = ctypes.cdll.LoadLibrary("../shared/sparkle_suite.so")
 
-	def set_func(self, function):
+	def set_jasmin_func(self, function):
 		self.check_jasmin_args()
 		func = getattr(self.library, function)
 		func.argtypes = self.jasmin_args[function]
@@ -139,7 +139,6 @@ class Wrapper:
 		else:
 			print("Error: please choose primitive using -p")
 		if valid:
-			print("all valid")
 			pass
 		else:
 			print(f"Error: missing {" ".join(missings)} flag{['','s'][len(missings) >1]}")
