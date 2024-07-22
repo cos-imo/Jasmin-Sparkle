@@ -79,6 +79,19 @@ class Wrapper:
             sys.stdout.write(f"Jasmin sparkle suite library (.so) not found. Please compile it.\nExiting\n")
             exit()
 
+    def get_library(self, library):
+        try:
+            return self.libraries[library]
+        except KeyError:
+            return None
+
+    def get_func(self, function):
+        try:
+            func = getattr(self.library, function)
+            return  func
+        except Error as e:
+            print(f"Error while exporting function from binding.py. Original error message:\n{e}")
+
     def load_library(self):
         self.library = ctypes.cdll.LoadLibrary("../shared/sparkle_suite.so")
 
