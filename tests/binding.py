@@ -5,8 +5,6 @@ import os
 import subprocess
 from pathlib import Path
 
-from tabulate import tabulate
-
 from hypothesis import given
 from hypothesis.strategies import text 
 
@@ -43,107 +41,111 @@ class Parseur:
 
 class Wrapper:
 
-	def __init__(self):
-		self.int32 = ctypes.c_int32
-		self.int64 = ctypes.c_int64
+    def __init__(self):
+        self.int32 = ctypes.c_int32
+        self.int64 = ctypes.c_int64
 
-		self.parseur = Parseur()
+        self.parseur = Parseur()
 
-		self.jasmin_args = {"alzette_export": [self.int32, self.int32, self.int32],"crax_export": [self.int32, self.int32, self.int32, self.int32, self.int32, self.int32], "esch_export" : [ctypes.POINTER(ctypes.c_char), ctypes.POINTER(ctypes.c_char), ctypes.POINTER(ctypes.c_char)], "sparkle384_7_export": [ctypes.c_int32 * 12], "sparkle384_11_export": [ctypes.c_int32 * 12]}
+        self.jasmin_args = {"alzette_export": [self.int32, self.int32, self.int32],"crax_export": [self.int32, self.int32, self.int32, self.int32, self.int32, self.int32], "esch_export" : [ctypes.POINTER(ctypes.c_char), ctypes.POINTER(ctypes.c_char), ctypes.POINTER(ctypes.c_char)], "sparkle384_7_export": [ctypes.c_int32 * 12], "sparkle384_11_export": [ctypes.c_int32 * 12]}
 
-		self.reference_args = {}
+        self.reference_args = {}
 
-		self.required_flags = {"alzette_export": ["constant", "xword", "yword"], "crax_export": ["yword","yword","key_0","key_1","key_2","key_3"], "esch_export": ["esch_entry"], "sparkle384_7": ["state_pointer"], "sparkle384_11_export": ['sparkle_x0', 'sparkle_x1', 'sparkle_x2', 'sparkle_x3', 'sparkle_x4', 'sparkle_y0', 'sparkle_y1', 'sparkle_y2', 'sparkle_y3', 'sparkle_y4'], "sparkle384_7_export": ['sparkle_x0', 'sparkle_x1', 'sparkle_x2', 'sparkle_x3', 'sparkle_x4', 'sparkle_y0', 'sparkle_y1', 'sparkle_y2', 'sparkle_y3', 'sparkle_y4']} 
-
-
-		# "schwaemm_export" : [self.int64, int256, self.int64, self.int64, self.int64], -> pas de u256 dans ctypes? 
-
-		if self.parseur.args.program:
-			self.parseur.args.program = self.parseur.args.program + "_export"
-		else:
-			self.parseur.parser.print_help()
-			exit(1)
+        self.required_flags = {"alzette_export": ["constant", "xword", "yword"], "crax_export": ["yword","yword","key_0","key_1","key_2","key_3"], "esch_export": ["esch_entry"], "sparkle384_7": ["state_pointer"], "sparkle384_11_export": ['sparkle_x0', 'sparkle_x1', 'sparkle_x2', 'sparkle_x3', 'sparkle_x4', 'sparkle_y0', 'sparkle_y1', 'sparkle_y2', 'sparkle_y3', 'sparkle_y4'], "sparkle384_7_export": ['sparkle_x0', 'sparkle_x1', 'sparkle_x2', 'sparkle_x3', 'sparkle_x4', 'sparkle_y0', 'sparkle_y1', 'sparkle_y2', 'sparkle_y3', 'sparkle_y4']} 
 
 
-		self.check_jasmin_args()
+        # "schwaemm_export" : [self.int64, int256, self.int64, self.int64, self.int64], -> pas de u256 dans ctypes? 
 
-		self.loadlibraries()
-		self.set_jasmin_func(self.parseur.args.program)
+        if self.parseur.args.program:
+            self.parseur.args.program = self.parseur.args.program + "_export"
+        else:
+            self.parseur.parser.print_help()
+            exit(1)
 
-	def loadlibraries(self):
-		self.try_load_library()
 
-	def try_load_library(self):
-		if Path(f"../shared/sparkle_suite.so").exists():
-			self.load_library()
-			return
-		else:
-			sys.stdout.write(f"Jasmin sparkle suite library (.so) not found. Please compile it.\nExiting\n")
-			exit()
+        self.check_jasmin_args()
 
-	def load_library(self):
-		self.library = ctypes.cdll.LoadLibrary("../shared/sparkle_suite.so")
+        self.loadlibraries()
+        self.set_jasmin_func(self.parseur.args.program)
 
-	def set_jasmin_func(self, function):
-		self.check_jasmin_args()
-		func = getattr(self.library, function)
-		func.argtypes = self.jasmin_args[function]
-		match function:
-			case "alzette_export":
-				alzette_res = func(self.int32(int(self.parseur.args.constant)), self.int32(int(self.parseur.args.xword)), self.int32(int(self.parseur.args.yword)))
-				print(f"Alzette ran with:\n\tc: {self.parseur.args.constant}\n\tx: {self.parseur.args.xword}\n\ty: {self.parseur.args.yword}\n\nOutput: {alzette_res}")
-			case "crax_export":
-				crax_res_64 = func(self.int32(int(self.parseur.args.yword)), self.int32(int(self.parseur.args.yword)), self.int32(int(self.parseur.args.key_0)),self.int32(int(self.parseur.args.key_1)),self.int32(int(self.parseur.args.key_2)),self.int32(int(self.parseur.args.key_3)))
-				crax_res_x = crax_res_64 & 0xFFFFFFFF
-				crax_res_y = (crax_res_64 >> 32) & 0xFFFFFFFF
-				print(f"Crax ran with:\n\tx: {self.parseur.args.yword}\n\ty: {self.parseur.args.yword}\n\tkey_0: {self.parseur.args.key_0}\n\tkey_1: {self.parseur.args.key_1}\n\tkey_2: {self.parseur.args.key_2}\n\tkey_3: {self.parseur.args.key_3}\n\nOutput:\n\tx: {crax_res_x}\n\ty: {crax_res_y}")
-			case "esch_export":
-				output_str = (ctypes.c_ubyte * 32)()
-				buffer = ctypes.create_string_buffer(self.parseur.args.esch_entry.encode('utf-8'))
+    def loadlibraries(self):
+        self.try_load_library()
 
-				start_ptr = ctypes.addressof(buffer) 
-				end_ptr = start_ptr + len(self.parseur.args.esch_entry)
+    def try_load_library(self):
+        if Path(f"../shared/sparkle_suite.so").exists():
+            self.load_library()
+            return
+        else:
+            sys.stdout.write(f"Jasmin sparkle suite library (.so) not found. Please compile it.\nExiting\n")
+            exit()
 
-				func(ctypes.cast(start_ptr, ctypes.POINTER(ctypes.c_char)), ctypes.cast(end_ptr, ctypes.POINTER(ctypes.c_char)), ctypes.cast(output_str, ctypes.POINTER(ctypes.c_char)))
-				esch_output = ""
-				for i in range(32):
-					esch_output += (str(hex(output_str[i]))[2:])
-				print(f"Esch ran with\n\t{self.parseur.args.esch_entry}\nOutput:\n\t{esch_output}")
+    def load_library(self):
+        self.library = ctypes.cdll.LoadLibrary("../shared/sparkle_suite.so")
 
-			case "sparkle384_7_export":
-				ints = ctypes.c_int32 * 12
-				sparkle_jasmin_args = ints(int(self.parseur.args.sparkle_x0), int(self.parseur.args.sparkle_x1), int(self.parseur.args.sparkle_x2), int(self.parseur.args.sparkle_x3), int(self.parseur.args.sparkle_x4), int(self.parseur.args.sparkle_y0), int(self.parseur.args.sparkle_y1), int(self.parseur.args.sparkle_y2), int(self.parseur.args.sparkle_y3), int(self.parseur.args.sparkle_y4), int(self.parseur.args.sparkle_x5), int(self.parseur.args.sparkle_y5))
-				func(sparkle_jasmin_args)
-				sparkle_output = f"Sparkle384_7 ran. Output:\n\t"
-				for i in range(12):
-					sparkle_output += ["x","y"][i%2] + f"{i//2} : " + str(sparkle_jasmin_args[i]) + "\n\t"
-				print(sparkle_output)
+    def set_jasmin_func(self, function):
+        self.check_jasmin_args()
+        func = getattr(self.library, function)
+        func.argtypes = self.jasmin_args[function]
+        match function:
+            case "alzette_export":
+                alzette_res = func(self.int32(int(self.parseur.args.constant)), self.int32(int(self.parseur.args.xword)), self.int32(int(self.parseur.args.yword)))
+                print(f"Alzette ran with:\n\tc: {self.parseur.args.constant}\n\tx: {self.parseur.args.xword}\n\ty: {self.parseur.args.yword}\n\nOutput: {alzette_res}")
+            case "crax_export":
+                crax_res_64 = func(self.int32(int(self.parseur.args.yword)), self.int32(int(self.parseur.args.yword)), self.int32(int(self.parseur.args.key_0)),self.int32(int(self.parseur.args.key_1)),self.int32(int(self.parseur.args.key_2)),self.int32(int(self.parseur.args.key_3)))
+                crax_res_x = crax_res_64 & 0xFFFFFFFF
+                crax_res_y = (crax_res_64 >> 32) & 0xFFFFFFFF
+                print(f"Crax ran with:\n\tx: {self.parseur.args.yword}\n\ty: {self.parseur.args.yword}\n\tkey_0: {self.parseur.args.key_0}\n\tkey_1: {self.parseur.args.key_1}\n\tkey_2: {self.parseur.args.key_2}\n\tkey_3: {self.parseur.args.key_3}\n\nOutput:\n\tx: {crax_res_x}\n\ty: {crax_res_y}")
+            case "esch_export":
+                output_str = (ctypes.c_ubyte * 32)()
+                buffer = ctypes.create_string_buffer(self.parseur.args.esch_entry.encode('utf-8'))
 
-			case "sparkle384_11_export":
-				ints = ctypes.c_int32 * 12
-				sparkle_jasmin_args = ints(int(self.parseur.args.sparkle_x0), int(self.parseur.args.sparkle_x1), int(self.parseur.args.sparkle_x2), int(self.parseur.args.sparkle_x3), int(self.parseur.args.sparkle_x4), int(self.parseur.args.sparkle_y0), int(self.parseur.args.sparkle_y1), int(self.parseur.args.sparkle_y2), int(self.parseur.args.sparkle_y3), int(self.parseur.args.sparkle_y4), int(self.parseur.args.sparkle_x5), int(self.parseur.args.sparkle_y5))
-				func(sparkle_jasmin_args)
-				sparkle_output = f"Sparkle384_11 ran. Output:\n\t"
-				for i in range(12):
-					sparkle_output += ["x","y"][i%2] + f"{i//2} : " + str(sparkle_jasmin_args[i]) + "\n\t"
-				print(sparkle_output)
+                start_ptr = ctypes.addressof(buffer) 
+                end_ptr = start_ptr + len(self.parseur.args.esch_entry)
 
-	def check_jasmin_args(self):
-		if self.parseur.args.program:
-			valid = 1
-			missings=[]
-			for flag in self.required_flags[self.parseur.args.program]:
-				if not getattr(self.parseur.args,flag):
-					valid = 0
-					missings.append(flag)
-		else:
-			print("Error: please choose primitive using -p")
-		if valid:
-			pass
-		else:
-			print(f"Error: missing {" ".join(missings)} flag{['','s'][len(missings) >1]}")
-			exit()
+                func(ctypes.cast(start_ptr, ctypes.POINTER(ctypes.c_char)), ctypes.cast(end_ptr, ctypes.POINTER(ctypes.c_char)), ctypes.cast(output_str, ctypes.POINTER(ctypes.c_char)))
+                esch_output = ""
+                for i in range(32):
+                    esch_output += (str(hex(output_str[i]))[2:])
+                print(f"Esch ran with\n\t{self.parseur.args.esch_entry}\nOutput:\n\t{esch_output}")
+
+            case "sparkle384_7_export":
+                ints = ctypes.c_int32 * 12
+                sparkle_jasmin_args = ints(int(self.parseur.args.sparkle_x0), int(self.parseur.args.sparkle_x1), int(self.parseur.args.sparkle_x2), int(self.parseur.args.sparkle_x3), int(self.parseur.args.sparkle_x4), int(self.parseur.args.sparkle_y0), int(self.parseur.args.sparkle_y1), int(self.parseur.args.sparkle_y2), int(self.parseur.args.sparkle_y3), int(self.parseur.args.sparkle_y4), int(self.parseur.args.sparkle_x5), int(self.parseur.args.sparkle_y5))
+                func(sparkle_jasmin_args)
+                sparkle_output = f"Sparkle384_7 ran. Output:\n\t"
+                for i in range(12):
+                    sparkle_output += ["x","y"][i%2] + f"{i//2} : " + str(sparkle_jasmin_args[i]) + "\n\t"
+                print(sparkle_output)
+
+            case "sparkle384_11_export":
+                ints = ctypes.c_int32 * 12
+                sparkle_jasmin_args = ints(int(self.parseur.args.sparkle_x0), int(self.parseur.args.sparkle_x1), int(self.parseur.args.sparkle_x2), int(self.parseur.args.sparkle_x3), int(self.parseur.args.sparkle_x4), int(self.parseur.args.sparkle_y0), int(self.parseur.args.sparkle_y1), int(self.parseur.args.sparkle_y2), int(self.parseur.args.sparkle_y3), int(self.parseur.args.sparkle_y4), int(self.parseur.args.sparkle_x5), int(self.parseur.args.sparkle_y5))
+                func(sparkle_jasmin_args)
+                sparkle_output = f"Sparkle384_11 ran. Output:\n\t"
+                for i in range(12):
+                    sparkle_output += ["x","y"][i%2] + f"{i//2} : " + str(sparkle_jasmin_args[i]) + "\n\t"
+                print(sparkle_output)
+
+    def check_jasmin_args(self):
+        if self.parseur.args.program:
+            if self.parseur.args.program not in self.required_flags:
+                print(f"Error: {self.parseur.args.program} not  found")
+                self.parseur.parser.print_help()
+                exit()
+            valid = 1
+            missings=[]
+            for flag in self.required_flags[self.parseur.args.program]:
+                if not getattr(self.parseur.args,flag):
+                    valid = 0
+                    missings.append(flag)
+        else:
+            print("Error: please choose primitive using -p")
+        if valid:
+            pass
+        else:
+            print(f"Error: missing {" ".join(missings)} flag{['','s'][len(missings) >1]}")
+            exit()
 
 
 if __name__ == "__main__":
-	wrapper = Wrapper()
+    wrapper = Wrapper()
