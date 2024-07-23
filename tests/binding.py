@@ -41,47 +41,43 @@ class Parseur:
 
 class Wrapper:
 
-    def __init__(self):
+    def __init__(self, is_main):
         self.int32 = ctypes.c_int32
         self.int64 = ctypes.c_int64
 
-        self.parseur = Parseur()
-
         self.jasmin_args = {"alzette_export": [self.int32, self.int32, self.int32],"crax_export": [self.int32, self.int32, self.int32, self.int32, self.int32, self.int32], "esch_export" : [ctypes.POINTER(ctypes.c_char), ctypes.POINTER(ctypes.c_char), ctypes.POINTER(ctypes.c_char)], "sparkle384_7_export": [ctypes.c_int32 * 12], "sparkle384_11_export": [ctypes.c_int32 * 12]}
+
+        self.jasmin_restypes = {"alzette_export": [self.int64]}
 
         self.reference_args = {}
 
         self.required_flags = {"alzette_export": ["constant", "xword", "yword"], "crax_export": ["yword","yword","key_0","key_1","key_2","key_3"], "esch_export": ["esch_entry"], "sparkle384_7": ["state_pointer"], "sparkle384_11_export": ['sparkle_x0', 'sparkle_x1', 'sparkle_x2', 'sparkle_x3', 'sparkle_x4', 'sparkle_y0', 'sparkle_y1', 'sparkle_y2', 'sparkle_y3', 'sparkle_y4'], "sparkle384_7_export": ['sparkle_x0', 'sparkle_x1', 'sparkle_x2', 'sparkle_x3', 'sparkle_x4', 'sparkle_y0', 'sparkle_y1', 'sparkle_y2', 'sparkle_y3', 'sparkle_y4']} 
 
+        self.try_load_library()
+
+        if is_main:
+                self.parseur = Parseur()
+                if self.parseur.args.program:
+                    self.parseur.args.program = self.parseur.args.program + "_export"
+                else:
+                    self.parseur.parser.print_help()
+                    exit(1)
+                self.check_jasmin_args()
+                self.run_jasmin_func(self.parseur.args.program)
 
         # "schwaemm_export" : [self.int64, int256, self.int64, self.int64, self.int64], -> pas de u256 dans ctypes? 
 
-        if self.parseur.args.program:
-            self.parseur.args.program = self.parseur.args.program + "_export"
-        else:
-            self.parseur.parser.print_help()
-            exit(1)
-
-
-        self.check_jasmin_args()
-
-        self.loadlibraries()
-        self.set_jasmin_func(self.parseur.args.program)
-
-    def loadlibraries(self):
-        self.try_load_library()
-
     def try_load_library(self):
         if Path(f"../shared/sparkle_suite.so").exists():
-            self.load_library()
+            self.library = ctypes.cdll.LoadLibrary("../shared/sparkle_suite.so")
             return
         else:
             sys.stdout.write(f"Jasmin sparkle suite library (.so) not found. Please compile it.\nExiting\n")
             exit()
 
-    def get_library(self, library):
+    def get_library(self):
         try:
-            return self.libraries[library]
+            return self.library
         except KeyError:
             return None
 
@@ -89,20 +85,20 @@ class Wrapper:
         try:
             func = getattr(self.library, function)
             return  func
-        except Error as e:
+        except KeyError as e:
             print(f"Error while exporting function from binding.py. Original error message:\n{e}")
 
-    def load_library(self):
-        self.library = ctypes.cdll.LoadLibrary("../shared/sparkle_suite.so")
-
-    def set_jasmin_func(self, function):
+    def run_jasmin_func(self, function):
         self.check_jasmin_args()
         func = getattr(self.library, function)
         func.argtypes = self.jasmin_args[function]
+        func.restype = self.jasmin_restypes[function][0]
         match function:
             case "alzette_export":
                 alzette_res = func(self.int32(int(self.parseur.args.constant)), self.int32(int(self.parseur.args.xword)), self.int32(int(self.parseur.args.yword)))
-                print(f"Alzette ran with:\n\tc: {self.parseur.args.constant}\n\tx: {self.parseur.args.xword}\n\ty: {self.parseur.args.yword}\n\nOutput: {alzette_res}")
+                alzette_y = alzette_res & 0xFFFFFFFF
+                alzette_x = (alzette_res >> 32) & 0xFFFFFFFF
+                print(f"Alzette ran with:\n\tc: {self.parseur.args.constant}\n\tx: {self.parseur.args.xword}\n\ty: {self.parseur.args.yword}\n\nOutput:\n\tx: {alzette_x}\n\ty: {alzette_y}")
             case "crax_export":
                 crax_res_64 = func(self.int32(int(self.parseur.args.yword)), self.int32(int(self.parseur.args.yword)), self.int32(int(self.parseur.args.key_0)),self.int32(int(self.parseur.args.key_1)),self.int32(int(self.parseur.args.key_2)),self.int32(int(self.parseur.args.key_3)))
                 crax_res_x = crax_res_64 & 0xFFFFFFFF
@@ -161,4 +157,4 @@ class Wrapper:
 
 
 if __name__ == "__main__":
-    wrapper = Wrapper()
+    wrapper = Wrapper(True)
