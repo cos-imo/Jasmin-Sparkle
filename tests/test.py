@@ -4,6 +4,7 @@ from hypothesis import given
 from hypothesis.strategies import integers
 from pathlib import Path
 import binding
+import numpy as np
 
 from reference import alzette, crax
 
@@ -33,15 +34,19 @@ class Tests:
             self.load_func(func)
 
     def load_func(self, func):
-        self.functions[func] = binding.Wrapper(False).get_func(func + "_export")
-        print(f"function {func} successfully imported")
+        try:
+            self.functions[func] = binding.Wrapper(False).get_func(func + "_export")
+            print(f"function {func} successfully imported")
+        except:
+            print(f"Couldn't import {func} function")
+            exit()
 
     def run_all_tests(self):
         for func in self.functions_name:
                 test(func)
 
     def process_test_result(self, reference_result, jasmin_result):
-        if reference_result == jasmin_result:
+        if reference_result[0] == jasmin_result[0] and reference_result[1] == jasmin_result[1]: # A réécrire
             self.tests_passed +=1
         self.total_tests +=1
 
@@ -60,8 +65,8 @@ class Tests:
         reference_res = alzette_instance.alzette(c, x, y)
         jasmin_res = self.functions["alzette"](c, x, y)
 
-        return_y = jasmin_res& 0xFFFFFFFF
-        return_x = (jasmin_res >> 32) & 0xFFFFFFFF
+        return_y = ctypes.c_uint32(jasmin_res& 0xFFFFFFFF)
+        return_x = ctypes.c_uint32((jasmin_res >> 32) & 0xFFFFFFFF)
 
         self.process_test_result(reference_res, (return_x, return_y))
 
