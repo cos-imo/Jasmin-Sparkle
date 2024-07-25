@@ -20,13 +20,17 @@ fn pre_sparkle_padding(reg u256 first_tab, reg u128 second_tab) -> stack u32[8],
   rotated_second_tab = second_tab;
 
   for i=0 to 7 {
-    x[i] = rotated_first_tab & 0xFF;
-    rotated_first_tab >>= 16;
+    inline u32 result;
+    result = rotated_second_tab & 0xFF;
+    x[i] = result;
+    //rotated_first_tab >>= 16;
   }
 
   for i=0 to 3 {
-    y[i] = rotated_second_tab & 0xFF;
-    rotated_second_tab >>= 16;
+    inline u32 result;
+    result = rotated_second_tab & 0xFF;
+    y[i] = result;
+    //rotated_second_tab >>= 16;
   }
 
   return x,y;
@@ -119,16 +123,14 @@ fn initialize_padding_constants(reg u64 Alen, reg u64 Mlen) -> reg u128, reg u12
 
   ?{zf} = #TEST(Alen,31);
 
+  reg u128 xored;
+  xored = 1;
+  xored <<= 2;
+
   if (zf) {
-    reg u128 xored;
-    xored = 1;
-    xored <<= 2;
-    constA = 0;
+    constA = 1;
     constA ^= xored;
   } else {
-    reg u128 xored;
-    xored = 1;
-    xored <<= 2;
     constA = 0;
     constA ^= xored;
   }
@@ -136,15 +138,9 @@ fn initialize_padding_constants(reg u64 Alen, reg u64 Mlen) -> reg u128, reg u12
   ?{zf} = #TEST(Mlen,31);
 
   if (zf) {
-    reg u128 xored;
-    xored = 1;
-    xored <<= 2;
-    constM = 0;
+    constM = 1;
     constM ^= xored;
   } else {
-    reg u128 xored;
-    xored = 1;
-    xored <<= 2;
     constM = 0;
     constM ^= xored;
   }
