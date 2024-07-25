@@ -6,15 +6,15 @@ require "sparkle384.jazz"
 
 
 inline
-fn pre_sparkle_padding(reg u256 first_tab, inline u128 second_tab) -> stack u32[8], stack u32[4] {
+fn pre_sparkle_padding(reg u256 first_tab, reg u128 second_tab) -> stack u32[8], stack u32[4] {
 
   stack u32[8] x;
   stack u32[4] y;
 
   inline int i;
 
-  inline u256 rotated_first_tab;
-  inline u128 rotated_second_tab;
+  reg u256 rotated_first_tab;
+  reg u128 rotated_second_tab;
 
   rotated_first_tab = first_tab;
   rotated_second_tab = second_tab;
@@ -33,9 +33,9 @@ fn pre_sparkle_padding(reg u256 first_tab, inline u128 second_tab) -> stack u32[
 }
 
 inline
-fn stack_u256_to_tab(stack u256 data) -> inline u32[8] {
-  inline u32[8] tab;
-  inline u256 rotated_data;
+fn stack_u256_to_tab(stack u256 data) -> reg u32[8] {
+  reg u32[8] tab;
+  reg u256 rotated_data;
   inline int i;
 
   rotated_data = data;
@@ -50,10 +50,10 @@ fn stack_u256_to_tab(stack u256 data) -> inline u32[8] {
 }
 
 inline
-fn W_128_256(inline u128 arg) -> inline u256 {
-  inline u256 res;
-  inline u64 lower_half;
-  inline u64 upper_half;
+fn W_128_256(reg u128 arg) -> reg u256 {
+  reg u256 res;
+  reg u64 lower_half;
+  reg u64 upper_half;
 
   lower_half = arg & 0xFFFFFFFFFFFFFFFF;
   arg >>= 64;
@@ -72,12 +72,12 @@ fn W_128_256(inline u128 arg) -> inline u256 {
 }
 
 inline
-fn FeistelSwap(inline u256 S) -> inline u256 {
+fn FeistelSwap(reg u256 S) -> reg u256 {
 
-  inline u128 s_1;
-  inline u128 s_2;
-  inline u128 s_1_xor_s_2;
-  inline u256 res;
+  reg u128 s_1;
+  reg u128 s_2;
+  reg u128 s_1_xor_s_2;
+  reg u256 res;
 
   s_1 = S & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
   S >>= 128;
@@ -92,7 +92,7 @@ fn FeistelSwap(inline u256 S) -> inline u256 {
 }
 
 inline
-fn feedback_function_1(inline u256 S, inline u256 D) -> inline u256 {
+fn feedback_function_1(reg u256 S, reg u256 D) -> reg u256 {
 
   S = FeistelSwap(S);
   
@@ -103,7 +103,7 @@ fn feedback_function_1(inline u256 S, inline u256 D) -> inline u256 {
 }
 
 inline
-fn feedback_function_2(inline u256 S, inline u256 D) -> inline u256 {
+fn feedback_function_2(reg u256 S, reg u256 D) -> reg u256 {
 
   D^=S;
 
@@ -113,20 +113,20 @@ fn feedback_function_2(inline u256 S, inline u256 D) -> inline u256 {
 
 inline
 fn initialize_padding_constants(reg u64 Alen, reg u64 Mlen) -> reg u128, reg u128 {
-  inline u128 constA;
-  inline u128 constM;
+  reg u128 constA;
+  reg u128 constM;
   reg bool zf;
 
   ?{zf} = #TEST(Alen,31);
 
   if (zf) {
-    inline u128 xored;
+    reg u128 xored;
     xored = 1;
     xored <<= 2;
     constA = 0;
     constA ^= xored;
   } else {
-    inline u128 xored;
+    reg u128 xored;
     xored = 1;
     xored <<= 2;
     constA = 0;
@@ -136,13 +136,13 @@ fn initialize_padding_constants(reg u64 Alen, reg u64 Mlen) -> reg u128, reg u12
   ?{zf} = #TEST(Mlen,31);
 
   if (zf) {
-    inline u128 xored;
+    reg u128 xored;
     xored = 1;
     xored <<= 2;
     constM = 0;
     constM ^= xored;
   } else {
-    inline u128 xored;
+    reg u128 xored;
     xored = 1;
     xored <<= 2;
     constM = 0;
@@ -156,8 +156,8 @@ fn schwaemm(reg u128 K, reg u256 N, reg u64 A_start, reg u64 A_end, reg u64 M_st
 
   stack u256 SL;
   stack u128 SR;
-  inline u32[8] SL_tab;
-  inline u32[4] SR_tab;
+  reg u32[8] SL_tab;
+  reg u32[4] SR_tab;
 
   reg u64 A_lenght;
   reg u64 M_lenght;
@@ -191,11 +191,11 @@ fn schwaemm(reg u128 K, reg u256 N, reg u64 A_start, reg u64 A_end, reg u64 M_st
 
   if A_lenght != 0 {
     while ((A_lenght) < 256) {
-      inline u256 feedback_1_result;
-      inline u256 W_result;
+      reg u256 feedback_1_result;
+      reg u256 W_result;
 
-      inline u256 A_block;
-      inline u32[8] A_block_tab;
+      reg u256 A_block;
+      reg u32[8] A_block_tab;
       A_block = (256u)[A_start];
 
       stack u64 A_start_save;
@@ -220,8 +220,8 @@ fn schwaemm(reg u128 K, reg u256 N, reg u64 A_start, reg u64 A_end, reg u64 M_st
       A_lenght -= 32;
     }
 
-    inline u256 feedback_1_result;
-    inline u256 W_result;
+    reg u256 feedback_1_result;
+    reg u256 W_result;
     reg u256 zero;
     
     zero = #set0_256();
@@ -265,10 +265,10 @@ fn schwaemm(reg u128 K, reg u256 N, reg u64 A_start, reg u64 A_end, reg u64 M_st
 
       M_lenght_save = M_lenght;
 
-      inline u256 feedback_1_result;
-      inline u256 W_result;
+      reg u256 feedback_1_result;
+      reg u256 W_result;
 
-      inline u256 M_block;
+      reg u256 M_block;
       M_block = (256u)[M_start];
 
       feedback_1_result = feedback_function_1(SL, M_block);
@@ -289,8 +289,8 @@ fn schwaemm(reg u128 K, reg u256 N, reg u64 A_start, reg u64 A_end, reg u64 M_st
       M_lenght_save = M_lenght;
     }
 
-    inline u256 feedback_1_result;
-    inline u256 W_result;
+    reg u256 feedback_1_result;
+    reg u256 W_result;
     reg u256 zero;
     
     zero = #set0_256();
