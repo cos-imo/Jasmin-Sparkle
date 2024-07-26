@@ -120,7 +120,7 @@ fn initialize_padding_constants(reg u64 Alen, reg u64 Mlen) -> reg u128, reg u12
   reg u128 constA;
   reg u128 constM;
   reg bool zf;
-
+  
   ?{zf} = #TEST(Alen,31);
 
   reg u128 xored;
@@ -128,20 +128,20 @@ fn initialize_padding_constants(reg u64 Alen, reg u64 Mlen) -> reg u128, reg u12
   xored <<= 2;
 
   if (zf) {
-    constA = 1;
+    constA = #LEA_128(1);
     constA ^= xored;
   } else {
-    constA = 0;
+    constA = #LEA_128(0);
     constA ^= xored;
   }
 
   ?{zf} = #TEST(Mlen,31);
 
   if (zf) {
-    constM = 1;
+    constM = #LEA_128(1);
     constM ^= xored;
   } else {
-    constM = 0;
+    constM = #LEA_128(0);
     constM ^= xored;
   }
 
