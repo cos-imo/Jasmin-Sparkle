@@ -5,16 +5,13 @@ A simple Schwaemm implementation in Jasmin
 require "sparkle384.jazz"
 
 inline
-fn stack_u256_to_tab(stack u256 data) -> stack u32[8] {
+fn get_32x8_tab(reg u64 position) -> stack u32[8] {
+
   stack u32[8] tab;
-  reg u256 rotated_data;
   inline int i;
 
-  rotated_data = data;
-
-  for i=0 to 7 {
-    tab[i] = rotated_data & 0xFF;
-    rotated_data >>= 32;
+  for i=0 to 8 {
+    tab[i] = (u32)[position + 2*i];
   }
 
   return tab;
@@ -22,16 +19,13 @@ fn stack_u256_to_tab(stack u256 data) -> stack u32[8] {
 }
 
 inline
-fn stack_u128_to_tab(stack u128 data) -> reg u32[4] {
-  reg u32[4] tab;
-  reg u128 rotated_data;
+fn get_32x4_tab(reg u64 position) -> stack u32[4] {
+
+  stack u32[4] tab;
   inline int i;
 
-  rotated_data = data;
-
-  for i=0 to 3 {
-    tab[i] = rotated_data & 0xFF;
-    rotated_data >>= 32;
+  for i=0 to 4{
+    tab[i] = (u32)[position + 2*i];
   }
 
   return tab;
@@ -51,6 +45,7 @@ fn W_128_256(stack u32[4] arg) -> stack u32[8] {
   return res;
 }
 
+
 inline
 fn FeistelSwap(stack u32[8] S) -> stack u32[8] {
 
@@ -58,11 +53,16 @@ fn FeistelSwap(stack u32[8] S) -> stack u32[8] {
   inline int i;
 
   for i=0 to 4 {
-    S[i] ^= S[7-i];
+    reg u32 Si;
+    Si = S[i];
+    reg u32 S7i;
+    S7i = S[7-i];
+    Si ^= S7i;
+    S[i] = Si;
   }
 
   for i=4 to 8 {
-    inline u32 save;
+    reg u32 save;
     save = S[i];
     S[i] = S[8-i];
     S[8-i] = save;
@@ -78,7 +78,12 @@ fn feedback_function_1(stack u32[8] S, stack u32[8] D) -> stack u32[8] {
   
   inline int i;
   for i=0 to 8{
-    S[i]^=D[i];
+    reg u32 Si;
+    Si = S[i];
+    reg u32 Di;
+    Di = D[i];
+    Si^=Di;
+    S[i] = Si;
   }
 
   return S;
@@ -154,16 +159,19 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
 
     stack u32[8] W_result;
 
-    reg u256 A_block;
-    stack u32[8] A_block_tab;
-    A_block = (256u)[A_start];
-    A_block_tab = stack_u256_to_tab(A_block);
+    stack u32[8] A_block;
+    A_block = get_32x8_tab(A_start);
 
-    SL = feedback_function_1(SL, A_block_tab);
+    SL = feedback_function_1(SL, A_block);
     W_result = W_128_256(SR);
 
     for i=0 to 8 {
-            SL[i] ^= W_result[i];
+        reg u32 SLi;
+        SLi = SL[i];
+        reg  u32 Wi;
+        Wi = W_result[i];
+        SLi ^= Wi;
+        SL[i] = SLi;
     }
 
     SL, SR= sparkle384(SL,SR,7);
@@ -178,16 +186,19 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
     stack u32[8] feedback_1_result;
     stack u32[8] W_result;
 
-    reg u256 M_block;
-    stack u32[8] M_block_tab;
-    M_block = (256u)[M_start];
-    M_block_tab = stack_u256_to_tab(M_block);
+    stack u32[8] M_block;
+    M_block = get_32x8_tab(M_start);
 
-    feedback_1_result = feedback_function_1(SL, M_block_tab);
+    feedback_1_result = feedback_function_1(SL, M_block);
     W_result = W_128_256(SR);
 
     for i=0 to 8 {
-            feedback_1_result[i] ^= W_result[i];
+        reg u32 f1i;
+        f1i = feedback_1_result[i];
+        reg u32 Wi;
+        Wi = W_result[i];
+        f1i ^= Wi;
+        feedback_1_result[i] = f1i;
     }
 
     SL, SR = sparkle384(feedback_1_result,SR,7);
