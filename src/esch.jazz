@@ -140,8 +140,6 @@ fn esch(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
 
   // D_0
    
-  inline int j;
-
   for j=0 to 4 {
     (u32)[output_ptr + 4*j] = S[j];
   }

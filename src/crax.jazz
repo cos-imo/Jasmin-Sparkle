@@ -36,10 +36,6 @@ fn crax (reg u32 xword, reg u32 yword, reg u32 key_0, reg u32 key_1, reg u32 key
   inline int step;
   reg u32 round_constant;
 
-  reg u64 export_var;
-  reg u64 padded_y;
-  reg u64 alzette_res;
-
   for step = 0 to 10 {
     xword ^= step;
     if((step%2) == 0){
