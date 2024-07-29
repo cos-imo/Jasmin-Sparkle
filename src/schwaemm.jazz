@@ -194,9 +194,6 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
     t[j] = 0;
   }
 
-  //reg u64 i;
-  //?{},i=#set0_64();
-
   inline int i;
 
   while (i<M_lenght) {
@@ -212,12 +209,14 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
     constA = 5;
   }
 
-  SR[0] ^= constM;
+  SR[0] ^= constA;
+
+  reg u32[8] A_block;
 
   for j=0 to 6 {
     reg u32 t_val;
     t_val = t[u32 j];
-    SL[j] ^= t_val;
+    A_block[j] = t_val;
   }
 
   SL, SR = sparkle384_11(SL, SR);
@@ -265,7 +264,7 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
 
   // LAST BLOCK
 
-  stack u8[24] t;
+  stack u8[32] t;
 
   inline int j;
   for j=0 to 24 {
@@ -290,32 +289,27 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
 
   SR[0] ^= constM;
 
+  reg u32[8] M_block;
+
   for j=0 to 6 {
     reg u32 t_val;
     t_val = t[u32 j];
-    SL[j] ^= t_val;
+    M_block[j] = t_val;
   }
+
+  reg u32[8] cipher_text_block;
+
+  cipher_text_block = feedback_function_2(SL, M_block);
+  
+  inline int i;
+  
+  for i=0 to 8 {
+      (u32)[output_ptr + 32*output_ptr_offset + 4*i] = cipher_text_block[i];
+  }
+  
+  output_ptr_offset += 1;
 
   SL, SR = sparkle384_11(SL, SR);
-
-  inline int k;
-
-  k=0;
-
-   
-  for j=0 to 4 {
-    (u32)[output_ptr + 4*j] = SL[j];
-  }
-
-
-  // D_1
-
-  inline int k;
-
-  for k=0 to 4 {
-    (u32)[output_ptr + 16 + 4*k] = SL[k];
-  }
-
 
 }
 
