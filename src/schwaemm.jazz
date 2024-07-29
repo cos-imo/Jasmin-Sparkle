@@ -91,11 +91,15 @@ fn feedback_function_1(stack u32[8] S, stack u32[8] D) -> stack u32[8] {
 }
 
 inline
-fn feedback_function_2(reg u256 S, reg u256 D) -> reg u256 {
+fn feedback_function_2(reg u32[8] S, reg u32[8] D) -> reg u32[8] {
 
-  D^=S;
+  inline int i;
 
-  return D;
+  for i=0 to 8 {
+        S[i] ^= D[i];
+  }
+
+  return S;
 
 }
 
@@ -181,13 +185,64 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
     A_lenght -= M_start;
   }
 
+  // LAST A BLOCK
+
+  stack u8[24] t;
+
+  inline int j;
+  for j=0 to 24 {
+    t[j] = 0;
+  }
+
+  //reg u64 i;
+  //?{},i=#set0_64();
+
+  inline int i;
+
+  while (i<M_lenght) {
+    t[i] = (u8)[A_start + i];
+    i += 1;
+  }
+  
+  // PADDING
+
+  if i<16 {
+    constA = 4;
+  } else {
+    constA = 5;
+  }
+
+  SR[0] ^= constM;
+
+  for j=0 to 6 {
+    reg u32 t_val;
+    t_val = t[u32 j];
+    SL[j] ^= t_val;
+  }
+
+  SL, SR = sparkle384_11(SL, SR);
+
+  inline int output_ptr_offset;
+
   while (M_lenght > 32) {
+
+    reg u32[8] cipher_text_block;
 
     stack u32[8] feedback_1_result;
     stack u32[8] W_result;
 
     stack u32[8] M_block;
     M_block = get_32x8_tab(M_start);
+
+    cipher_text_block = feedback_function_2(SL, M_block);
+
+    inline int i;
+
+    for i=0 to 8 {
+            (u32)[output_ptr + 32*output_ptr_offset + 4*i] = cipher_text_block[i];
+    }
+
+    output_ptr_offset += 1;
 
     feedback_1_result = feedback_function_1(SL, M_block);
     W_result = W_128_256(SR);
@@ -228,15 +283,10 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
   // PADDING
 
   if i<16 {
-    reg u8 var_1;
-    var_1 = 0x80;
-    t[u8 i] = var_1;
-    constM = 1<<24;
+    constM = 6;
   } else {
-    constM =2<<24;
+    constM = 7;
   }
-
-  t[u32 0:6] = M3(t[u32 0:6]);
 
   SR[0] ^= constM;
 
@@ -248,13 +298,15 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
 
   SL, SR = sparkle384_11(SL, SR);
 
-  // D_0
+  inline int k;
+
+  k=0;
+
    
   for j=0 to 4 {
     (u32)[output_ptr + 4*j] = SL[j];
   }
 
-  SL, SR = sparkle384_7(SL, SR);
 
   // D_1
 
