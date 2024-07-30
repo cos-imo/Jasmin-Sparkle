@@ -191,11 +191,9 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
 
   reg u64 i;
 
-  M_lenght = M_end;
-  M_lenght -= M_start;
+  i=0;
 
-
-  while (i<M_lenght) {
+  while (i<A_lenght) {
     t[i] = (u8)[A_start + i];
     i += 1;
   }
@@ -224,6 +222,9 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
   output_ptr_offset = 0;
 
   reg u32[8] M_block;
+
+  M_lenght = M_end;
+  M_lenght -= M_start;
 
   while (M_lenght > 32) {
 
