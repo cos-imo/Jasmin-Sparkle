@@ -176,8 +176,8 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
     SL, SR= sparkle384(SL,SR,7);
 
     A_start += 32;
-    A_lenght = M_end;
-    A_lenght -= M_start;
+    A_lenght = A_end;
+    A_lenght -= A_start;
   }
 
   // LAST A BLOCK
