@@ -200,7 +200,7 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
   
   // PADDING
 
-  if i<16 {
+  if i<32 {
     constA = 4;
   } else {
     constA = 5;
@@ -282,7 +282,7 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
   
   // PADDING
 
-  if i<16 {
+  if i<32 {
     constM = 6;
   } else {
     constM = 7;
