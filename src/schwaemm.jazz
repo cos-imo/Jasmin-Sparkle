@@ -173,7 +173,7 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
         SL[i] = Ai;
     }
 
-    SL, SR= sparkle384(SL,SR,7);
+    SL, SR= sparkle384_7(SL,SR);
 
     A_start += 32;
     A_lenght = A_end;
@@ -256,7 +256,7 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
         SL[i] = f1i;
     }
 
-    SL, SR = sparkle384(SL,SR,7);
+    SL, SR = sparkle384_7(SL,SR);
 
     M_start += 16;
     M_lenght = M_end;
