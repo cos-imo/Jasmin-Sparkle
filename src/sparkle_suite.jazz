@@ -1,9 +1,9 @@
-require "alzette.jazz"
-require "crax.jazz"
+require "alzette.jazz" require "crax.jazz"
 require "esch.jazz"
-//require "schwaemm.jazz"
+require "schwaemm.jazz"
 require "sparkle384.jazz"
 
+/*
 export
 fn crax_export(reg u32 xword, reg u32 yword, reg u32 key_0, reg u32 key_1, reg u32 key_2, reg u32 key_3) -> reg u64 {
 	reg u32 xword, yword;
@@ -28,8 +28,6 @@ fn esch_export(reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
 	esch(M_start, M_end, output_ptr);
 }
 
-/*
-export
 fn schwaemm_export(reg u128 K, reg u256 N, reg u64 A_start, reg u64 A_end, reg u64 M_start, reg u64 M_end, reg u64 output_ptr) -> reg u128 {
 	reg u128 res;
 
@@ -39,7 +37,6 @@ fn schwaemm_export(reg u128 K, reg u256 N, reg u64 A_start, reg u64 A_end, reg u
 
 }
 
-*/
 export
 fn sparkle384_11_export(reg u64 SL_ptr, reg u64 SR_ptr) {
 
@@ -100,9 +97,10 @@ fn sparkle384_7_export(reg u64 SL_ptr, reg u64 SR_ptr) {
   }
 
 }
-
+*/
 export
-fn alzette_export(reg u32 c, reg u32 x, reg u32 y) -> reg u64 { //renvoyer sur 64 bits
+fn alzette_export(reg u32 c, reg u32 x, reg u32 y) -> reg u64 {
+
 	reg u32 x_out, y_out;
 
 	reg u64 res;
@@ -114,5 +112,37 @@ fn alzette_export(reg u32 c, reg u32 x, reg u32 y) -> reg u64 { //renvoyer sur 6
 	padded_y = (64u) y;
 	res += padded_y;
 
+        c = #LEA_32(c);
+
 	return res;
+}
+
+export
+fn schwaemm_export(reg u64 K_ptr, reg u64 N_ptr, reg u64 A_data, reg u64 M_data, reg u64 output_ptr) {
+        stack u32[4] K;
+        stack u32[8] N;
+
+        reg u64 A_start;
+        reg u64 A_end;
+
+        A_start = (u64)[A_data];
+        A_end = (u64)[A_data + 4];
+
+        reg u64 M_start;
+        reg u64 M_end;
+
+        M_start = (u64)[M_data];
+        M_end = (u64)[M_data + 4];
+
+        inline int i;
+
+        for i=0 to 4 {
+                K[i] = (u32)[K_ptr +2*i];
+        }
+
+        for i=0 to 8 {
+                N[i] = (u32)[N_ptr + 2*i];
+        }
+
+        schwaemm(K, N, A_start, A_end, M_start, M_end, output_ptr);
 }
