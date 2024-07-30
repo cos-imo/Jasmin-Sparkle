@@ -5,9 +5,9 @@ A simple Schwaemm implementation in Jasmin
 require "sparkle384.jazz"
 
 inline
-fn get_32x8_tab(reg u64 position) -> reg u32[8] {
+fn get_32x8_tab(reg u64 position) -> stack u32[8] {
 
-  reg u32[8] tab;
+  stack u32[8] tab;
   inline int i;
 
   for i=0 to 8 {
@@ -72,7 +72,7 @@ fn FeistelSwap(stack u32[8] S) -> stack u32[8] {
 }
 
 inline
-fn feedback_function_1(stack u32[8] S, reg u32[8] D) -> stack u32[8], reg u32[8] {
+fn feedback_function_1(stack u32[8] S, stack u32[8] D) -> stack u32[8], stack u32[8] {
 
   S = FeistelSwap(S);
   
@@ -91,12 +91,17 @@ fn feedback_function_1(stack u32[8] S, reg u32[8] D) -> stack u32[8], reg u32[8]
 }
 
 inline
-fn feedback_function_2(stack u32[8] S, reg u32[8] D) -> stack u32[8], reg u32[8] {
+fn feedback_function_2(stack u32[8] S, stack u32[8] D) -> stack u32[8], stack u32[8] {
 
   inline int i;
 
   for i=0 to 8 {
-        D[i] ^= S[i];
+        reg u32 Di;
+        Di = D[i];
+        reg u32 Si;
+        Si = S[i];
+        Di ^= Si;
+        D[i] ^= Di;
   }
 
   return S, D;
@@ -135,7 +140,7 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
 
     while (A_lenght > 32) {
 
-      reg u32[8] A_block;
+      stack u32[8] A_block;
       A_block = get_32x8_tab(A_start);
 
       SL, A_block = feedback_function_1(SL, A_block);
@@ -145,7 +150,8 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
           reg u32 Ai;
           reg  u32 Wi;
           Wi = W_result[i];
-          Ai = A_block[i]^Wi;
+          Ai = A_block[i];
+          Ai ^= Wi;
           SL[i] = Ai;
       }
 
@@ -201,7 +207,7 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
   reg u64 output_ptr_offset;
   output_ptr_offset = 0;
 
-  reg u32[8] M_block;
+  stack u32[8] M_block;
 
   M_lenght = M_end;
   M_lenght -= M_start;
@@ -209,8 +215,7 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
   if M_lenght !=0 {
     while (M_lenght > 32) {
 
-
-      reg u32[8] feedback_1_result;
+      stack u32[8] feedback_1_result;
       stack u32[8] W_result;
 
       M_block = get_32x8_tab(M_start);
