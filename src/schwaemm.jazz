@@ -5,9 +5,9 @@ A simple Schwaemm implementation in Jasmin
 require "sparkle384.jazz"
 
 inline
-fn get_32x8_tab(reg u64 position) -> stack u32[8] {
+fn get_32x8_tab(reg u64 position) -> reg u32[8] {
 
-  stack u32[8] tab;
+  reg u32[8] tab;
   inline int i;
 
   for i=0 to 8 {
@@ -72,7 +72,7 @@ fn FeistelSwap(stack u32[8] S) -> stack u32[8] {
 }
 
 inline
-fn feedback_function_1(stack u32[8] S, stack u32[8] D) -> stack u32[8] {
+fn feedback_function_1(stack u32[8] S, reg u32[8] D) -> stack u32[8], reg u32[8] {
 
   S = FeistelSwap(S);
   
@@ -83,23 +83,23 @@ fn feedback_function_1(stack u32[8] S, stack u32[8] D) -> stack u32[8] {
     reg u32 Di;
     Di = D[i];
     Si^=Di;
-    S[i] = Si;
+    D[i] = Si;
   }
 
-  return S;
+  return  S,D;
 
 }
 
 inline
-fn feedback_function_2(reg u32[8] S, reg u32[8] D) -> reg u32[8] {
+fn feedback_function_2(stack u32[8] S, reg u32[8] D) -> stack u32[8], reg u32[8] {
 
   inline int i;
 
   for i=0 to 8 {
-        S[i] ^= D[i];
+        D[i] ^= S[i];
   }
 
-  return S;
+  return S, D;
 
 }
 
@@ -141,10 +141,6 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
 
   A_lenght = A_end;
   A_lenght -= A_start;
-
-  M_lenght = M_end;
-  M_lenght -= M_start;
-
   inline int i;
 
   for i=0 to 8{
@@ -163,19 +159,18 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
 
     stack u32[8] W_result;
 
-    stack u32[8] A_block;
+    reg u32[8] A_block;
     A_block = get_32x8_tab(A_start);
 
-    SL = feedback_function_1(SL, A_block);
+    SL, A_block = feedback_function_1(SL, A_block);
     W_result = W_128_256(SR);
 
     for i=0 to 8 {
-        reg u32 SLi;
-        SLi = SL[i];
+        reg u32 Ai;
         reg  u32 Wi;
         Wi = W_result[i];
-        SLi ^= Wi;
-        SL[i] = SLi;
+        Ai = A_block[i]^Wi;
+        SL[i] = Ai;
     }
 
     SL, SR= sparkle384(SL,SR,7);
@@ -194,7 +189,11 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
     t[j] = 0;
   }
 
-  inline int i;
+  reg u64 i;
+
+  M_lenght = M_end;
+  M_lenght -= M_start;
+
 
   while (i<M_lenght) {
     t[i] = (u8)[A_start + i];
@@ -221,29 +220,30 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
 
   SL, SR = sparkle384_11(SL, SR);
 
-  inline int output_ptr_offset;
+  reg u64 output_ptr_offset;
+  output_ptr_offset = 0;
+
+  reg u32[8] M_block;
 
   while (M_lenght > 32) {
 
-    reg u32[8] cipher_text_block;
 
-    stack u32[8] feedback_1_result;
+    reg u32[8] feedback_1_result;
     stack u32[8] W_result;
 
-    stack u32[8] M_block;
     M_block = get_32x8_tab(M_start);
 
-    cipher_text_block = feedback_function_2(SL, M_block);
+    SL, M_block = feedback_function_2(SL, M_block);
 
     inline int i;
 
     for i=0 to 8 {
-            (u32)[output_ptr + 32*output_ptr_offset + 4*i] = cipher_text_block[i];
+            (u32)[output_ptr + output_ptr_offset + 4*i] = M_block[i];
     }
 
-    output_ptr_offset += 1;
+    output_ptr_offset += 32;
 
-    feedback_1_result = feedback_function_1(SL, M_block);
+    SL, feedback_1_result = feedback_function_1(SL, M_block);
     W_result = W_128_256(SR);
 
     for i=0 to 8 {
@@ -252,10 +252,10 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
         reg u32 Wi;
         Wi = W_result[i];
         f1i ^= Wi;
-        feedback_1_result[i] = f1i;
+        SL[i] = f1i;
     }
 
-    SL, SR = sparkle384(feedback_1_result,SR,7);
+    SL, SR = sparkle384(SL,SR,7);
 
     M_start += 16;
     M_lenght = M_end;
@@ -267,7 +267,7 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
   stack u8[32] t;
 
   inline int j;
-  for j=0 to 24 {
+  for j=0 to 32 {
     t[j] = 0;
   }
 
@@ -289,26 +289,16 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
 
   SR[0] ^= constM;
 
-  reg u32[8] M_block;
+  M_block = #copy_32(t);
 
-  for j=0 to 6 {
-    reg u32 t_val;
-    t_val = t[u32 j];
-    M_block[j] = t_val;
-  }
-
-  reg u32[8] cipher_text_block;
-
-  cipher_text_block = feedback_function_2(SL, M_block);
+  SL, M_block = feedback_function_2(SL, M_block);
   
   inline int i;
   
   for i=0 to 8 {
-      (u32)[output_ptr + 32*output_ptr_offset + 4*i] = cipher_text_block[i];
+      (u32)[output_ptr + output_ptr_offset + 4*i] = M_block[i];
   }
   
-  output_ptr_offset += 1;
-
   SL, SR = sparkle384_11(SL, SR);
 
 }
