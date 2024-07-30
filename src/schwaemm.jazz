@@ -104,31 +104,6 @@ fn feedback_function_2(stack u32[8] S, reg u32[8] D) -> stack u32[8], reg u32[8]
 }
 
 inline
-fn initialize_padding_constants(reg u64 Alen, reg u64 Mlen) -> reg u64, reg u64 {
-  reg u64 constA;
-  reg u64 constM;
-  reg bool zf;
-  
-  ?{zf} = #TEST(Alen,31);
-
-  if (zf) {
-    constA = 5;
-  } else {
-    constA = 4;
-  }
-
-  ?{zf} = #TEST(Mlen,31);
-
-  if (zf) {
-    constM = 7;
-  } else {
-    constM = 6;
-  }
-
-  return constA, constM;
-}
-
-inline
 fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg u64 M_start, reg u64 M_end, reg u64 output_ptr) { 
 
   reg u32 constM;
@@ -202,12 +177,12 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
     // PADDING
 
     if i<32 {
-      constA = 4;
+      constA = 4<<24;
     } else {
-      constA = 5;
+      constA = 5<<24;
     }
 
-    SR[0] ^= constA;
+    SR[3] ^= constA;
 
     SR, W_result = W_128_256(SR);
 
@@ -264,7 +239,7 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
 
       SL, SR = sparkle384_7(SL,SR);
 
-      M_start += 16;
+      M_start += 32;
       M_lenght = M_end;
       M_lenght -= M_start;
     }
@@ -289,13 +264,12 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
     // PADDING
 
     if i<32 {
-      constM = 6;
+      constM = 6<<24;
     } else {
-      constM = 7;
+      constM = 7<<24;
     }
 
-
-    SR[0] ^= constM;
+    SR[3] ^= constM;
 
     M_block = #copy_32(t);
 
