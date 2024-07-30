@@ -33,7 +33,7 @@ fn get_32x4_tab(reg u64 position) -> stack u32[4] {
 }
 
 inline
-fn W_128_256(stack u32[4] arg) -> stack u32[8] {
+fn W_128_256(stack u32[4] arg) -> stack u32[4], stack u32[8] {
   stack u32[8] res;
   inline int i;
 
@@ -42,7 +42,7 @@ fn W_128_256(stack u32[4] arg) -> stack u32[8] {
         res[i+4] = arg[i];
   }
 
-  return res;
+  return arg, res;
 }
 
 
@@ -138,6 +138,7 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
 
   stack u32[8] SL;
   stack u32[4] SR;
+  stack u32[8] W_result;
 
   A_lenght = A_end;
   A_lenght -= A_start;
@@ -155,65 +156,69 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
 
   // MAIN LOOP
 
-  while (A_lenght > 32) {
+  if A_lenght!=0 {
 
-    stack u32[8] W_result;
+    while (A_lenght > 32) {
 
-    reg u32[8] A_block;
-    A_block = get_32x8_tab(A_start);
+      reg u32[8] A_block;
+      A_block = get_32x8_tab(A_start);
 
-    SL, A_block = feedback_function_1(SL, A_block);
-    W_result = W_128_256(SR);
+      SL, A_block = feedback_function_1(SL, A_block);
+      SR, W_result = W_128_256(SR);
 
-    for i=0 to 8 {
-        reg u32 Ai;
-        reg  u32 Wi;
-        Wi = W_result[i];
-        Ai = A_block[i]^Wi;
-        SL[i] = Ai;
+      for i=0 to 8 {
+          reg u32 Ai;
+          reg  u32 Wi;
+          Wi = W_result[i];
+          Ai = A_block[i]^Wi;
+          SL[i] = Ai;
+      }
+
+      SL, SR= sparkle384_7(SL,SR);
+
+      A_start += 32;
+      A_lenght = A_end;
+      A_lenght -= A_start;
     }
 
-    SL, SR= sparkle384_7(SL,SR);
+    // LAST A BLOCK
 
-    A_start += 32;
-    A_lenght = A_end;
-    A_lenght -= A_start;
-  }
+    stack u8[32] t;
 
-  // LAST A BLOCK
+    inline int j;
+    for j=0 to 32 {
+      t[j] = 0;
+    }
 
-  stack u8[32] t;
+    reg u64 i;
 
-  inline int j;
-  for j=0 to 32 {
-    t[j] = 0;
-  }
+    i=0;
 
-  reg u64 i;
+    while (i<A_lenght) {
+      t[i] = (u8)[A_start + i];
+      i += 1;
+    }
+    
+    // PADDING
 
-  i=0;
+    if i<32 {
+      constA = 4;
+    } else {
+      constA = 5;
+    }
 
-  while (i<A_lenght) {
-    t[i] = (u8)[A_start + i];
-    i += 1;
-  }
-  
-  // PADDING
+    SR[0] ^= constA;
 
-  if i<32 {
-    constA = 4;
-  } else {
-    constA = 5;
-  }
+    SR, W_result = W_128_256(SR);
 
-  SR[0] ^= constA;
+    reg u32[8] A_block;
 
-  reg u32[8] A_block;
+    for j=0 to 8 {
+      reg u32 t_val;
+      t_val = t[u32 j];
+      A_block[j] = t_val;
+    }
 
-  for j=0 to 8 {
-    reg u32 t_val;
-    t_val = t[u32 j];
-    A_block[j] = t_val;
   }
 
   SL, SR = sparkle384_11(SL, SR);
@@ -226,81 +231,92 @@ fn schwaemm(stack u32[4] K, stack u32[8] N, reg u64 A_start, reg u64 A_end, reg 
   M_lenght = M_end;
   M_lenght -= M_start;
 
-  while (M_lenght > 32) {
+  if M_lenght !=0 {
+    while (M_lenght > 32) {
 
 
-    reg u32[8] feedback_1_result;
-    stack u32[8] W_result;
+      reg u32[8] feedback_1_result;
+      stack u32[8] W_result;
 
-    M_block = get_32x8_tab(M_start);
+      M_block = get_32x8_tab(M_start);
+
+      SL, M_block = feedback_function_2(SL, M_block);
+
+      inline int i;
+
+      for i=0 to 8 {
+              (u32)[output_ptr + output_ptr_offset + 4*i] = M_block[i];
+      }
+
+      output_ptr_offset += 32;
+
+      SL, feedback_1_result = feedback_function_1(SL, M_block);
+      SR, W_result = W_128_256(SR);
+
+      for i=0 to 8 {
+          reg u32 f1i;
+          f1i = feedback_1_result[i];
+          reg u32 Wi;
+          Wi = W_result[i];
+          f1i ^= Wi;
+          SL[i] = f1i;
+      }
+
+      SL, SR = sparkle384_7(SL,SR);
+
+      M_start += 16;
+      M_lenght = M_end;
+      M_lenght -= M_start;
+    }
+
+    // LAST BLOCK
+
+    stack u8[32] t;
+
+    inline int j;
+    for j=0 to 32 {
+      t[j] = 0;
+    }
+
+    reg u64 i;
+    ?{},i=#set0_64();
+
+    while (i<M_lenght) {
+      t[i] = (u8)[M_start + i];
+      i += 1;
+    }
+    
+    // PADDING
+
+    if i<32 {
+      constM = 6;
+    } else {
+      constM = 7;
+    }
+
+
+    SR[0] ^= constM;
+
+    M_block = #copy_32(t);
 
     SL, M_block = feedback_function_2(SL, M_block);
-
+    
     inline int i;
-
+    
     for i=0 to 8 {
-            (u32)[output_ptr + output_ptr_offset + 4*i] = M_block[i];
+        (u32)[output_ptr + output_ptr_offset + 4*i] = M_block[i];
     }
 
-    output_ptr_offset += 32;
-
-    SL, feedback_1_result = feedback_function_1(SL, M_block);
-    W_result = W_128_256(SR);
-
-    for i=0 to 8 {
-        reg u32 f1i;
-        f1i = feedback_1_result[i];
-        reg u32 Wi;
-        Wi = W_result[i];
-        f1i ^= Wi;
-        SL[i] = f1i;
-    }
-
-    SL, SR = sparkle384_7(SL,SR);
-
-    M_start += 16;
-    M_lenght = M_end;
-    M_lenght -= M_start;
-  }
-
-  // LAST BLOCK
-
-  stack u8[32] t;
-
-  inline int j;
-  for j=0 to 32 {
-    t[j] = 0;
-  }
-
-  reg u64 i;
-  ?{},i=#set0_64();
-
-  while (i<M_lenght) {
-    t[i] = (u8)[M_start + i];
-    i += 1;
-  }
-  
-  // PADDING
-
-  if i<32 {
-    constM = 6;
-  } else {
-    constM = 7;
-  }
-
-  SR[0] ^= constM;
-
-  M_block = #copy_32(t);
-
-  SL, M_block = feedback_function_2(SL, M_block);
-  
-  inline int i;
-  
-  for i=0 to 8 {
-      (u32)[output_ptr + output_ptr_offset + 4*i] = M_block[i];
   }
   
   SL, SR = sparkle384_11(SL, SR);
+
+  inline int i;
+
+  for i=0 to  4 {
+        SR[i] ^= K[i];
+        (u32)[output_ptr + output_ptr_offset + 4*i] = M_block[i];
+  }
 
 }
 
