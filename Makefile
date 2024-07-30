@@ -2,7 +2,7 @@ JASMINC?= jasminc
 JFLAGS?=
 CC?=cc
 
-OBJ:=src/asm/alzette.o src/asm/crax.o src/asm/esch.o src/asm/sparkle.o  src/asm/sparkle_suite.o
+OBJ:=src/asm/alzette.o src/asm/crax.o src/asm/esch.o src/asm/sparkle.o  src/asm/sparkle_suite.o src/asm/schwaemm.o
 
 .SUFFIXES: .s .jazz .o .so 
 .PRECIOUS: asm/%.s
@@ -66,7 +66,7 @@ src/asm/sparkle.o: src/sparkle.s
 shared/sparkle.so: $(OBJ)
 	$(CC) -shared -o $@ $^
 
-src/sparkle_suite.s: src/sparkle_suite.jazz
+src/sparkle_suite.s: src/sparkle_suite.jazz src/schwaemm.jazz src/alzette.jazz src/esch.jazz src/crax.jazz
 	mkdir -p shared
 	mkdir -p src/asm/
 	$(JASMINC) $(JFLAGS) -o $@ $<
