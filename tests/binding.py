@@ -36,6 +36,16 @@ class Parseur:
         self.parser.add_argument('-y4', '--sparkle_y4', help="y_4 value for Sparkle")
         self.parser.add_argument('-x5', '--sparkle_x5', help="x_5 value for Sparkle")
         self.parser.add_argument('-y5', '--sparkle_y5', help="y_5 value for Sparkle")
+        self.parser.add_argument('-K1', '--schwaemm_key_1', help="Key (K) part 1 variable for schwaemm")
+        self.parser.add_argument('-K2', '--schwaemm_key_2', help="Key (K) part 2 variable for schwaemm")
+        self.parser.add_argument('-K3', '--schwaemm_key_3', help="Key (K) part 3 variable for schwaemm")
+        self.parser.add_argument('-K4', '--schwaemm_key_4', help="Key (K) part 4 variable for schwaemm")
+        self.parser.add_argument('-N1', '--schwaemm_nonce_1', help="Nonce (N) part 1 variable for schwaemm")
+        self.parser.add_argument('-N2', '--schwaemm_nonce_2', help="Nonce (N) part 2 variable for schwaemm")
+        self.parser.add_argument('-N3', '--schwaemm_nonce_3', help="Nonce (N) part 3 variable for schwaemm")
+        self.parser.add_argument('-N4', '--schwaemm_nonce_4', help="Nonce (N) part 4 variable for schwaemm")
+        self.parser.add_argument('-A', '--schwaemm_ad', help="Additionnal Data (A) variable for schwaemm")
+        self.parser.add_argument('-M', '--schwaemm_message', help="Message (M) variable for schwaemm")
 
         self.args = self.parser.parse_args()
 
@@ -45,13 +55,13 @@ class Wrapper:
         self.int32 = ctypes.c_int32
         self.int64 = ctypes.c_int64
 
-        self.jasmin_args = {"alzette_export": [self.int32, self.int32, self.int32],"crax_export": [self.int32, self.int32, self.int32, self.int32, self.int32, self.int32], "esch_export" : [ctypes.POINTER(ctypes.c_char), ctypes.POINTER(ctypes.c_char), ctypes.POINTER(ctypes.c_char)], "sparkle384_7_export": [ctypes.c_int32 * 12], "sparkle384_11_export": [ctypes.c_int32 * 12]}
+        self.jasmin_args = {"alzette_export": [self.int32, self.int32, self.int32],"crax_export": [self.int32, self.int32, self.int32, self.int32, self.int32, self.int32], "esch_export" : [ctypes.POINTER(ctypes.c_char), ctypes.POINTER(ctypes.c_char), ctypes.POINTER(ctypes.c_char)], "sparkle384_7_export": [ctypes.c_int32 * 12], "sparkle384_11_export": [ctypes.c_int32 * 12], "schwaemm_export": [self.int64, self.int64, self.int64, self.int64, self.int64, self.int64, self.int64]}
 
-        self.jasmin_restypes = {"alzette_export": [self.int64]}
+        self.jasmin_restypes = {"alzette_export": [self.int64], "schwaemm_export" : [None]}
 
         self.reference_args = {}
 
-        self.required_flags = {"alzette_export": ["constant", "xword", "yword"], "crax_export": ["yword","yword","key_0","key_1","key_2","key_3"], "esch_export": ["esch_entry"], "sparkle384_7": ["state_pointer"], "sparkle384_11_export": ['sparkle_x0', 'sparkle_x1', 'sparkle_x2', 'sparkle_x3', 'sparkle_x4', 'sparkle_y0', 'sparkle_y1', 'sparkle_y2', 'sparkle_y3', 'sparkle_y4'], "sparkle384_7_export": ['sparkle_x0', 'sparkle_x1', 'sparkle_x2', 'sparkle_x3', 'sparkle_x4', 'sparkle_y0', 'sparkle_y1', 'sparkle_y2', 'sparkle_y3', 'sparkle_y4']} 
+        self.required_flags = {"alzette_export": ["constant", "xword", "yword"], "crax_export": ["yword","yword","key_0","key_1","key_2","key_3"], "esch_export": ["esch_entry"], "sparkle384_7": ["state_pointer"], "sparkle384_11_export": ['sparkle_x0', 'sparkle_x1', 'sparkle_x2', 'sparkle_x3', 'sparkle_x4', 'sparkle_y0', 'sparkle_y1', 'sparkle_y2', 'sparkle_y3', 'sparkle_y4'], "sparkle384_7_export": ['sparkle_x0', 'sparkle_x1', 'sparkle_x2', 'sparkle_x3', 'sparkle_x4', 'sparkle_y0', 'sparkle_y1', 'sparkle_y2', 'sparkle_y3', 'sparkle_y4'], 'schwaemm_export': ['schwaemm_key_1', 'schwaemm_key_2','schwaemm_key_3','schwaemm_key_4','schwaemm_nonce_1', 'schwaemm_nonce_2','schwaemm_nonce_3','schwaemm_nonce_4','schwaemm_ad', 'schwaemm_message']} 
 
         self.try_load_library()
 
@@ -135,12 +145,38 @@ class Wrapper:
                     sparkle_output += ["x","y"][i%2] + f"{i//2} : " + str(sparkle_jasmin_args[i]) + "\n\t"
                 print(sparkle_output)
 
+            case "schwaemm_export":
+                K_tab_t = ctypes.c_int32 * 4
+                N_tab_t = ctypes.c_int32 * 8 
+
+                K_tab = K_tab_t(int(self.parseur.args.schwaemm_key_1), int(self.parseur.args.schwaemm_key_2), int(self.parseur.args.schwaemm_key_3), int(self.parseur.args.schwaemm_key_4)) 
+                N_tab = N_tab_t(int(self.parseur.args.schwaemm_nonce_1), int(self.parseur.args.schwaemm_nonce_2), int(self.parseur.args.schwaemm_nonce_3), int(self.parseur.args.schwaemm_nonce_4)) 
+
+                message_buffer = ctypes.create_string_buffer(self.parseur.args.schwaemm_message.encode('utf-8'))
+                ad_buffer = ctypes.create_string_buffer(self.parseur.args.schwaemm_ad.encode('utf-8'))
+                output_buffer = ctypes.create_string_buffer(("A"*len(self.parseur.args.schwaemm_message.encode('utf-8'))).encode('utf-8'))
+
+                K_tab_ptr = ctypes.addressof(K_tab)
+                N_tab_ptr = ctypes.addressof(N_tab)
+                output_ptr = ctypes.addressof(output_buffer)
+
+                message_start_ptr = ctypes.addressof(message_buffer) 
+                ad_start_ptr = ctypes.addressof(ad_buffer)
+                message_end_ptr = message_start_ptr + len(self.parseur.args.schwaemm_message)
+                ad_end_ptr = ad_start_ptr + len(self.parseur.args.schwaemm_ad)
+
+                func(K_tab_ptr, N_tab_ptr, ad_start_ptr, ad_end_ptr, message_start_ptr, message_end_ptr, output_ptr)
+
+                print(message_buffer.value)
+                print("execution de scwhaemm")
+                pass
+
+
     def check_jasmin_args(self):
         if self.parseur.args.program:
             if self.parseur.args.program not in self.required_flags:
                 print(f"Error: {self.parseur.args.program} not  found")
                 self.parseur.parser.print_help()
-                exit()
             valid = 1
             missings=[]
             for flag in self.required_flags[self.parseur.args.program]:
