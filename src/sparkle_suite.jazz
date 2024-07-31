@@ -103,6 +103,9 @@ fn alzette_export(reg u32 c, reg u32 x, reg u32 y) -> reg u64 {
 
 	reg u32 x_out, y_out;
 
+        x=x;
+        y=y;
+
 	reg u64 res;
 	reg u64 padded_y;
 	x,y= alzette(c, x, y);
@@ -118,21 +121,10 @@ fn alzette_export(reg u32 c, reg u32 x, reg u32 y) -> reg u64 {
 }
 
 export
-fn schwaemm_export(reg u64 K_ptr, reg u64 N_ptr, reg u64 A_data, reg u64 M_data, reg u64 output_ptr) {
+fn schwaemm_export(reg u64 K_ptr, reg u64 A_start, reg u64 A_end, reg u64 M_start, reg u64 M_end, reg u64 output_ptr) {
+        A_start = A_start;
         stack u32[4] K;
         stack u32[8] N;
-
-        reg u64 A_start;
-        reg u64 A_end;
-
-        A_start = (u64)[A_data];
-        A_end = (u64)[A_data + 4];
-
-        reg u64 M_start;
-        reg u64 M_end;
-
-        M_start = (u64)[M_data];
-        M_end = (u64)[M_data + 4];
 
         inline int i;
 
@@ -141,7 +133,7 @@ fn schwaemm_export(reg u64 K_ptr, reg u64 N_ptr, reg u64 A_data, reg u64 M_data,
         }
 
         for i=0 to 8 {
-                N[i] = (u32)[N_ptr + 2*i];
+                N[i] = (u32)[K_ptr + 8 + 2*i];
         }
 
         schwaemm(K, N, A_start, A_end, M_start, M_end, output_ptr);
